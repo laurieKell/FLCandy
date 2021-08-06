@@ -1,3 +1,25 @@
+#' @title 
+#' 
+#' @description 
+#'
+#' @param object an \code{FLStock} object 
+#' @param seasons a numeric with seasons
+#' 
+#' @aliases
+#' 
+#' @return \code{FLStock} object
+#'
+#' @seealso \code{\link{expand}}
+#'
+#' @export seasonalise
+#' @docType methods
+#' @rdname seasonalise
+#'
+#' 
+#' @examples
+#' \dontrun{
+#' }
+
 seasonalise<-function(object, season=1:4){
   
   ## Stock and recruit                                   ###

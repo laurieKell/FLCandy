@@ -1,3 +1,24 @@
+#' @title 
+#' 
+#' @description 
+#'
+#' @param object an \code{FLStock} object 
+#' @param seasons a numeric with seasons
+#' 
+#' @aliases
+#' 
+#' @return \code{FLStock} object
+#'
+#' @seealso \code{\link{expand}}
+#'
+#' @export seasonalise
+#' @docType methods
+#' @rdname seasonalise
+#'
+#' 
+#' @examples
+#' \dontrun{
+#' }
 
 eqsim1<-function(object, 
                 #Blim, Bpa=Blim*exp(1.645*0.2), Btrigger=Bpa, 

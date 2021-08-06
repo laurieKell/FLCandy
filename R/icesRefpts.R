@@ -1,3 +1,25 @@
+#' @title 
+#' 
+#' @description 
+#'
+#' @param object an \code{FLStock} object 
+#' @param seasons a numeric with seasons
+#' 
+#' @aliases
+#' 
+#' @return \code{FLStock} object
+#'
+#' @seealso \code{\link{expand}}
+#'
+#' @export seasonalise
+#' @docType methods
+#' @rdname seasonalise
+#'
+#' 
+#' @examples
+#' \dontrun{
+#' }
+
 icesRefpts<-function(x,refs=NULL,model="bevholtSV",steepness=0.7,nyears=3) {
   eq=FLBRP(x,nyears=nyears)
   

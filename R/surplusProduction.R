@@ -1,5 +1,26 @@
-
 ## Calculates the surplus production and expected yield etc for the estinates of SSB and biomass
+#' @title 
+#' 
+#' @description 
+#'
+#' @param object an \code{FLStock} object 
+#' @param seasons a numeric with seasons
+#' 
+#' @aliases
+#' 
+#' @return \code{FLStock} object
+#'
+#' @seealso \code{\link{expand}}
+#'
+#' @export seasonalise
+#' @docType methods
+#' @rdname seasonalise
+#'
+#' 
+#' @examples
+#' \dontrun{
+#' }
+
 surplusProduction<-function(x){
   nms=dimnames(refpts(x))
   nms$refpt=paste("ssb",dimnames(ssb.obs(x))$year,sep="")

@@ -1,1 +1,8 @@
 exportPattern("^[[:alpha:]]+")
+
+useDynLib(flcandidates)
+
+import("TMB")
+import("FLCore")
+import("FLBRP")
+

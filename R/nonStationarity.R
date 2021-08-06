@@ -1,4 +1,25 @@
 ## Set M, wt, sel & mat to vary by iter based on annual values to look at non-stationarity
+#' @title 
+#' 
+#' @description 
+#'
+#' @param object an \code{FLStock} object 
+#' @param seasons a numeric with seasons
+#' 
+#' @aliases
+#' 
+#' @return \code{FLStock} object
+#'
+#' @seealso \code{\link{expand}}
+#'
+#' @export seasonalise
+#' @docType methods
+#' @rdname seasonalise
+#'
+#' 
+#' @examples
+#' \dontrun{
+#' }
 nonStationarity<-function(x,sr=NULL,nyears=dim(x)[2],slots=c("m","mat","stock.wt","catch.wt","catch.sel"),model="bevholtSV",h=0.8){
   
   if (is.null(sr)){

@@ -1,4 +1,27 @@
 ## Adds the ICES PA & MSY reference points to refpts and fits a SRRR
+
+#' @title 
+#' 
+#' @description 
+#'
+#' @param object an \code{FLStock} object 
+#' @param seasons a numeric with seasons
+#' 
+#' @aliases
+#' 
+#' @return \code{FLStock} object
+#'
+#' @seealso \code{\link{expand}}
+#'
+#' @export seasonalise
+#' @docType methods
+#' @rdname seasonalise
+#'
+#' 
+#' @examples
+#' \dontrun{
+#' }
+
 addRefs<-function(x,refs){
   x=FLPar(NA,dimnames=list(refpt=c(dimnames(x)$refpt,dimnames(refs)$params),
                            quant=c("harvest","yield","rec","ssb","biomass","revenue","cost","profit"),iter=1))

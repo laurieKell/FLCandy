@@ -1,3 +1,25 @@
+#' @title 
+#' 
+#' @description 
+#'
+#' @param object an \code{FLStock} object 
+#' @param seasons a numeric with seasons
+#' 
+#' @aliases
+#' 
+#' @return \code{FLStock} object
+#'
+#' @seealso \code{\link{expand}}
+#'
+#' @export seasonalise
+#' @docType methods
+#' @rdname seasonalise
+#'
+#' 
+#' @examples
+#' \dontrun{
+#' }
+
 eqsim2<-function(stk,fbar=seq(0, 4, length=101), nsamp=2000, 
                   bio.years=c(-4,-0) + dims(stk)$maxyear,
                   sel.years=c(-4,-0) + dims(stk)$maxyear,
