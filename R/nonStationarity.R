@@ -33,8 +33,8 @@
 #'                 (refpt=="msy"&quant%in%c("ssb","harvest","rec","yield"))|
 #'                 (refpt=="virgin"&quant%in%c("ssb")))
 #' 
-ggplot(dat)+
-  geom_line(aes(year,data,col=refpt))+facet_grid(quant~.,scale="free")
+#' ggplot(dat)+
+#'   geom_line(aes(year,data,col=refpt))+facet_grid(quant~.,scale="free")
 
 nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel")){
   
