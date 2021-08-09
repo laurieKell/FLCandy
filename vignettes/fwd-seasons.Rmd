@@ -385,7 +385,7 @@ plot(FLStocks("Annual"=neamac,"Seasonal"=seasonalise(neamac)[,-1]))
 The albacore stock already has seasons
 
 ```{r, alb-data}
-load("/home/laurence-kell/Desktop/flr/FLCandy/data/alb.RData")
+data(alb)
 ```
 
 Set up projection in the form of a hindcast
@@ -416,7 +416,7 @@ Get SS3 object and perform hindcast to initialise
 ```{r, bet-data, eval=FALSE}
 library(ss3om)
 
-ss.file ="/home/laurence-kell/Desktop/projects/mrag/climate/task1/data/iccat/bet/2018/1-steepness0.7_MRef_sigmaR0.2_LengthLambda0.1_iter1"
+ss.file ="~/data/iccat/bet/2018/1-steepness0.7_MRef_sigmaR0.2_LengthLambda0.1_iter1"
 ss      =SS_output(ss.file,covar=FALSE)
 rec.dist=ss$recruitment_dist$recruit_dist$Value
 bet     =readFLSss3(ss.file)
@@ -426,7 +426,7 @@ harvest(bet)[is.nan(harvest(bet))] <- 0
 ```
 
 ```{r, bet-load}
-load(bet)
+data(bet)
 ```
 
 
