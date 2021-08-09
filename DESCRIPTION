@@ -34,5 +34,6 @@ Collate:
   wtInterp.R
   ftmb.R
   FLSRTMB-package.R
-  utils.R
+  utils.
+  windowRange.R
 LazyLoad: true
