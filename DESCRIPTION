@@ -27,12 +27,12 @@ Collate:
   icesRefpts.R  
   nonStationarity.R  
   seasonalise.R  
-    spr0Yr.R  
+  spr0Yr.R  
   spr0Cohort.R  
   surplusProduction.R  
   update.R  
   wtInterp.R
-  FLSR.R
+  ftmb.R
   FLSRTMB-package.R
   utils.R
 LazyLoad: true
