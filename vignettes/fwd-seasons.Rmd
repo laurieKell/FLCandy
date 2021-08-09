@@ -370,7 +370,7 @@ deSeason<-function(x) {
 The 'seasonalise' function automates adding seasons
 
 ```{r, neamac-data}
-load(neamac)
+data(neamac)
 ```
 
 ```{r, neamac-seasonlise3}
