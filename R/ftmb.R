@@ -23,36 +23,43 @@
 #' @param SDreport option to converge hessian and get vcov
 #'
 #' @return A list containing elements 'FLSR', of class *FLSR*
+#' 
+#' \dontrun{
+#' load(neamac)
+#' 
+#' spr0=spr0Yr(neamac)
+#' object=as.FLSR(neamac,model="bevholtSV")
+#' sr=ftmb(object,s.est=T,s=0.7,s.logitsd=0.3,spr0)
+#' }
 
-srrTMB <- function(object, spr0, s=NULL, s.est=TRUE,s.logitsd=1.3,inits=NULL, lower=NULL, upper=NULL,
-  SDreport=TRUE) {
+ftmb<-function(object, spr0, s=NULL, s.est=TRUE,s.logitsd=1.3,inits=NULL, lower=NULL, upper=NULL,SDreport=TRUE) {
   if(is.null(s)& s.est){s=0.6} # central value
   if(is.null(s)& !s.est){s=0.8}
   
   # IDENTIFY model
-  model <- SRModelName(model(object))
+  model=SRModelName(model(object))
 
   # GET rec, ssb
-  rec <- c(rec(object))
-  ssb <- c(ssb(object))
+  rec=c(rec(object))
+  ssb=c(ssb(object))
   
   if ("FLQuant"%in%is(spr0))
-    spr0=c(spr0)
+    spr0.=c(spr0)
   else
-    spr0=rep(spr0,length(rec))
+    spr0.=rep(spr0,length(rec))
   
   # SET init and bounds
   if(is.null(inits))
-    inits <- c(mean(log(rec)), log(0.4),to_logits(s))
+    inits=c(mean(log(rec)), log(0.4),to_logits(s))
   if(is.null(lower))
-    lower <- c(min(log(rec)), log(0.05),-20)
+    lower=c(min(log(rec)), log(0.05),-20)
   if(is.null(upper))
-    upper <- c(max(log(rec * 20)), log(1.5),20)
+    upper=c(max(log(rec * 20)), log(1.5),20)
 
   # SET TMB input
-  inp <- list(
+  inp=list(
     # data
-    Data = list(ssb=ssb, rec=rec,prior_s = c(to_logits(s),s.logitsd), spr0=spr0, nyears=length(ssb),
+    Data = list(ssb=ssb, rec=rec,prior_s = c(to_logits(s),s.logitsd), spr0=spr0., nyears=length(ssb),
     # model
     Rmodel = which(model==c("bevholtSV","rickerSV","segreg"))-1),
     # inits
@@ -64,43 +71,38 @@ srrTMB <- function(object, spr0, s=NULL, s.est=TRUE,s.logitsd=1.3,inits=NULL, lo
   )
   
   # Compile TMB inputs 
-  Map = list()
+  Map=list()
   # Turn off steepness estimation
   if(!s.est) Map[["logit_s"]] = factor( NA ) 
 
   # CREATE TMB object
-  Obj <- TMB::MakeADFun(data = inp$Data, parameters = inp$Params,map=Map,
-    DLL = "FLSRTMB", silent = TRUE)
+  Obj=TMB::MakeADFun(data=inp$Data, parameters=inp$Params,map=Map,DLL="FLSRTMB", silent=TRUE)
 
-  Opt <- stats::nlminb(start=Obj$par, objective=Obj$fn, gradient=Obj$gr,
-    control=list("trace"=1, "eval.max"=1e4, "iter.max"=1e4),
-    lower=inp$lower, upper=inp$upper)
+  Opt=stats::nlminb(start=Obj$par, objective=Obj$fn, gradient=Obj$gr,control=list("trace"=1, "eval.max"=1e4, "iter.max"=1e4),lower=inp$lower, upper=inp$upper)
 
-  Opt[["diagnostics"]] = data.frame(Est=Opt$par,
-    final_gradient=Obj$gr(Opt$par))
+  Opt[["diagnostics"]] = data.frame(Est=Opt$par,final_gradient=Obj$gr(Opt$par))
   
-  Report <- Obj$report()
+  Report=Obj$report()
   
-  if(SDreport) {
-    SD <- try(TMB::sdreport(Obj))
-  }
+  if(SDreport) SD=try(TMB::sdreport(Obj))
 
   # LOAD output in FLSR
 
   # DEBUG HACK
-  model(object) <- switch(model, bevholtSV=bevholt, rickerSV=ricker,segreg=segreg)
+  model(object)=switch(model, bevholtSV=bevholt, rickerSV=ricker,segreg=segreg)
 
-  fitted(object) <- c(Report$rec_hat)
-  residuals(object) <- log(rec(object)) - log(fitted(object))
+  fitted(object)=c(Report$rec_hat)
+  residuals(object)=log(rec(object)) - log(fitted(object))
   
-  #params(object) <- FLPar(a=Report$a, b=Report$b)
+  #params(object)=FLPar(a=Report$a, b=Report$b)
   
   params(object)=FLPar(s=Report$s, R0=Report$r0)
+  params(object)=propagate(params(object),length(spr0.))
+  params(object)=rbind(params(object),FLPar(spr0=spr0.))
+  params(object)=rbind(params(object),FLPar(v=params(object)["R0"]*params(object)["spr0"]))[c("s","v","spr0")]
   
-  #attr(object,"SV") = data.frame(s=Report$s,sigmaR=Report$sigR,R0=Report$r0)
+  par=as(as.data.frame(aaply(params(object)[c("s","v","spr0")],2,function(x) ab(FLPar(x),"bevholt"))),"FLPar")[c("a","b")]
+  model(object)=bevholt()$model
+  params(object)=par
   
-  #if(SDreport){
-  #  object@vcov = matrix(SD$cov,nrow=2,dimnames = list(c("a","b"),c("a","b")))}
-
-  return(object)
-}
+  return(object)}
