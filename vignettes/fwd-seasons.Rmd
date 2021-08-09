@@ -427,7 +427,7 @@ harvest(bet)[is.nan(harvest(bet))] <- 0
 ```
 
 ```{r, bet-load}
-load("/home/laurence-kell/Desktop/flr/FLCandy/data/bet.RData")
+load(bet)
 ```
 
 
