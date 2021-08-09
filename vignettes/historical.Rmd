@@ -1,0 +1,553 @@
+---
+title: "**Variability**"
+subtitle: "Historical Reference Points"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+mathjax: TRUE
+fig_width: 6 
+fig_height: 4 
+tags: FLR FLCore introduction
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+bibliography: refs.bib
+---
+
+```{r, echo=FALSE, warning=FALSE}
+library(knitr)
+
+knitr::opts_chunk$set(echo = FALSE)
+
+opts_chunk$set(cache     =TRUE, 
+               cache.path="cache/historical/newmac/",
+               comment   =NA, 
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =FALSE, 
+               eval      =TRUE,
+               fig.path  ="tex/historical/neamac")
+iFig=0
+iTab=0
+```
+
+
+[](#top)
+
+[Summary](#intro)
+
+[Reference Points](#refs)
+
+[Productivity](#sp)
+
+[Stock and recruitment](#sr)
+
+[Regimes](#regines)
+
+[Projection](#fwd)
+
+[References](#bib)
+
+# Summary {#intro}
+
+The aim of theses examples is to evaluate the biological factors that affect productivity. 
+
+North East Atlantic mackerel is used as an example. The estimation of the current ICES Precautionary Approach ($PA$) and Maximum Sustainable Yeild ($MSY$) reference points for this stock was performed by the WORKSHOP ON MANAGEMENT STRATEGY EVALUATION OF MACKEREL ([WKMSEMAC](https://www.ices.dk/sites/pub/Publication%20Reports/Expert%20Group%20Report/Fisheries%20Resources%20Steering%20Group/2020/WKMSEMAC_2020.pdf#search=WKMSEMAC)). 
+
+The intention is not to replicate or update the ICES reference points but to evaluate their robustness using simulation. To do this we devlop a simulation model (i.e. an Operating Model) that can be used to simulate stocks under a variety of assumptions. Since to develop robust management strategies it is necessary to conditioned Opertaing Models on hypotheses related to ecological processes, rather than stock assessment models alone.
+
+To do this we adopt a sim-sam approach, where the Operating Model is used to simulate psuedo data for use in the algorithm used to estimate the reference points. However, unlike in Management Strategy Evaluation there is no feedback, where a Management Procedure is then provide a catch quota to update the Operating Model. The ICES $MSY$ and $PA$ are then compared to the corresponding Operating Model quantities using a number of performance metrics
+
+At the third Workshop on Guidelines for Management Strategy Evaluations ([WGMSE3](https://www.ices.dk/sites/pub/Publication%20Reports/Expert%20Group%20Report/Fisheries%20Resources%20Steering%20Group/2020/ICES%20WKGMSE3%202020.pdf)) performance statistics or summary metrics were defined as set of statistics used to evaluate the performance of Management Procedures against specified pre-agreed management objectives, and the robustness of these Management Procedures to uncertainties in resource and fishery dynamics of concern to stakeholders and managers. These are properties of the simulated system e.g. foregone catch relative to $MSY$, or the level of a stock at which recruitment is impaired. There are two main ways to calculate the performance statistics, namely i) using equilibrium assumptions (e.g. @sissenwine1987alternative for age based OMs); or ii) though stochastic simulation by projecting at $F=F_{MSY}$ or F=0 (e.g. @carruthers2016performance, @de2011management). The later approach is preferable where environmental forcing or resonant cohort effects impact on productivity.
+
+## Results
+
+**Figure 1** summarises the ICES $PA$ and $MSY$ reference points ($B_{lim}$, $B_{pa}$, $B_{trigger}$, $F_{lim}$, $F_{pa}$, $F_{MSY}$) by plotting them on the equilibrium curves and compares them to $MSY$ based reference points; a stock recruitment relationship with a steepness of 0,99 was assumed, and the $F$ and $B$ reference poonts are consistent with each other, while $B_{trigger}$ is an overestimate of $B_{MSY}$ .The time series and reference points from the 2020 assessment are shown in **Figure 2**. A main feature is that all the reference points imply a similar yield.
+
+Productivity and reference points depend on the assumed life history parameters and selectivity-at-age, these are summarised in **Figure 3**, it appears that recent catch weight-at-age has declined and the selectivity is targeting older ages, although selectivity-at-size could be stable, and that there have been changes in maturity-at-age. These changes will affect productivity and the reference points, for example the contribution by age to the SSB is shown in **Figure 4**, there is eveidence of stong year classes and also a dependence ob younger ages in the mid 2000s. 
+
+To explore the impact of the assumptions about the biology and selectivity on $MSY$, estimates of $F_{MSY}$, $B_{MSY}$ and $F_{MSY}$ are plotted by year in **Figure 5**. The blue line is when only selectivity was allowed to vary, green when only the biological parameters and red both. $SPR_0$ is shown in **Figure 6**. $F_{MSY}$ has increased in the recent period, $B_{MSY}$ decreased and $MSY$ decreased before recovering. There has also been large variation in $SPR_0$. 
+
+**Figure 7** plots the production function, i.e. landing v SSB; the veritical lines are $B_{lim}$ and $B_{pa}$. The trajectory should cycle anti-clockwise, since if the catch is greater than production then the stock should decline, while if the catch is less that production it should increase. The fact that the stock and catch continues to increase in the recent period implies that production is driven by process error.
+
+Process error and surplus production are plotted in **Figure 8**, it can be seen that in the recent period production has on average been larger than expected, i.e. process error is positive.
+
+To explore this further the stock recruitment relatiionship is evalauted, **Figure 9** is an unconstrained fit using a Beverton and Holt stock recruitment relationship. There is a strong residual pattern imlying two regimes (**Figure 10**).
+
+**Figure 11** shows fits to the stock recruit pairs for different values of steepness, there is not a lot of information to the left of the data to estimate steepness, it appears that the fit is driven more by the upward trend in the data.
+
+The consequnces for reference points is explored in **Figure 12**, these show that as steepness increases $MSY$ increases and $B_{MSY}$ decreases, therefore $F_{MSY}$ will increase. The consequences for the ICES reference points is that if steepness is low then all the reference points are below $MSY$ while if steepness is high they are above. The choice of steepness is therefore critical to the robustness of ICES advice.
+**Figure 13** overlays the stock trajectory over the production functions, in all cases the stock increases even if catch is greater tham production. 
+
+Next the hypothesis that there are two regimes is explored, **Figure 14** shows the stock recruitment relationships, and **Figure 15** the production functions. While **Figure 16** show long term projection under the assumption that there is a single stock recruitment relationship or a regime where recent recruitment is high.
+
+
+[Back to Top](#top)
+
+## Installation {#instal}
+
+```{r, theme, echo=FALSE}
+library(ggplot2)
+theme_set(theme_bw())
+options(digits=3)
+```
+
+
+To run the the code in this vignette a number of packages need to be installed, from CRAN and the  [FLR](http://www.flr-project.org) website, where  [tutorials](https://www.flr-project.org/doc/) are also available.
+
+
+### Libraries
+
+
+#### FLR
+
+The FLR packages can be installed from  [www.flr-project.org](http://www.flr-project.org)
+
+```{r, eval=FALSE}
+install.packages(c("FLCore","FLFishery","FLasher","FLBRP","mpb","FLife"), 
+             repos="http://flr-project.org/R")
+```
+
+```{r, lib-flr, echo=T}
+library(FLCore)
+library(FLBRP)
+library(FLasher)
+library(FLife)
+library(ggplotFL)  
+```
+
+#### Packages
+
+The examples make extensive use of the packages of [Hadley Wickham](http://hadley.nz/). For example plotting is done using [`ggplot2`](https://www.rdocumentation.org/packages/ggplot2/versions/3.3.3) based on the *Grammar of Graphics* ^[Wilkinson, L. 1999. *The Grammar of Graphics*, Springer. [doi 10.1007/978-3-642-21551-3_13](http://dx.doi.org/10.1007/978-3-642-21551-3_13).]. Grammar is to specifies the individual building blocks and allows them to be combined to create the graphic desired^[<http://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html>].
+
+While ['dplyr'](https://dplyr.tidyverse.org/) is a grammar of data manipulation, providing a consistent set of verbs that help solve the most common data manipulation challenges, while ['plyr'](https://www.rdocumentation.org/packages/plyr/versions/1.8.6) is a set of tools to split up a big data structure into homogeneous pieces, apply a function to each piece and then combine all the results back together. 
+
+
+```{r, lib-cran, echo=T}
+library(ggplot2)
+library(plyr)
+library(dplyr)
+```
+
+```{r, eval=FALSE}
+library(devtools)
+
+install_github("lauriekell/FLCandy")
+```
+
+
+```{r}
+library(FLCandy) 
+```
+
+#### ICES Reference points
+
+The ICES reference points can be calculated using the `msy` package which can be found on [github](https://github.com) at
+[github.com/ices-tools-prod/msy](https://github.com/ices-tools-prod/msy). 
+
+```{r, eval=FALSE}
+## Adds the ICES PA & MSY reference points to refpts and fits a SRRR
+addRefs<-function(x,refs){
+  x=FLPar(NA,dimnames=list(refpt=c("virgin","msy","crash",dimnames(refs)$params),
+                           quant=c("harvest","yield","rec","ssb","biomass","revenue","cost","profit"),iter=1))
+    
+  x[maply(dimnames(x)$refpt,function(x) gregexpr("B",x)[[1]][1]==1),"ssb"]=
+        refs[maply(dimnames(refs)[[1]],function(x) gregexpr("B",x)[[1]][1]>0),]
+  x[maply(dimnames(x)$refpt,function(x) gregexpr("F",x)[[1]][1]==1),"harvest"]=
+        refs[maply(dimnames(refs)[[1]],function(x) gregexpr("F",x)[[1]][1]>0),]
+  x} 
+i=0
+icesRefpts<-function(x,refs=NULL,model="bevholtSV",steepness=0.7,nyears=3) {
+    i<<-i+1
+    print(i)
+    eq=FLBRP(x,nyears=nyears)
+  
+    if (gregexpr("SV",model)[[1]][1]>0){
+      sr=as.FLSR(x,model=model)
+      sr=fmle(sr,
+             fixed=list(s=steepness,spr0=spr0(eq)),
+             control=list(silent=TRUE))
+      params(eq)=ab(params(sr),substr(model,1,gregexpr("SV",model)[[1]][1]-1))[-dim(params(sr))[1]]
+      model( eq)=do.call(substr(model,1,gregexpr("SV",model)[[1]][1]-1), list())$model
+      refpts(eq)=computeRefpts(eq)
+    }else{
+      sr=fmle(as.FLSR(x,model=model),control=list(silent=TRUE))
+      params(eq)=params(sr)
+      model( eq)=do.call(model, list())$model}
+    
+    fbar(eq)[]=seq(0,100,1)/100*c(computeRefpts(eq)["crash","harvest"])
+    
+    if (!is.null(refs))
+      refpts(eq)=addRefs(refpts(eq),refs)
+    
+    eq=brp(eq)
+    eq}
+
+## Calculates the surplus production and expected yield etc for the estinates of SSB and biomass
+surplusProduction<-function(x){
+  nms=dimnames(refpts(x))
+  nms$refpt=paste("ssb",dimnames(ssb.obs(x))$year,sep="")
+
+  rfs=FLPar(array(NA,laply(nms,length),dimnames=nms))
+  rfs[,"ssb",]=ssb.obs(x)
+  refpts(x)=rfs
+  rtn=computeRefpts(x)
+  
+  rtn=alply(rtn,2,FLQuant,dimnames=dimnames(ssb.obs(x)))
+  names(rtn)=as.character(unlist(attributes(rtn)$split_labels))
+
+  discards.obs(x)[is.na(discards.obs(x))]=0
+
+  units(discards.obs(x))="NA"
+  units(landings.obs(x))="NA"
+  rtn$spSSB=ssb.obs(x)[,-1]-ssb.obs(x)[,-dim(ssb.obs(x))[2]]+catch.obs(x)[,-dim(ssb.obs(x))[2]]
+  rtn$spBiomass=biomass.obs(x)[,-1]-biomass.obs(x)[,-dim(biomass.obs(x))[2]]+catch.obs(x)[,-dim(biomass.obs(x))[2]]
+  
+  rtn=mcf(as(rtn,"FLQuants"))
+  
+  rtn[["peSSB"]]=rtn$spSSB-rtn$yield
+  rtn[["peBiomass"]]=rtn$spBiomass-rtn$yield
+  
+  rtn}
+
+## Set M, wt, sel & mat to vary by iter based on annual values to look at non-stationarity
+nonStationarity<-function(x,sr=NULL,nyears=dim(x)[2],slots=c("m","mat","stock.wt","catch.wt","catch.sel")){
+
+  if (is.null(sr)) eq=FLBRP(x,nyears=nyears)
+  else             eq=FLBRP(x,sr-sr,nyears=nyears)
+  
+  eq=propagate(eq,dim(ssb(x))[2])
+  
+  q2p<-function(x){
+     tmp=as.data.frame(x,drop=T)
+     names(tmp)[names(tmp)=="year"]="iter"
+     as.FLQuant(tmp)}
+  
+  if ("m"%in%slots)   m(eq)=q2p(m(x))
+  if ("mat"%in%slots) mat(eq)=q2p(mat(x))
+  
+  if ("stock.wt"%in%slots) stock.wt(   eq)=q2p(stock.wt(   x))
+  if ("catch.wt"%in%slots|"landinhgs.wt"%in%slots) landings.wt(eq)=q2p(landings.wt(x))
+  if ("catch.wt"%in%slots|"discards.wt" %in%slots) discards.wt(eq)=q2p(discards.wt(x))
+  
+  if ("catch.sel"%in%slots|"landinhgs.sel"%in%slots) landings.sel(eq)=q2p(catch.sel(x)%*%landings.n(x)%/%catch.n(x))
+  if ("catch.sel"%in%slots|"discards.sel"%in%slots)  discards.sel(eq)=q2p(catch.sel(x)%*%discards.n(x)%/%catch.n(x))
+  
+  nms=dimnames(refpts(eq))
+  nms[[1]]=c(nms[[1]],"spr.100")
+  refpts(eq)=FLPar(array(NA,lapply(nms,length),nms))
+
+  rtn=computeRefpts(eq)
+
+  transform(as.data.frame(rtn),year=as.numeric(dimnames(x)$year[iter]))[,-3]}
+```
+
+```{r, data}
+load("/home/laurence-kell/Desktop/flr/FLCandy/data/neamc.RData")
+#load(neamac)
+
+
+ices=FLPar(c("Blim"=2e6, "Bpa"=2.58e6, "Btrigger"=2.58e6,
+             "Flim"=0.42,"Fpa"=0.33,   "Fmsy"    =0.21))
+```
+
+[Back to Top](#top)
+
+# Reference Points {#refs}
+
+Reference points based on yield and spawner-per-recruit can be estimated using the [`FLBRP`](https://flr-project.org/doc/Reference_points_for_fisheries_management_with_FLBRP.html) package.
+
+
+
+```{r, eq, fig.height=6, fig.width=8}
+eq=icesRefpts(neamac,ices,model="bevholtSV",steepness=0.99)
+
+plot(eq,refpts=c("msy", "Blim","Bpa",   "Btrigger","Flim","Fpa",   "Fmsy"),
+        shapes=c(21,    23,    23,      23,        24,    24,      24),
+        col   =c("blue","red", "yellow","green",  "red",  "yellow","green"))+
+        theme_bw()+theme(legend.position="bottom")
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Reference points and equilibrium curves for Beverton and Holt stock recruitment relationship.
+
+\blandscape
+
+```{r, ts, fig.height=10, fig.width=8}
+plot(neamac, metrics=list(SSB=ssb, F=fbar, Catch=landings, Recruits=rec)) +
+   geom_flpar(data=FLPars(SSB  =FLPar(refpts(eq)[c("Blim","Bpa","Btrigger","msy"),"ssb",drop=T]),
+                          F    =FLPar(refpts(eq)[c("Blim","Bpa","Btrigger","msy"),"harvest",drop=T]),
+                          Catch=FLPar(refpts(eq)[c("Blim","Bpa","Btrigger","msy"),"yield",drop=T])),x=rep(c(1980,1982.5,1985,1987.5),3))+
+  theme_bw()+xlab("Year")+theme(legend.position="bottom")
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Time series, with ICES PA and MSY reference points, along with MSY estimated with a Beverton and Holt stock recruitment relationship.
+
+
+```{r, eval=FALSE}
+divide(FLPar(FMSY=0.21, BMSY=120012), names=c(F="FMSY", B="BMSY"))
+```
+\elandscape
+
+[Back to Top](#top)
+
+# Productivity {#sp}
+
+```{r, vectors, fig.width=8,fig.height=8}
+dat=as.data.frame(FLQuants(neamac,Catch.wt=catch.wt,Stock.wt=stock.wt,
+                              "Selectivity"=catch.sel,Maturirty=mat,M=m),drop=T)
+dat=transform(dat,Age=factor(age,levels=dims(neamac)$min:dims(neamac)$max))
+
+ggplot(dat)+
+  geom_line(aes(year,data,group=age,col=age))+
+  facet_wrap(~qname,scale="free",ncol=2)+
+  theme_bw()+theme(legend.position="bottom")+
+  xlab("Year")+ylab("Value-at-age")
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Weigth, selectivity, maturity and M-at-age.
+
+
+```{r, ssb}
+dat=stock.wt(neamac)%*%mat(neamac)%*%stock.n(neamac)
+dat=dat%/%apply(dat,2,sum)
+ggplot(dat)+
+  geom_point(aes(year,age,size= data))+
+  geom_line(aes(year,data),data=as.data.frame(apply(ages(dat)%*%dat,2,sum)),col="blue",size=2)+
+  scale_size_area(max_size=8)+
+  theme_bw()+theme(legend.position="bottom")+
+  xlab("Year")+ylab("Age")
+```
+
+**Figure `r iFig=iFig+1; iFig`.** SSB-at-age.
+
+```{r, msy, fig.height=6,fig.width=8}
+spr0=spr0Yr(neamac)
+sr=as.FLSR(neamac,model="bevholtSV")
+sr=ftmb(sr,s.est=T,s=0.7,s.logitsd=0.3,spr0)
+
+nst=rbind.fill(cbind(Assumption="All",        nonStationarity(neamac,sr)),
+               cbind(Assumption="Biology",    nonStationarity(neamac,sr,slots=c("m","mat","stock.wt","catch.wt"))),
+               cbind(Assumption="Selectivity",nonStationarity(neamac,sr,slots=c("catch.sel"))))
+
+ggplot(subset(nst,refpt=="msy"&quant%in%c("harvest","yield","ssb")))+
+  geom_line(aes(year,data,col=Assumption))+
+  facet_grid(quant~.,scale="free")+
+  theme_bw()+theme(legend.position="bottom")+
+  xlab("Year")+ylab("MSY Benchmark")
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Time series of MSY benchmarks
+
+
+```{r, spr0, fig.height=3,fig.width=8}
+nst=nonStationarity(neamac,sr)
+ggplot(subset(nst,refpt=="spr.100"&quant=="ssb"))+
+  geom_line(aes(year,data))+
+  xlab("Year")+ylab(expression(SPR[0]))+
+  theme_bw()
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Time series of $SPR_0$
+
+```{r, pf, fig.height=5,fig.width=8}
+eq=icesRefpts(neamac,ices,steepness=0.95)
+pf=model.frame(FLQuants(eq,SSB=ssb,Catch=landings),drop=T)
+pts=data.frame(refpts(eq)[c("msy","Flim","Fpa"),c("yield","ssb"),drop=T])
+
+ggplot()+ 
+  geom_vline(aes(xintercept=value),data=data.frame(ref=c("Blim","Bpa"),value=c(ices["Blim"],ices["Bpa"])))+
+  geom_line( aes(SSB,Catch),data=pf)+
+  geom_point(aes(ssb,yield,col=ref),data=cbind(ref=dimnames(pts)[[1]],pts),size=2)+
+  geom_path( aes(ssb,yield),data=model.frame(FLQuants(neamac,"ssb"=ssb,"yield"=landings)),col="blue")+
+  theme_bw()+theme(legend.position="bottom")+
+  scale_color_manual("Reference\nPoints",values=c("red","yellow","green"))
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Production functions. 
+
+```{r, sp, fig.height=6,fig.width=8}
+sp=surplusProduction(eq)
+
+save(eq,file="/home/laurence-kell/Desktop/tmp/eq.RData")
+# New facet label names for supp variable
+labs=c("Surplus Productoon", "Process Error")
+names(labs)=c("spSSB", "peSSB")
+
+plot(sp[c("spSSB","peSSB")])+
+  geom_hline(aes(yintercept=y),data.frame(y=c(NA,1),qname=c("spSSB","peSSB")))+
+  theme_bw()+
+  facet_grid(qname~., 
+  labeller = labeller(qname=labs)
+  )
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Time series of surplus production and process error.
+
+[Back to Top](#top)
+
+# Stock and recruitment {#sr}
+
+
+```{r, srJK, fig.height=6,fig.width=8, eval=FALSE}
+sr=FLSR(model=bevholt, ssb=jackknife(ssb(neamac)), rec=jackknife(rec(neamac)))
+sr=fmle(sr,control=list(silent=TRUE))
+
+
+plot(sr)
+```
+
+```{r, sr, fig.height=6,fig.width=8}
+sr=fmle(as.FLSR(neamac,model="bevholt"),control=list(silent=TRUE))
+
+plot(sr)
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Stock recruitment fit for Beverton and Holt
+
+
+```{r rec-regimes, fig.height=4,fig.width=8}
+rodFn=FLife:::rodFn
+
+star=FLife:::rod(residuals(sr)[,-40])
+
+ggplot(residuals(sr))+
+  geom_line( aes(year,data),linetype=3)+
+  geom_point(aes(year,data))+
+  geom_polygon(aes(year,data,group=regime),fill="blue",alpha=0.2,data=star)+
+  theme_bw()+xlab("Year")+ylab("Residuals")
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Recruitment residuals, with regimes.
+
+### Steepness
+
+```{r}
+eqs=as(mlply(data.frame(Steepness=c(0.5,0.6,0.7,0.8,0.9,0.95)),function(Steepness) {
+  icesRefpts(neamac,ices,"bevholtSV",steepness=Steepness)}),"FLBRPs")
+names(eqs)=c(0.5,0.6,0.7,0.8,0.9,0.95) 
+
+pf=ldply(eqs, function(x) model.frame(FLQuants(x,SSB=ssb,Catch=landings),drop=T))
+names(pf)[1]="Steepness"
+
+rfs=ldply(eqs, function(x) data.frame(refpt=dimnames(refpts(x))$refpt,refpts(x)[,c("harvest","yield","rec","ssb","biomass"),1,drop=T]))
+names(rfs)[1]="Steepness"
+```
+
+
+```{r, srs, fig.height=6,fig.width=8}
+ggplot(ldply(eqs, function(eq) model.frame(FLQuants(eq,SSB=ssb,Recruits=rec),drop=T)))+ 
+  geom_line(aes(SSB,Recruits,col=.id))+
+  geom_point(aes(SSB,Recruits),data=model.frame(FLQuants(eqs[[1]],SSB=ssb.obs,Recruits=rec.obs),drop=T))+
+  theme_bw()+theme(legend.position="bottom")
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Stock recruitment relationship by steepness.
+
+
+```{r, pfrefs, fig.height=5,fig.width=8}
+ggplot(subset(rfs,refpt%in%unique(rfs$refpt)[c(2,7:9)]))+ 
+  geom_line( aes(SSB,Catch,col=as.character(Steepness)),data=pf)+ 
+  geom_point(aes(ssb,yield,col=Steepness))+
+  geom_line( aes(ssb,yield,linetype=refpt))+
+  geom_vline(aes(xintercept=ssb),data=subset(rfs,refpt%in%c("Blim","Bpa","Btrigger")&Steepness==0.6))+
+  theme_bw()+theme(legend.position="bottom")
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Production functions by steepness.
+
+
+```{r, pfrefs2, fig.height=6,fig.width=8}
+ggplot(data=subset(rfs,refpt%in%unique(rfs$refpt)[c(2,7:9)]))+ 
+  geom_line( aes(SSB,Catch,col=as.character(Steepness)),data=pf)+
+  geom_point(aes(ssb,yield,col=Steepness))+
+  geom_line( aes(ssb,yield,linetype=refpt))+
+  geom_vline(aes(xintercept=ssb),data=subset(rfs,refpt%in%c("Blim","Bpa","Btrigger")&Steepness==0.6))+
+  geom_path( aes(ssb,catch),data=model.frame(FLQuants(neamac,"ssb"=ssb,"catch"=landings)))+
+  theme_bw()+theme(legend.position="bottom") 
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Production functions.
+
+
+
+```{r}
+regimes=as(list(all  =icesRefpts(neamac,                   ices,steepness=0.95),
+                early=icesRefpts(window(neamac,end  =2000),ices,steepness=0.95),
+                late =icesRefpts(window(neamac,start=2001),ices,steepness=0.95)),"FLBRPs")
+
+pf=ldply(regimes, function(x) model.frame(FLQuants(x,SSB=ssb,Catch=landings),drop=T))
+names(pf)[1]="Period"
+
+rfs=ldply(regimes, function(x) data.frame(refpt=dimnames(refpts(x))$refpt,refpts(x)[,c("harvest","yield","rec","ssb","biomass"),1,drop=T]))
+names(rfs)[1]="Period" 
+
+pts=rbind(cbind("Period"="All",  "refpts"=c("msy","Flim","Fpa"),data.frame(refpts(regimes[[1]])[c("msy","Flim","Fpa"),c("yield","ssb"),drop=T])),
+          cbind("Period"="Early","refpts"=c("msy","Flim","Fpa"),data.frame(refpts(regimes[[2]])[c("msy","Flim","Fpa"),c("yield","ssb"),drop=T])),
+          cbind("Period"="Late", "refpts"=c("msy","Flim","Fpa"),data.frame(refpts(regimes[[3]])[c("msy","Flim","Fpa"),c("yield","ssb"),drop=T])))
+```
+
+
+```{r, srs2, fig.height=6,fig.width=8}
+ggplot(ldply(regimes, function(eq) model.frame(FLQuants(eq,SSB=ssb,Recruits=rec),drop=T)))+
+  geom_line(aes(SSB,Recruits,col=.id))+
+  geom_point(aes(SSB,Recruits),data=model.frame(FLQuants(regimes[[1]],SSB=ssb.obs,Recruits=rec.obs),drop=T),col="red")+
+  geom_point(aes(SSB,Recruits),data=model.frame(FLQuants(regimes[[2]],SSB=ssb.obs,Recruits=rec.obs),drop=T),col="blue")+
+  geom_point(aes(SSB,Recruits),data=model.frame(FLQuants(regimes[[3]],SSB=ssb.obs,Recruits=rec.obs),drop=T),col="green")+
+  theme_bw()+
+  scale_color_manual("Period",values=c("red","green","blue"),labels=c("All","Early","Late"))
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Stock recruitment relationship.
+
+
+```{r, sr2, fig.height=6,fig.width=8}
+ggplot()+
+  geom_line( aes(SSB,Catch,col=Period),data=pf)+
+  geom_point(aes(ssb,yield,fill=refpts),data=pts,shape=23,size=2)+
+  geom_vline(aes(xintercept=value),data=data.frame(ref=c("Blim","Bpa"),value=c(ices["Blim"],ices["Bpa"])))+
+  geom_path( aes(ssb,catch),data=model.frame(FLQuants(neamac,"ssb"=ssb,"catch"=landings)),col="blue")+
+  geom_path( aes(ssb,catch),data=model.frame(FLQuants(window(neamac,end=2000),"ssb"=ssb,"catch"=landings)),col="green")+
+  theme_bw()+theme(legend.position="bottom")+
+  scale_color_manual("Period",values=c("red","green","blue"),labels=c("All","Early","Late"))+
+  scale_fill_manual("Reference Points",values=c("red","orange","blue"),labels=c("Flim","Fpa","MSY"))
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Production functions.
+
+# Projections {#fwd}
+
+
+```{r, fwd, fig.height=6,fig.width=8}
+om1=fwdWindow(neamac,regimes[[1]],end=2050) 
+om3=fwdWindow(neamac,regimes[[3]],end=2050)
+
+om1=fwd(om1,fbar=fbar(om1)[,ac(2019:2050)]%=%ices["Fmsy"],sr=regimes[[1]])
+om3=fwd(om1,fbar=fbar(om3)[,ac(2019:2050)]%=%ices["Fmsy"],sr=regimes[[3]])
+
+plot(FLStocks(list("All"=om1,"Late"=om3)))+
+  theme_bw()+
+  scale_color_manual(values=c("red","blue"))
+
+save(neamac,regimes,ices,file="/home/laurence-kell/Desktop/tmp/neamac.RData")
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Projection at MSY.
+
+
+[Back to Top](#top)
+
+## Software Versions
+
+* `r version$version.string`
+* FLCore: `r packageVersion('FLCore')`
+* FLPKG: `r # packageVersion('FLPKG')`
+* **Compiled**: `r date()`
+* **Git Hash**: `r system("git log --pretty=format:'%h' -n 1", intern=TRUE)`
+
+## Author information
+
+**Laurence KELL**. laurie@seaplusplus.co.uk
+
+## Acknowledgements
+
+# References {#References}
+
+[Back to Top](#top)
