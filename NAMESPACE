@@ -1,6 +1,6 @@
 exportPattern("^[[:alpha:]]+")
 
-useDynLib(flcandidates)
+useDynLib(FLCandy)
 
 import("TMB")
 import("FLCore")
