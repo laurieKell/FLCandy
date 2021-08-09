@@ -16,7 +16,7 @@ Depends:
 Imports: 
   TMB (>= 1.7.19),
   FLBRP,
-  ggplot,
+  ggplot2,
   ggplotFL
 LinkingTo: 
   TMB,
