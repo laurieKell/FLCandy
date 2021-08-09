@@ -16,6 +16,7 @@ Depends:
 Imports: 
   TMB (>= 1.7.19),
   FLBRP
+  ggplotFL
 LinkingTo: 
   TMB,
   RcppEigen
