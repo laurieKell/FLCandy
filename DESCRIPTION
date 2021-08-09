@@ -15,7 +15,7 @@ Depends:
   FLCore (>= 2.6.16)
 Imports: 
   TMB (>= 1.7.19),
-  FLBRP
+  FLBRP,
   ggplotFL
 LinkingTo: 
   TMB,
