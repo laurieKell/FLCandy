@@ -1,4 +1,4 @@
-#' @rawNamespace useDynLib(FLSRTMB, .registration=TRUE); useDynLib(FLSRTMB_TMBExports)
+#' @rawNamespace useDynLib(FLSRTMB, .registration=TRUE); useDynLib(FLCandy_TMBExports)
 #' @keywords internal
 "_PACKAGE"
 

@@ -76,7 +76,7 @@ ftmb<-function(object, spr0, s=NULL, s.est=TRUE,s.logitsd=1.3,inits=NULL, lower=
   if(!s.est) Map[["logit_s"]] = factor( NA ) 
 
   # CREATE TMB object
-  Obj=TMB::MakeADFun(data=inp$Data, parameters=inp$Params,map=Map,DLL="FLSRTMB", silent=TRUE)
+  Obj=TMB::MakeADFun(data=inp$Data, parameters=inp$Params,map=Map,DLL="FLCandy", silent=TRUE)
 
   Opt=stats::nlminb(start=Obj$par, objective=Obj$fn, gradient=Obj$gr,control=list("trace"=1, "eval.max"=1e4, "iter.max"=1e4),lower=inp$lower, upper=inp$upper)
 

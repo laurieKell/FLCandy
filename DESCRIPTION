@@ -35,7 +35,7 @@ Collate:
   update.R  
   wtInterp.R
   ftmb.R
-  FLSRTMB-package.R
+  FLCandy-package.R
   utils.R
   windowRange.R
 LazyLoad: true

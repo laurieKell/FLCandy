@@ -46,15 +46,15 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
     names(tmp)[names(tmp)=="year"]="iter"
     as.FLQuant(tmp)}
   
-  if ("m"%in%slots)     m(eq)=year2iter(m(x))
-  if ("mat"%in%slots) mat(eq)=year2iter(mat(x))
+  if ("m"%in%slots)     m(eq)=year2iter(m(object))
+  if ("mat"%in%slots) mat(eq)=year2iter(mat(object))
   
-  if ("stock.wt"%in%slots) stock.wt(   eq)=year2iter(stock.wt(   x))
-  if ("catch.wt"%in%slots|"landinhgs.wt"%in%slots) landings.wt(eq)=year2iter(landings.wt(x))
-  if ("catch.wt"%in%slots|"discards.wt" %in%slots) discards.wt(eq)=year2iter(discards.wt(x))
+  if ("stock.wt"%in%slots) stock.wt(   eq)=year2iter(stock.wt(object))
+  if ("catch.wt"%in%slots|"landinhgs.wt"%in%slots) landings.wt(eq)=year2iter(landings.wt(object))
+  if ("catch.wt"%in%slots|"discards.wt" %in%slots) discards.wt(eq)=year2iter(discards.wt(object))
   
-  if ("catch.sel"%in%slots|"landinhgs.sel"%in%slots) landings.sel(eq)=year2iter(catch.sel(x)%*%landings.n(x)%/%catch.n(x))
-  if ("catch.sel"%in%slots|"discards.sel"%in%slots)  discards.sel(eq)=year2iter(catch.sel(x)%*%discards.n(x)%/%catch.n(x))
+  if ("catch.sel"%in%slots|"landinhgs.sel"%in%slots) landings.sel(eq)=year2iter(catch.sel(object)%*%landings.n(object)%/%catch.n(object))
+  if ("catch.sel"%in%slots|"discards.sel"%in%slots)  discards.sel(eq)=year2iter(catch.sel(object)%*%discards.n(object)%/%catch.n(object))
   
   nms=dimnames(refpts(eq))
   nms[[1]]=c(nms[[1]],"spr.100")

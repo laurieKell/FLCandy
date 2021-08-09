@@ -1,4 +1,4 @@
-#define TMB_LIB_INIT R_init_FLSRTMB
+#define TMB_LIB_INIT R_init_FLCandy
 
 #include <TMB.hpp>
 
