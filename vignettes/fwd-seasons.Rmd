@@ -1,0 +1,599 @@
+---
+title: "FLasher: Seasonal examples"
+author: "Laurence Kell"
+output: rmarkdown:::pdf_document
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEncoding{UTF-8}
+tags: FLPKG FLR
+license: Creative Commons Attribution-ShareAlike 4.0 International
+---
+
+
+# Examples 
+
++ Demersal stock with recruitment at age 1 spawning in $1^{st}$ of 4 seasons
++ Pelagic stock with recruitment at age 0 that spawns in $2^{nd}$ of 4 seasons
++ Temperate tuna with two sexes spawning in $1^{st}$ of 4 seasons
++ Tropical tuna that spawns each of 4 seasons
++ Flatfish stock with sexual dimorphism
+
+
+```{r knitr_init, echo=FALSE, results="hide"}
+library(knitr)
+## Global options
+opts_chunk$set(echo    =!FALSE,
+               eval    =TRUE,
+               cache   =TRUE,
+               cache.path="cache/seasonal/",
+               prompt  =FALSE,
+               comment =NA,
+               message =FALSE,
+               tidy    =FALSE,
+               warning =FALSE,
+               fig.height=6,
+               fig.width =6,
+               fig.path  ="../figs/seasonal/",
+               dev       ="png")
+
+options(digits=3)
+
+iFig=0
+```
+
+
+## Load requitred 'FLR' libraries
+```{r, pkgs}
+library(FLCore)  
+library(FLBRP)
+library(ggplotFL)
+```
+
+```{r, github, eval=FALSE}
+library(devtools)
+install_github("flr/FLasher",ref="fix_seasons")
+install_github("lauriekell/FLCandy")
+```
+
+```{r, Flasher}
+library(FLasher) 
+library(FLCandy) 
+```
+
+
+\newpage
+# Demersal stock 
+
+Example is based on the North Sea Plaice 'ple4' object with recruitment at age 1 that spawns in $1^{st}$ of 4 season.
+
+Load the object,
+
+```{r, ple4, echo=T}
+data(ple4)
+```
+
+fit a stock-recruitment relationship, 
+ 
+```{r, ple4-srr, echo=T}
+ple4.sr=fmle(as.FLSR(ple4,model="bevholt"),control=list(silent=TRUE))
+```
+
+and estimate reference points using 'FLBRP'
+```{r, ple4-brp, fig.width=8,fig.height=6}
+ple4.eq=FLBRP(ple4,sr=ple4.sr)
+
+plot(ple4.eq, obs=TRUE)
+```
+
+**Figure `r iFig=iFig+1; iFig`** Equilbriium curves with $MSY$ reference points.
+
+\newpage
+Historically the stock has been overexploited, although recruitment has not been impaired, since steepness is high. Recently $F$ has been reduced to $F_{MSY}$ and the stock is recovering to $B_{MSY}$, although catches are stable.
+
+```{r, fig.height=6,fig.width=8}
+plot(ple4, metrics=list(Recruits=rec, SSB=ssb, Catch=catch, F=fbar)) +
+   geom_flpar(data=FLPars(Recruits=FLPar(RMSY=refpts(ple4.eq)["msy","rec"]),
+                          SSB     =FLPar(BMSY=refpts(ple4.eq)["msy","ssb"]),
+                          Catch   =FLPar( MSY=refpts(ple4.eq)["msy","yield"]),
+                          F       =FLPar(FMSY=refpts(ple4.eq)["msy","harvest"])), x=1960)+
+  theme_bw()+
+  xlab("Year")
+```
+
+**Figure `r iFig=iFig+1; iFig`** Time series relative to $MSY$ benchmarks
+
+## Seasons
+
+To create a seasonal 'FLStock' expand the $4^{th}$ dimension, by using 'expand' 
+```{r, ple4-expand}
+ple4.4=expand(ple4,season=1:4)
+```
+
+Divide natural mortality and fishing mortality equally across seasons 
+```{r, ple4-expand-replace}
+m(      ple4.4)=m(ple4.4)/dim(ple4.4)[4]
+harvest(ple4.4)=harvest(ple4.4)/dim(ple4.4)[4]
+```
+
+To ensure that the initial stock vector is consistent with the new structure, update the stock numbers values in the $1^{st}$ year
+
+```{r, ple4-expand-initial}
+stock.n(ple4.4)[,1,,2]=stock.n(ple4.4)[,1,,1]*exp(-m(ple4.4)[,1,,1]-harvest(ple4.4)[,1,,1])
+stock.n(ple4.4)[,1,,3]=stock.n(ple4.4)[,1,,2]*exp(-m(ple4.4)[,1,,2]-harvest(ple4.4)[,1,,2])
+stock.n(ple4.4)[,1,,4]=stock.n(ple4.4)[,1,,3]*exp(-m(ple4.4)[,1,,3]-harvest(ple4.4)[,1,,3])
+```
+
+Perform a projection from the $1^{st}$ year onwards to ensure consistency of stock numbers with the seasonal model $F$ and $M$, specify initial recruitment based on estimates in the original 'ple4' object.
+
+```{r}
+sr=predictModel(model=geomean()$model, 
+                params=FLPar(rec(ple4)[drop=T],dimnames=list(params="a",year=dimnames(rec(ple4))$year,season=1:4,iter=1)))
+params( sr)[,,-1]=NA
+```
+
+
+and set the target F in each season and year.
+```{r, ple4-backcast}
+control=as(FLQuants(fbar=fbar(ple4.4)[,-1]), 'fwdControl')
+
+ple4.4=fwd(ple4.4, control=control, sr=sr)[,-1]
+```
+
+Compare the annual and seasonal models. SSB is the same, while recruitment in the $1_{st}$ season matches in the spawning season in both models. A decline is seen in the seasons after spawning. The seasonal values of catch and F shown in the plot are a $4_{th}$ of the annual values.   
+
+```{r, ple4-stocks2, fig.height=6,fig.width=8}
+mat(ple4.4)[,,,-1]=NA
+plot(FLStocks("Annual"=ple4,"Seasonal"=window(ple4.4,end=2017)))+
+  scale_colour_manual("Model",values=c("blue","purple"))+
+  theme_bw()+
+  theme(legend.position="bottom")
+```
+
+**Figure `r iFig=iFig+1; iFig`** Comparison of amnnual and seasonal models.
+
+That they match can be demonstrated by summing them over seasons
+
+```{r, ple4-catch, fig.height=2}
+ggplot(as.data.frame(FLQuants("ple4"=catch(ple4),"Seasonal"=apply(catch(ple4.4),2,sum))))+
+  geom_line(aes(year,data,col=qname))+
+  theme_bw()+
+  xlab("Year")+ylab("Fbar")
+```
+
+**Figure `r iFig=iFig+1; iFig`** Comparison of catches
+
+```{r, ple4-fbar, fig.height=2}
+ggplot(as.data.frame(FLQuants("ple4"=fbar(ple4),"Seasonal"=apply(fbar(ple4.4),2,sum))))+
+  geom_line(aes(year,data,col=qname))+
+  theme_bw()+
+  xlab("Year")+ylab("SSB")
+```
+
+**Figure `r iFig=iFig+1; iFig`** Comparison of Fs.
+
+Seasonal growth can also be modelled 
+
+```{r, wtInterp}
+wtInterp<-function(wt){
+  
+  mlt=wt[,-dim(wt)[2]]
+  mlt=FLQuant(rep(seq(0,(dim(mlt)[4]-1)/dim(mlt)[4],1/dim(mlt)[4]),each=max(cumprod(dim(mlt)[1:3]))),
+             dimnames=dimnames(mlt))[-dim(mlt)[1]]
+  
+  incmt=wt[,,,1]
+  incmt=-incmt[-dim(incmt)[1],-dim(incmt)[2]]+incmt[-1,-1]
+  
+  wt[dimnames(incmt)$age,dimnames(incmt)$year]=
+    wt[dimnames(incmt)$age,dimnames(incmt)$year]+
+    incmt%+%(mlt%*%incmt)
+  
+  wt[,-dim(wt)[2]]}
+```
+
+
+```{r, neamac-wt, fig.height=4, echo=FALSE}
+wt=transform(as.data.frame(wtInterp(stock.wt(ple4))),cohort=year-age)
+
+ggplot(wt)+geom_line(aes(year,data,group=cohort))+
+  xlab("Year")+ylab("Mass-at-age")+
+  theme_bw()
+```
+
+
+## Projections
+
+Now that the season model is consistent with the annual model it can be used to evaluate advice.
+
+Extend years into the future
+
+```{r, ple4-projection}
+ple4.4=fwdWindow(ple4.4,end=2050,nsq=3)
+```
+
+To model and recruitment, requires specifying that the stock-recruitment object has dims for all seasons, but only values in the spawning season 
+
+
+```{r, ple4-srr-fwd}
+sr        =predictModel(model=model(ple4.sr), params=params(ple4.sr))
+params(sr)=FLPar(rep(c(params(sr)),4), dimnames=list(params=c('a','b'),season=seq(4), iter=1))
+params(sr)[,-1]=NA
+```
+
+In non-spawning seasons maturity can be set to 'NA' or 0, although recruitment is determined by the 'FLSR' object.
+
+Recruitmemt decviates can also be modelled, i.e. by providing recruitment deviates based on the annual model for the spawning season, others are ignore and can be set  to 'NA' if desired.
+
+Then set $F_{bar}$ equal to 0.25$F_{MSY}$ in each season
+
+```{r, ple4-control}
+control=fwdControl(
+  lapply(2017:2050, function(x) list(year=x, quant="fbar", value=refpts(ple4.eq)["msy","harvest"]/4, season=1:4)))
+```
+
+To derive the expected values project with recruitment deviates set to 1, so there is no stochastic variability
+
+```{r, ple4-fwd}
+ple4.4.msy=fwd(ple4.4, control=control, sr=sr)
+```
+
+The F in the projection is equal to $F_{MSY}$, and the stock reaches $B_{MSY}$ after about 20 years, while landings are at the $MSY$ level. 
+
+```{r, ple4-fwd-plot, fig.height=6,fig.width=8}
+plot(ple4.4.msy, metrics=list(SSB=function(x) ssb(x)[,,,1], Catch=landings, F=fbar)) +
+   geom_flpar(data=FLPars(SSB  =FLPar(BMSY=refpts(ple4.eq)["msy","ssb"]),
+                          Catch=FLPar( MSY=refpts(ple4.eq)["msy","yield"]/4),
+                          F    =FLPar(FMSY=refpts(ple4.eq)["msy","harvest"]/4)), x=as.POSIXct("2011-01-01"))+
+  theme_bw()+
+  xlab("Year")
+```
+
+**Figure `r iFig=iFig+1; iFig`** Projection.
+
+
+```{r, seasonalise, echo=FALSE}
+update<-function(object){
+  dim=dim(object)
+
+  n  =stock.n(object)
+  m  =m(object)
+  f  =harvest(object)
+  pg=stock.n(object)[dim[1],,,dim[4]]*exp(-f[dim[1],,,dim[4]]-m[dim[1],,,dim[4]])
+
+  for (i in seq(dim(object)[2]-1))
+    for (j in seq(dim(object)[4])){
+      if (j!=dim(object)[4])
+        stock.n(object)[,i,,j+1]=stock.n(object)[,i,,j]*exp(-f[,i,,j]-m[,i,,j])
+      else{
+        stock.n(object)[-1,i+1,,1]=stock.n(object)[-dim[1],i,,j]*exp(-f[-dim[1],i,,j]-m[-dim[1],i,,j])
+        stock.n(object)[dim[1],i+1,,1]=stock.n(object)[dim[1],i+1,,1]+pg[,i,,1]}
+      }
+  
+  catch.n(object)=stock.n(object)*f/(m+f)*(1-exp(-f-m))
+  landings.n(object)[is.na(landings.n(object))]=0
+  discards.n(object)[is.na(discards.n(object))]=0
+  
+  landings.n(object)=catch.n(object)*discards.n(object)/(discards.n(object)+landings.n(object))
+  discards.n(object)=catch.n(object)-landings.n(object)
+
+  catch(object)=computeCatch(object,"all")  
+  object}
+
+seasonalise<-function(object, season=1:4){
+
+  ## Stock and recruit                                   ###
+  ## set expected to 1 and model variability as deviates ###
+  sr=as.FLSR(object,model="geomean")
+  params(sr)=FLPar(1,dimnames=list(params="a",iter=1))
+
+  recs=expand(rec(object),season=season)
+  
+  ## Add seasons                                         ###
+  object=expand(object,season=1:4)
+
+  ## Divide up mortality by season                       ###
+  m(      object)=m(object)/dim(object)[4]
+  harvest(object)=harvest(object)/dim(object)[4]
+
+  ## Initial stock numbers                               ###
+  #for (i in 1:4)
+  #  stock.n(object)[,1,,i]=stock.n(object)[,1,,i]*exp(-m(object)[,1,,i]-harvest(object)[,1,,i])
+
+  
+  ## Seasonal growth                                     ###
+  stock.wt(   object)[,-dim(stock.wt(   object))[2]]=wtInterp(stock.wt(   object))
+  catch.wt(   object)[,-dim(catch.wt(   object))[2]]=wtInterp(catch.wt(   object))
+  landings.wt(object)[,-dim(landings.wt(object))[2]]=wtInterp(landings.wt(object))
+  discards.wt(object)[,-dim(discards.wt(object))[2]]=wtInterp(discards.wt(object))
+
+  object=update(object)
+  
+  ## Project for historic F                              ###
+  #fbar=as(FLQuants("fbar"=fbar(object)[,-1]),"fwdControl")
+  #object=fwd(object,control=fbar,sr=sr,residuals=recs)
+  
+  object}
+```
+
+```{r, seSeason, echo=FALSE}
+deSeason<-function(x) {
+
+  # ADD slots (catch/landings.discards, m)
+  res <- qapply(x, function(s) unitSums(seasonSums(s)))
+
+  # MEAN wts
+  catch.wt(res)[] <- unitSums(seasonSums(catch.wt(x) * catch.n(x))) / 
+    unitSums(seasonSums(catch.n(x)))
+
+  landings.wt(res)[] <- unitSums(seasonSums(landings.wt(x) * landings.n(x))) / 
+    unitSums(seasonSums(landings.n(x)))
+
+  discards.wt(res)[] <- unitSums(seasonSums(discards.wt(x) * discards.n(x))) / 
+    unitSums(seasonSums(discards.n(x)))
+
+  stock.wt(res)[] <- unitSums(seasonSums(stock.wt(x) * stock.n(x))) / 
+    unitSums(seasonSums(stock.n(x)))
+
+  # RECONSTRUCT N: N0 = N1 / exp(-M - F)
+
+  stkn <- unitSums(stock.n(x)[,,,4])
+  m(res) <- unitMeans(seasonSums(m(x)))
+  harvest(res) <- unitMeans(seasonSums(harvest(x)))
+
+  stock.n(res)[] <- stkn / exp(-m(res) - harvest(res))
+
+  # mat
+
+  mat(res)[] <- unitSums(seasonSums(mat(x) * stock.n(x))) / 
+    unitSums(seasonSums(stock.n(x)))
+  mat(res) <- mat(res) %/% apply(mat(res), c(1,3:6), max)
+  mat(res)[is.na(mat(res))] <- 0
+
+  # spwn
+  
+  m.spwn(res) <- 0.5
+  harvest.spwn(res) <- 0.5
+
+  # totals
+  
+  catch(res) <- computeCatch(res)
+  landings(res) <- computeLandings(res)
+  discards(res) <- computeDiscards(res)
+  stock(res) <- computeStock(res)
+
+  return(res)}
+```
+
+\newpage
+# Pelagic stock that recruits at age 0 and spawns once in season 2
+
+The 'seasonalise' function automates adding seasons
+
+```{r, neamac-data}
+load("/home/laurence-kell/Desktop/flr/FLCandy/data/neamc.RData")
+
+```
+
+```{r, neamac-seasonlise3}
+plot(FLStocks("Annual"=neamac,"Seasonal"=seasonalise(neamac)[,-1])) 
+```
+
+**Figure `r iFig=iFig+1; iFig`** Comparison of annual and seasonal model
+
+\newpage
+# Albacore
+
+The albacore stock already has seasons
+
+```{r, alb-data}
+load("/home/laurence-kell/Desktop/flr/FLCandy/data/alb.RData")
+```
+
+Set up projection in the form of a hindcast
+
+```{r, alb-fwd}
+sr=as.FLSR(alb,model="geomean")
+params(sr)=FLPar(1,dimnames=list(params="a",iter=1))
+rec.devs=rec(alb)
+
+control <- as(FLQuants(fbar=unitMeans(fbar(alb)[,-1])*c(rep(1,50),rep(0.5,dim(fbar(alb))[2]-51))), 'fwdControl')
+
+alb.fwd <- fwd(alb, control=control, sr=sr, residuals=rec.devs)
+```
+
+
+```{r, alb-plot}
+plot(FLStocks("Original"=alb, "Recent F drop"=alb.fwd))
+```
+
+**Figure `r iFig=iFig+1; iFig`** Backtest for reduced F 
+
+
+\newpage
+# Tropical tuna, which spawns every season
+
+Get SS3 object and perform hindcast to initialise
+
+```{r, bet-data, eval=FALSE}
+library(ss3om)
+
+ss.file ="/home/laurence-kell/Desktop/projects/mrag/climate/task1/data/iccat/bet/2018/1-steepness0.7_MRef_sigmaR0.2_LengthLambda0.1_iter1"
+ss      =SS_output(ss.file,covar=FALSE)
+rec.dist=ss$recruitment_dist$recruit_dist$Value
+bet     =readFLSss3(ss.file)
+bet.sr  =readFLSRss3(ss.file)
+
+harvest(bet)[is.nan(harvest(bet))] <- 0
+```
+
+```{r, bet-load}
+load("/home/laurence-kell/Desktop/flr/FLCandy/data/bet.RData")
+```
+
+
+Recruitent is by year, unit & season, just provide the estimated recruitments
+
+```{r, bet-hnd}
+sr=FLPar(NA, dimnames=list(params='a', year=1951:2017, unit=1:4, season=1:4, iter=1))
+
+# Set spawning seasons
+sr['a', , 1, 1]  <- c(rec(bet)[, -1, 1, 1, drop=TRUE] )
+sr['a', , 2, 2]  <- c(rec(bet)[, -1, 2, 2, drop=TRUE] )
+sr['a', , 3, 3]  <- c(rec(bet)[, -1, 3, 3, drop=TRUE] )
+sr['a', , 4, 4]  <- c(rec(bet)[, -1, 4, 4, drop=TRUE] )
+
+rec=predictModel(model=rec~a, params=sr)
+
+# project for obsevered F
+control=as(FLQuants(fbar=unitMeans(fbar(bet)[,-1])), 'fwdControl')
+
+bet.fwd=fwd(bet, control=control, sr=rec)
+
+
+p=plot(bet.fwd, metrics=list(rec  =function(x) rec(x),
+                           SSB  =function(x) ssb(x),
+                           fbar =function(x) apply(fbar(x),c(2,3),mean),
+                           catch=function(x) apply(catch(x),c(2,3),sum)))
+p$data=subset(p$data, !(qname%in%c("rec","SSB")&ac(season)!=ac(unit)))
+p
+```
+
+**Figure `r iFig=iFig+1; iFig`** Atlantic bigeye tuna
+
+
+Perform a projection for a TAC for 65K tons
+
+```{r, bet-srr}
+library(plyr)
+library(dplyr)
+
+params(bet.sr)["v"]/params(bet.sr)["R0"]
+
+## Time series of recruits and SSB by season/unit
+bet=window(bet,start=1980)
+dat=merge(transmute(subset(as.data.frame(rec(bet),drop=T),season==unit),year=year,unit=unit,rec=data),
+          transmute(subset(as.data.frame(ssb(bet),drop=T),season==unit),year=year,unit=unit,ssb=data),
+      by=c("year","unit"))
+
+## SRR
+srs=dlply(subset(dat,year>1980),.(unit), with, {
+  sr=FLSR(ssb=as.FLQuant(data.frame(year=year,data=ssb)),
+          rec=as.FLQuant(data.frame(year=year,data=rec)),model="bevholtSV")
+  sr=fmle(sr,fixed=list(spr0=79.6,s=0.9),control=list(silent=TRUE))})
+
+dat=merge(dat,ldply(srs, function(x) as.data.frame(predict(x),drop=T)))
+
+ggplot(dat)+
+  geom_point(aes(ssb,rec))+
+  geom_line(aes(ssb,data))+
+  facet_wrap(~unit,scal="free")
+```
+
+
+```{r, bet-fwd}
+sr=laply(srs, function(x) params(ab(x))[-3])
+sr=FLPar(sr, dimnames=list(params=c('a','b'), season=1:4, iter=1))
+sr=predictModel(model=bevholt()$model, params=sr)
+
+ratio=apply(catch(bet)[,ac(2013:2017)],4,mean)/sum(apply(catch(bet)[,ac(2013:2017)],4,mean))
+ratio=FLCore:::expand(ratio,year=1:54,fill=T)
+dimnames(ratio)$year=as.numeric(dimnames(ratio)$year)+2016
+
+control=as(FLQuants("catch"=ratio*65000),"fwdControl")
+
+bet.fwd=fwdWindow(bet.fwd, end=2070, nsq=5)
+bet.fwd=fwd(bet.fwd, control=control, sr=sr)
+
+p=plot(bet.fwd, metrics=list(rec  =function(x) rec(x),
+                           SSB  =function(x) ssb(x),
+                           fbar =function(x) apply(fbar(x),c(2,3),mean),
+                           catch=function(x) apply(catch(x),c(2,3),sum)))
+p$data=subset(p$data, !(qname%in%c("rec","SSB")&ac(season)!=ac(unit)))
+p
+```
+
+\newpage
+# Plaice sexual dimorphism
+
+```{r, ple4sex}
+data("ple4sex")
+
+ple4sex.4=seasonalise(ple4sex)
+
+plot(ple4sex.4)
+```
+
+**Figure `r iFig=iFig+1; iFig`** Plaice with sexes and seasons
+
+```{r, eval=FALSE}
+ple4sex.4=expand(ple4sex.4,area=1:2)
+
+stock.n(ple4sex.4)[,,1,2]=0
+stock.n(ple4sex.4)[,,2,1]=0
+
+catch.n(   ple4sex.4)[,,1,2]=0
+catch.n(   ple4sex.4)[,,2,1]=0
+landings.n(ple4sex.4)[,,1,2]=0
+landings.n(ple4sex.4)[,,2,1]=0
+discards.n(ple4sex.4)[,,1,2]=0
+discards.n(ple4sex.4)[,,2,1]=0
+
+sr=as.FLSR(object,model="geomean")
+params(sr)=FLPar(1,dimnames=list(params="a",iter=1))
+
+recs=rec(ple4sex.4)
+ 
+#fbar  =as(FLQuants("fbar"=as.FLQuant(fbar(ple4sex.4)[,-1,-1])),"fwdControl")
+
+control=fwdControl(
+  lapply(dimnames(ple4sex)$year[-1], function(x) list(year=x, quant="fbar", value=0.1, season=1:4,area=1:2)))
+
+ple4sex.4=fwd(ple4sex.4,control=control,sr=sr,residuals=recs)
+```
+
+
+\newpage
+
+# Getting rid of seasons
+```{r}
+
+sim=deSeason(bet)
+
+plot(sim)
+```
+
+```{r, eval=FALSE, echo=FALSE}
+## trying to reuse SS3 estimates
+bet.par=FLPar(NA, dimnames=list(params=dimnames(params(bet.sr))$params, season=1:4, iter=1))
+bet.par[c('R0',"v","s","sratio"),1]=
+  c(params(bet.sr)[c("R0","v")]*ss$recruitment_dist$recruit_dist$Value[1],params(bet.sr)[c("s","sratio")])
+bet.par[c('R0',"v","s","sratio"),2]=
+  c(params(bet.sr)[c("R0","v")]*ss$recruitment_dist$recruit_dist$Value[2],params(bet.sr)[c("s","sratio")])
+bet.par[c('R0',"v","s","sratio"),3]=
+  c(params(bet.sr)[c("R0","v")]*ss$recruitment_dist$recruit_dist$Value[3],params(bet.sr)[c("s","sratio")])
+bet.par[c('R0',"v","s","sratio"),4]=
+  c(params(bet.sr)[c("R0","v")]*ss$recruitment_dist$recruit_dist$Value[4],params(bet.sr)[c("s","sratio")])
+
+bet.rec=predictModel(model=bet.sr@model, params=bet.par)
+
+bet.fwd=fwdWindow(bet, end=2070,nsq=4)
+
+ratio=apply(catch(bet)[,ac(2013:2017)],4,mean)/sum(apply(catch(bet)[,ac(2013:2017)],4,mean))
+ratio=expand(ratio,year=1:54,fill=T)
+dimnames(ratio)$year=as.numeric(dimnames(ratio)$year)+2016
+
+control=as(FLQuants("catch"=ratio*45000),"fwdControl")
+
+bet.rec2<-predictModel(model=model(bet.sr), params=FLPar(c(params(bet.sr), 1),
+  dimnames=list(params=c("s", "R0", "v", "sratio", "seasp"), season=1:4, iter=1)))
+
+params(bet.rec2)$R0=c(params(bet.sr)$R0)*ss$recruitment_dist$recruit_dist$Value
+bet.fwd=fwd(bet.fwd, control=control, sr=bet.rec2)
+
+plot(bet.fwd, metrics=list(rec  =function(x) rec(x)[,,1,1],
+                           SSB  =function(x) ssb(x)[,,1,1],
+                           fbar =function(x) apply(fbar(x),c(2,3),mean),
+                           catch=function(x) apply(catch(x),c(2,3),sum)))
+```
+
+
