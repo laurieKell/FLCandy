@@ -70,17 +70,17 @@ Example is based on the North Sea Plaice 'ple4' object with recruitment at age 1
 Load the object,
 
 ```{r, ple4, echo=T}
-data(ple4)
+data(ple4) 
 ```
 
 fit a stock-recruitment relationship, 
  
 ```{r, ple4-srr, echo=T}
-ple4.sr=fmle(as.FLSR(ple4,model="bevholt"),control=list(silent=TRUE))
+ple4.sr=fmle(as.FLSR(ple4,model="bevholt"),control=list(silent=TRUE)) 
 ```
 
 and estimate reference points using 'FLBRP'
-```{r, ple4-brp, fig.width=8,fig.height=6}
+```{r, ple4-brp, fig.width=8,fig.height=6} 
 ple4.eq=FLBRP(ple4,sr=ple4.sr)
 
 plot(ple4.eq, obs=TRUE)
