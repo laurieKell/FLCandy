@@ -91,7 +91,7 @@ plot(ple4.eq, obs=TRUE)
 \newpage
 Historically the stock has been overexploited, although recruitment has not been impaired, since steepness is high. Recently $F$ has been reduced to $F_{MSY}$ and the stock is recovering to $B_{MSY}$, although catches are stable.
 
-```{r, fig.height=6,fig.width=8}
+```{r, fig.height=6,fig.width=8,eval=FALSE}
 plot(ple4, metrics=list(Recruits=rec, SSB=ssb, Catch=catch, F=fbar)) +
    geom_flpar(data=FLPars(Recruits=FLPar(RMSY=refpts(ple4.eq)["msy","rec"]),
                           SSB     =FLPar(BMSY=refpts(ple4.eq)["msy","ssb"]),
@@ -370,8 +370,7 @@ deSeason<-function(x) {
 The 'seasonalise' function automates adding seasons
 
 ```{r, neamac-data}
-load("/home/laurence-kell/Desktop/flr/FLCandy/data/neamc.RData")
-
+load(neamac)
 ```
 
 ```{r, neamac-seasonlise3}
