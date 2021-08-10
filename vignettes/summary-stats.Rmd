@@ -1,0 +1,133 @@
+---
+title: "Performance Metric"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+github_document:
+  mathjax: TRUE
+pdf_document:
+  fig_width: 6 
+  fig_height: 4 
+tags: [FLR]
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+bibliography: refs.bib
+---
+ 
+```{r, ini, echo=FALSE, results='hide', message=FALSE, warnings=FALSE, cache=FALSE}
+library(knitr)
+source("R/ini.R")
+```
+
+
+## Required packages
+
+To follow this tutorial you should have installed the following packages:
+
+- CRAN: 
+- FLR: [FLCore](http://www.flr-project.org/FLCore/)
+
+You can do so as follows:
+
+```{r, eval=FALSE}
+install.packages(c("iterators"))
+install.packages(c("FLCore"), repos="http://flr-project.org/R")
+```
+
+
+```{r, eval=FALSE}
+library(devtools)
+
+install_github("lauriekell/FLCandy")
+```
+
+# Section
+
+```{r}
+library(plyr)
+library(reshape)
+library(randtests)
+
+```
+
+```{r, flcore}
+library(FLCore)
+library(FLBRP)
+library(FLasher)
+library(ggplotFL)
+```
+
+```{r, FLCandy}
+library(FLCandy)
+library(mydas) 
+library(FLife) 
+```
+
+```{r, data}
+data("ple4")
+data("ple4brp")
+```
+
+
+```{r, projections}
+om=fwdWindow(ple4,end=2050,ple4brp)
+deviates=rlnoise(100,rec(om)%=%1,0.3,0.7)
+om=propagate(om,100)
+
+om.msy=fwd(om,fbar=fbar(om)[,ac(2018:2050)]%=%c(refpts(ple4brp)["msy","harvest"]),sr=ple4brp,residuals=deviates)
+
+om.f01=fwd(om,fbar=fbar(om)[,ac(2018:2050)]%=%c(refpts(ple4brp)["f0.1","harvest"]),sr=ple4brp,residuals=deviates)
+
+om.mey=fwd(om,fbar=fbar(om)[,ac(2018:2050)]%=%c(refpts(ple4brp)["mey","harvest"]),sr=ple4brp,residuals=deviates)
+```
+
+
+```{r, projections-plots}
+oms=FLStocks("MSY" =om.msy,
+              "F0.1"=om.f01,
+              "MEY" =om.mey)
+
+plot(oms)
+```
+
+
+```{r, stats}
+stats=ldply(oms,function(x) omSmry(x,ple4brp))
+head(stats)
+```
+
+
+```{r, metrics}
+pMetrics=ddply(stats, .(.id), mydas:::smryStat)
+pMetrics
+```
+
+
+## Subsection
+
+
+### More information
+
+To learn more about this subsection, check the [FLPKG](http://www.flr-project.org/FLPKG/).
+
+# References
+
+@kell2017flr
+
+# More information
+
+* You can submit bug reports, questions or suggestions on this tutorial at <https://github.com/flr/doc/issues>.
+* Alternatively, send a pull request to <https://github.com/flr/doc/>.
+* For more information on the FLR Project for Quantitative Fisheries Science in R, visit the FLR webpage: <http://flr-project.org>.
+
+## Software Versions
+
+* `r version$version.string`
+* FLCore: `r packageVersion('FLCore')`
+* **Compiled**: `r date()`
+
+## License
+
+This document is licensed under the [Creative Commons Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0) license.
+
+## Author(s)
+
+**Name SURNAME**. Institution, address, 00000 Place, Country <https://website.dom>.

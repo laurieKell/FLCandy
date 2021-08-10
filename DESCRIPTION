@@ -38,4 +38,5 @@ Collate:
   FLCandy-package.R
   utils.R
   windowRange.R
+  aopt.R
 LazyLoad: true

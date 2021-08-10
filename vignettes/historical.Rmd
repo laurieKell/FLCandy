@@ -363,6 +363,19 @@ ggplot()+
 
 **Figure `r iFig=iFig+1; iFig`.** Production functions. 
 
+```{r, global-mse}
+aopt<-function(object){
+  model(object)=geomean()$model
+  params(object)=FLPar(a=1)
+  
+  fbar(object)=FLQuant(0,dimnames=list(year=1))
+  stock.n(object)%*%stock.wt(object)}
+
+ggplot(aopt(eq))+geom_line(aes(age,data))
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Age Opt. 
+
 ```{r, sp, fig.height=6,fig.width=8}
 sp=surplusProduction(eq)
 

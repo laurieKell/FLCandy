@@ -1,0 +1,111 @@
+---
+title: "Performance Metrics"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+github_document:
+  mathjax: TRUE
+pdf_document:
+  fig_width: 6 
+  fig_height: 4 
+tags: [FLR]
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+---
+ 
+```{r, ini, echo=FALSE, results='hide', message=FALSE, warnings=FALSE, cache=FALSE}
+library(knitr)
+source("R/ini.R")
+```
+
+## Required packages
+
+To follow this tutorial you should have installed the following packages:
+
+- CRAN: 
+- FLR: [FLCore](http://www.flr-project.org/FLCore/)
+
+You can do so as follows:
+
+```{r, eval=FALSE}
+install.packages(c("iterators"))
+install.packages(c("FLCore","FLBRP"), repos="http://flr-project.org/R")
+```
+
+# Section
+
+```{r, flcore}
+library(FLCore)
+library(FLBRP)
+```
+
+## Subsection
+
+```{r}
+data(ple4brp)
+
+fbar(ple4brp)=FLQuant(seq(0,c(refpts(ple4brp)["crash","harvest"]),length.out=101))
+
+dmns=dimnames(refpts(ple4brp))
+dmns$refpt=c(dmns$refpt,"0.5MSY")
+refpts(ple4brp)     =FLPar(NA,dimnames=dmns)
+refpts(ple4brp)    =computeRefpts(ple4brp)
+
+refpts(ple4brp)["0.5MSY"]=c(refpts(ple4brp)["msy","harvest"]*2,refpts(ple4brp)["msy","yield"]*0.5,rep(NA,6))
+ple4brp=brp(ple4brp)
+plot(ple4brp,ncol=2)
+```
+
+
+```{r}
+dat=model.frame(FLQuants(ple4brp,Production=function(x) catch(x)/ssb(x),SSB=ssb))
+ggplot(dat,aes(SSB,Production))+
+  geom_line()+
+  geom_vline(aes(xintercept=c(refpts(ple4brp)["msy","ssb"])),col="green")+
+  geom_vline(aes(xintercept=c(refpts(ple4brp)["0.5MSY","ssb"])),col="red")
+```
+
+
+```{r}
+data(ple4brp)
+
+fbar(ple4brp)=FLQuant(seq(0,c(refpts(ple4brp)["crash","harvest"]),length.out=101))
+msy=refpts(ple4brp)["msy"]
+
+dmns=dimnames(refpts(ple4brp))
+dmns$refpt=c(dmns$refpt,"-0.25MSY","+0.25MSY")
+refpts(ple4brp)     =FLPar(NA,dimnames=dmns)
+
+refpts(ple4brp)["-0.25MSY"]=c(msy[1,1]*0.5, msy[1,2]*0.75,rep(NA,6))
+refpts(ple4brp)["+0.25MSY"]=c(msy[1,1]*2.0, msy[1,2]*0.75,rep(NA,6))
+refpts(ple4brp)    =computeRefpts(ple4brp)
+
+ple4brp=brp(ple4brp)
+plot(ple4brp,ncol=2,refpts=c("-0.25MSY","msy","+0.25MSY"))
+```
+
+### More information
+
+To learn more about this subsection, check the [FLPKG](http://www.flr-project.org/FLPKG/).
+
+# References
+
+L. T. Kell, I. Mosqueira, P. Grosjean, J-M. Fromentin, D. Garcia, R. Hillary, E. Jardim, S. Mardle, M. A. Pastoors, J. J. Poos, F. Scott, R. D. Scott; FLR: an open-source framework for the evaluation and development of management strategies. *ICES J Mar Sci* 2007; 64 (4): 640-646. doi: [10.1093/icesjms/fsm012](https://doi.org/10.1093/icesjms/fsm012).
+
+# More information
+
+* You can submit bug reports, questions or suggestions on this tutorial at <https://github.com/flr/doc/issues>.
+* Alternatively, send a pull request to <https://github.com/flr/doc/>.
+* For more information on the FLR Project for Quantitative Fisheries Science in R, visit the FLR webpage: <http://flr-project.org>.
+
+## Software Versions
+
+* `r version$version.string`
+* FLCore: `r packageVersion('FLCore')`
+* **Compiled**: `r date()`
+
+## License
+
+This document is licensed under the [Creative Commons Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0) license.
+
+## Author(s)
+
+**Name SURNAME**. Institution, address, 00000 Place, Country <https://website.dom>.

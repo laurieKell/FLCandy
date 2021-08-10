@@ -1,0 +1,78 @@
+---
+title: "A title"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+github_document:
+  mathjax: TRUE
+pdf_document:
+  fig_width: 6 
+  fig_height: 4 
+tags: [FLR]
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+---
+ 
+```{r, ini, echo=FALSE, results='hide', message=FALSE, warnings=FALSE, cache=FALSE}
+library(knitr)
+source("R/ini.R")
+```
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. In et euismod dolor, quis feugiat sem. Morbi mattis felis et efficitur fermentum. Nulla vel augue at felis mollis porta. Vivamus et risus vitae lorem mattis dictum. Cras ultrices efficitur molestie. Etiam vitae suscipit diam, eget congue leo. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce vel ultrices turpis. Donec ut consequat ante, sed egestas eros. Vivamus mattis mauris a aliquam varius. Aliquam tincidunt molestie urna, non ultrices lacus viverra vel. Nulla eros libero, egestas vitae pretium sit amet, consequat non tellus.
+
+Vestibulum et sagittis eros. Donec dolor mauris, egestas non dignissim sit amet, consequat non mi. Donec non augue malesuada, eleifend risus ac, luctus tortor. Curabitur eleifend libero et urna maximus, non laoreet risus ultricies. Nam et pretium mauris. Nullam aliquet dapibus libero et facilisis. Mauris purus quam, congue vitae ligula ut, viverra egestas metus. Donec vehicula felis et erat elementum lobortis.
+
+
+## Required packages
+
+To follow this tutorial you should have installed the following packages:
+
+- CRAN: 
+- FLR: [FLCore](http://www.flr-project.org/FLCore/)
+
+You can do so as follows:
+
+```{r, eval=FALSE}
+install.packages(c("iterators"))
+install.packages(c("FLCore"), repos="http://flr-project.org/R")
+```
+
+# Section
+
+```{r, flcore}
+library(FLCore)
+```
+
+Nam lacinia, velit a aliquam cursus, neque eros vehicula lacus, eu tincidunt mi dolor quis dolor. Sed sed mi ac augue sodales porttitor. Fusce ligula justo, volutpat a ullamcorper ut, dapibus a libero. Duis facilisis ultrices sapien eget ultrices. Vivamus feugiat massa sit amet ipsum facilisis tristique. Vivamus congue orci eros, non dapibus velit placerat et. Sed dapibus, odio nec congue dapibus, dui justo convallis leo, quis malesuada nibh dui vitae lacus. Quisque dictum mauris in luctus euismod. Cras tempus a lacus at condimentum. Nulla facilisi. Sed ante justo, venenatis at vulputate sit amet, consectetur vitae erat.
+
+Cras dictum eget lacus sit amet ullamcorper. Aliquam erat turpis, viverra ac orci sit amet, volutpat vehicula tellus. Praesent efficitur augue at nulla feugiat ullamcorper. Mauris blandit felis ac purus varius commodo. Proin sed pretium nulla. Nulla blandit risus sit amet placerat pretium. Aliquam erat volutpat. Aliquam euismod magna nibh, in tristique tellus pretium eget. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Suspendisse sollicitudin eleifend placerat. Sed eu finibus metus. Nulla facilisi. Maecenas tristique purus ligula, vitae interdum odio cursus eget.
+
+## Subsection
+
+Nam dignissim vulputate ante sit amet mollis. Donec hendrerit eros vel ligula malesuada consectetur. Morbi porta placerat mi, a feugiat ipsum placerat nec. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum at elementum magna, at venenatis augue. Pellentesque mattis, nisi vel lacinia luctus, sem leo faucibus elit, et gravida eros mi ac nisl. Morbi pellentesque molestie placerat. Nullam quis condimentum mauris. Donec vitae accumsan eros. Proin sed tincidunt mauris. Mauris lobortis commodo tellus, et fringilla lorem euismod et. Vestibulum a purus luctus, consequat massa non, bibendum ligula. Nam at lorem nulla. Curabitur non augue consectetur, molestie dolor vel, dignissim mi. 
+
+### More information
+
+To learn more about this subsection, check the [FLPKG](http://www.flr-project.org/FLPKG/).
+
+# References
+
+L. T. Kell, I. Mosqueira, P. Grosjean, J-M. Fromentin, D. Garcia, R. Hillary, E. Jardim, S. Mardle, M. A. Pastoors, J. J. Poos, F. Scott, R. D. Scott; FLR: an open-source framework for the evaluation and development of management strategies. *ICES J Mar Sci* 2007; 64 (4): 640-646. doi: [10.1093/icesjms/fsm012](https://doi.org/10.1093/icesjms/fsm012).
+
+# More information
+
+* You can submit bug reports, questions or suggestions on this tutorial at <https://github.com/flr/doc/issues>.
+* Alternatively, send a pull request to <https://github.com/flr/doc/>.
+* For more information on the FLR Project for Quantitative Fisheries Science in R, visit the FLR webpage: <http://flr-project.org>.
+
+## Software Versions
+
+* `r version$version.string`
+* FLCore: `r packageVersion('FLCore')`
+* **Compiled**: `r date()`
+
+## License
+
+This document is licensed under the [Creative Commons Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0) license.
+
+## Author(s)
+
+**Name SURNAME**. Institution, address, 00000 Place, Country <https://website.dom>.
