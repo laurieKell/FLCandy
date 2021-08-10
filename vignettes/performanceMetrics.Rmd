@@ -64,6 +64,8 @@ ggplot(dat,aes(SSB,Production))+
 ```
 
 
+https://www.sciencedirect.com/science/article/abs/pii/S0308597X09000682
+
 ```{r}
 data(ple4brp)
 
@@ -71,15 +73,15 @@ fbar(ple4brp)=FLQuant(seq(0,c(refpts(ple4brp)["crash","harvest"]),length.out=101
 msy=refpts(ple4brp)["msy"]
 
 dmns=dimnames(refpts(ple4brp))
-dmns$refpt=c(dmns$refpt,"-0.25MSY","+0.25MSY")
+dmns$refpt=c(dmns$refpt,"-0.2MSY","+0.2MSY")
 refpts(ple4brp)     =FLPar(NA,dimnames=dmns)
 
-refpts(ple4brp)["-0.25MSY"]=c(msy[1,1]*0.5, msy[1,2]*0.75,rep(NA,6))
-refpts(ple4brp)["+0.25MSY"]=c(msy[1,1]*2.0, msy[1,2]*0.75,rep(NA,6))
+refpts(ple4brp)["-0.2MSY"]=c(msy[1,1]*0.5, msy[1,2]*0.80,rep(NA,6))
+refpts(ple4brp)["+0.2MSY"]=c(msy[1,1]*2.0, msy[1,2]*0.80,rep(NA,6))
 refpts(ple4brp)    =computeRefpts(ple4brp)
 
 ple4brp=brp(ple4brp)
-plot(ple4brp,ncol=2,refpts=c("-0.25MSY","msy","+0.25MSY"))
+plot(ple4brp,ncol=2,refpts=c("-0.2MSY","msy","+0.2MSY"))
 ```
 
 ### More information
