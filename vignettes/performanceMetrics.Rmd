@@ -1,5 +1,6 @@
 ---
-title: "Performance Metrics"
+title: "Management Strategy Evaluation"
+subtitle: "Performance Metrics"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
 github_document:
@@ -15,6 +16,30 @@ license: Creative Commons Attribution-ShareAlike 4.0 International Public Licens
 library(knitr)
 source("R/ini.R")
 ```
+
+To choose between candidate Management Procedures when conducting MSE trade-offs between multiple potentially conflicting objective have to be evalauted. To do this summary statistics, also known as performance metrics, are used, These are a set of statistics used to evaluate the performance of Candidate Management Procedures against specified pre-agreed management objectives, and the robustness of these Management Procedures to uncertainties in resource and fishery dynamics of concern to stakeholders and managers. These performance indicators are codified as properties of the system, e.g. the ratio of the realised catch to MSY, and the risk of the stock falling below a level where recruitment is impaired. They may be used to test the robustness of assumptions made in a stock assessment or within an Management Procedure, for example when $B_{MSY}$ (based on exploitable biomass) or $F_{MSY}$ (based on harvest rate) are used as part of the forecast for biomass dynamic models. These may differ from the corresponding quantities in the Management ProcedureBut  (where $B_{MSY}$ is based on $SSB$, and $F_{MSY}$ based on an instantaneous exploitation rate). There are two main ways to derive quantities to be used for performance statistics, namely: (i) using equilibrium assumptions \cite{sissenwine1987alternative}, or (ii) through stochastic simulation e.g. by projecting at F = $F_{MSY}$ or F = 0 (\citep[e.g.][] {carruthers2016performance, de2011management}. The latter approach is preferable where environmental forcing or resonant cohort effects have an impact on productivity.
+
+
+There are two main ways of calculating performamce metrics, either from equilibrium assumptions or from long-term projections.
+
+
+Ideally, summary statistics should be few and informative and based on the main management objectives, which are to avoid stock collapse with high probability and to secure high and stable long-term yields. It is also necessary to distinguish between technical summary statistics (i.e. those required to evaluate model fits and performance) and those required to evaluate management objectives. The objectives may also be formalised as an objective function, to help automated comparison of multiple models \citep[e.g.][]{fischer2021using}.
+
+The principle metrics for use as summary statistics are safety, stock status, yield and stability. The tuna RFMOs management objectives are mainly articulated through MSY based targets \citep{kell2016quantification},  while limit reference points in some cases has also been derived from MSY, e.g. those used by the International Commission for the Conservation of Atlantic Tuna (ICCAT) and IOTC. Instead, the Western and Central Pacific Fisheries Commission (WCPFC) has used $SSB_{F=0}$ (the spawning stock biomass in the absence of fishing), since this has the advantage of not being affected by the selection pattern of the fleets or the stock-recruitment relationship, often difficult to estimate in practice. 
+
+To achieve Marine Stewardship Council (MSC) certification requires the definition of a limit reference point that indicates the stock level at which recruitment is impaired, which the stock should be above, and of a biomass target, around which a stock should be fluctuating to be consistent with achieving MSY. So an additional summary statistic was included that combined safety, status and yield into a single value.
+
+\begin{description}%[labelindent=\parindent,noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt]
+ \item[Safety] $min(SSB/B_{lim})$ for the simulation period
+ \item[Status] $F/F_{MSY}<1$ and $SSB/B_{MSY}>1$ in the last years
+ \item[Yield] mean($Yield/MSY$) for the simulation period
+ %\item[Rebuilding] $SSB$[length($SSB$)]/$SSB$[1]))
+ \item[Objective] Is the average yield achieved in the simulation period with the constraint that $SSB>20\%K$, then if $SSB>B_{MSY}$ and $F<F_{MSY}$ then catch achieves a $25\%$ price premium. 
+ \end{description}
+
+Often variability, measured as the inter-annual variation in catch is also used as a summary statistic \citep[e.g.][]{kell2005flat}. However, in this study catch variability was set in the Management Procedure so was not included as a summary statistic. 
+
+
 
 ## Required packages
 
@@ -39,50 +64,52 @@ library(FLBRP)
 
 ## Subsection
 
-```{r}
+```{r, fig.height=8, fig.width=8}
 data(ple4brp)
 
 fbar(ple4brp)=FLQuant(seq(0,c(refpts(ple4brp)["crash","harvest"]),length.out=101))
 
+msy=computeRefpts(ple4brp)["msy"]
+
+refpts(ple4brp)=refpts(ple4brp)[c("msy","mey")]
+
 dmns=dimnames(refpts(ple4brp))
-dmns$refpt=c(dmns$refpt,"0.5MSY")
+dmns$refpt=c(dmns$refpt,"0.5MSY","lower pgy","upper pgy","double")
 refpts(ple4brp)     =FLPar(NA,dimnames=dmns)
+refpts(ple4brp)["0.5MSY",   c("harvest","yield")]=msy[,c("harvest","yield")]*c(1.2,0.5)
+refpts(ple4brp)["lower pgy",c("harvest","yield")]=msy[,c("harvest","yield")]*0.8
+refpts(ple4brp)["upper pgy",c("harvest","yield")]=msy[,c("harvest","yield")]*c(1.2,0.8)
+refpts(ple4brp)["double",c("yield","ssb")]=msy[,c("yield","ssb")]*c(2,1)
+
 refpts(ple4brp)    =computeRefpts(ple4brp)
 
-refpts(ple4brp)["0.5MSY"]=c(refpts(ple4brp)["msy","harvest"]*2,refpts(ple4brp)["msy","yield"]*0.5,rep(NA,6))
-ple4brp=brp(ple4brp)
 plot(ple4brp,ncol=2)
 ```
 
+# Productivity
 
-```{r}
+```{r, fig.height=4}
 dat=model.frame(FLQuants(ple4brp,Production=function(x) catch(x)/ssb(x),SSB=ssb))
 ggplot(dat,aes(SSB,Production))+
   geom_line()+
   geom_vline(aes(xintercept=c(refpts(ple4brp)["msy","ssb"])),col="green")+
-  geom_vline(aes(xintercept=c(refpts(ple4brp)["0.5MSY","ssb"])),col="red")
+  geom_vline(aes(xintercept=c(refpts(ple4brp)["0.5MSY","ssb"])),col="orange")+
+  geom_vline(aes(xintercept=c(refpts(ple4brp)["double","ssb"])),col="red")
 ```
 
+```{r, fig.height=4}
+dat=model.frame(FLQuants(ple4brp,Production=function(x) catch(x)/ssb(x),SSB=ssb, F=fbar))
+ggplot(dat,aes(F,Production))+
+  geom_line()+
+  geom_vline(aes(xintercept=c(refpts(ple4brp)["msy","harvest"])),col="green")+
+  geom_vline(aes(xintercept=c(refpts(ple4brp)["0.5MSY","harvest"])),col="orange")+
+  geom_vline(aes(xintercept=c(refpts(ple4brp)["double","harvest"])),col="red")
+```
+
+# Forgone yield
 
 https://www.sciencedirect.com/science/article/abs/pii/S0308597X09000682
 
-```{r}
-data(ple4brp)
-
-fbar(ple4brp)=FLQuant(seq(0,c(refpts(ple4brp)["crash","harvest"]),length.out=101))
-msy=refpts(ple4brp)["msy"]
-
-dmns=dimnames(refpts(ple4brp))
-dmns$refpt=c(dmns$refpt,"-0.2MSY","+0.2MSY")
-refpts(ple4brp)     =FLPar(NA,dimnames=dmns)
-
-refpts(ple4brp)["-0.2MSY"]=c(msy[1,1]*0.5, msy[1,2]*0.80,rep(NA,6))
-refpts(ple4brp)["+0.2MSY"]=c(msy[1,1]*2.0, msy[1,2]*0.80,rep(NA,6))
-refpts(ple4brp)    =computeRefpts(ple4brp)
-
-ple4brp=brp(ple4brp)
-plot(ple4brp,ncol=2,refpts=c("-0.2MSY","msy","+0.2MSY"))
-```
 
 ### More information
 

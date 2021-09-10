@@ -1,4 +1,4 @@
-#' @title 
+#' @title adjust
 #' 
 #' @description 
 #'
@@ -20,7 +20,7 @@
 #' \dontrun{
 #' }
 
-update<-function(object){
+adjust<-function(object){
   dim=dim(object)
   
   n  =stock.n(object)
@@ -44,5 +44,6 @@ update<-function(object){
   landings.n(object)=catch.n(object)*discards.n(object)/(discards.n(object)+landings.n(object))
   discards.n(object)=catch.n(object)-landings.n(object)
   
-  catch(object)=computeCatch(object,"all")  
+  #catch(object)=computeCatch(object,"all")  
+  
   object}

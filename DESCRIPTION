@@ -32,7 +32,7 @@ Collate:
   spr0Yr.R  
   spr0Cohort.R  
   surplusProduction.R  
-  update.R  
+  adjust.R  
   wtInterp.R
   ftmb.R
   FLCandy-package.R

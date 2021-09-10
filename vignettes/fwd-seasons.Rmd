@@ -52,6 +52,7 @@ library(ggplotFL)
 
 ```{r, github, eval=FALSE}
 library(devtools)
+
 install_github("flr/FLasher",ref="fix_seasons")
 install_github("lauriekell/FLCandy")
 ```
