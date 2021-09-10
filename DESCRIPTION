@@ -40,6 +40,6 @@ Collate:
   windowRange.R
   aopt.R
   metrics.R
-  properties.R
+  properties.R  
   selex.R
 LazyLoad: true
