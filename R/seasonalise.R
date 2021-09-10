@@ -36,18 +36,14 @@ seasonalise<-function(object, season=1:4){
   m(      object)=m(object)/dim(object)[4]
   harvest(object)=harvest(object)/dim(object)[4]
   
-  ## Initial stock numbers                               ###
-  #for (i in 1:4)
-  #  stock.n(object)[,1,,i]=stock.n(object)[,1,,i]*exp(-m(object)[,1,,i]-harvest(object)[,1,,i])
-  
   ## Seasonal growth                                     ###
   stock.wt(   object)[,-dim(stock.wt(   object))[2]]=wtInterp(stock.wt(   object))
   catch.wt(   object)[,-dim(catch.wt(   object))[2]]=wtInterp(catch.wt(   object))
   landings.wt(object)[,-dim(landings.wt(object))[2]]=wtInterp(landings.wt(object))
   discards.wt(object)[,-dim(discards.wt(object))[2]]=wtInterp(discards.wt(object))
-  
+
   object=adjust(object)
-  
+
   ## Project for historic F                              ###
   #fbar=as(FLQuants("fbar"=fbar(object)[,-1]),"fwdControl")
   #object=fwd(object,control=fbar,sr=sr,residuals=recs)

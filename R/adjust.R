@@ -23,6 +23,9 @@
 adjust<-function(object){
   dim=dim(object)
   
+  un =units(catch.n( object))
+  uwt=units(catch.wt(object))
+  
   n  =stock.n(object)
   m  =m(object)
   f  =harvest(object)
@@ -44,6 +47,14 @@ adjust<-function(object){
   landings.n(object)=catch.n(object)*discards.n(object)/(discards.n(object)+landings.n(object))
   discards.n(object)=catch.n(object)-landings.n(object)
   
-  #catch(object)=computeCatch(object,"all")  
+  units(catch.n(object))   =un
+  units(landings.n(object))=un
+  units(discards.n(object))=un
+  
+  units(catch.wt(object))   =uwt
+  units(landings.wt(object))=uwt
+  units(discards.wt(object))=uwt
+  
+  catch(object)=computeCatch(object,"all")  
   
   object}
