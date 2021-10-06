@@ -1,0 +1,889 @@
+---
+title: "Proxy $MSY$ Reference Points for data poor stocks"
+subtitle: "Power of length based Indicators to detect recovery"
+author: "L Kell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  pdf_document:
+       includes:
+            in_header: header.tex 
+---
+
+## Summary
++ The OM has been rerun where F after recovery is 0.7$F_{MSY}$. 
++ The reference period is 61:120 and the period of overfishing is 80:109. this gives 60 years for which 30 are overfished.
++ For overfishing reference period is 61:100, with overfishing occuring in 80:100
++ For recovery reference period is 100:120, with recovery occuring in 110:120
+
+\newpage
+
+```{r, knitr, eval=TRUE, echo=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(knitr)
+
+opts_chunk$set(comment   =NA, 
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =FALSE,
+               fig.width =10, 
+               fig.height=12,
+               cache     =TRUE, 
+               fig.path  ="../tex/roc-final-",
+               cache.path="../cache/roc-final/",
+               dev       =c("png"))
+
+iFig=0
+iTab=0
+```
+
+\newpage
+```{r, pkgs} 
+library(FLCore)
+library(FLBRP)
+library(FLasher)
+library(FLife)
+library(mydas)
+library(ggplotFL)
+
+library(plyr)
+library(dplyr)
+library(reshape)
+library(GGally)
+
+library(popbio)
+
+library(LBSPR)
+library(spatstat)
+```
+
+```{r, params, eval=FALSE}
+## Read in parameters from fishbase
+load(url("https://github.com//fishnets//fishnets//blob//master//data//fishbase-web//fishbase-web.RData?raw=True"))
+
+## lh
+lh=subset(fb,species%in%c("Pollachius pollachius","Psetta maxima",
+                          "Scophthalmus rhombus","Raja clavata",
+                          "Sprattus sprattus","Sprattus sprattus sprattus")) 
+
+spp=c("Pollachius pollachius","Psetta maxima",
+      "Scophthalmus rhombus","Raja clavata",
+      "Sprattus sprattus","Sprattus sprattus sprattus")
+nm =c("Pollack","Turbot","Brill","Ray","Sprat","Sprat")
+
+names(lh)[c(14:17)]=c("l50","l50min","l50max","a50")
+lh=lh[,c("species","linf","k","t0","a","b","a50","l50","l50min","l50max")]
+
+lh[is.na(lh["l50"]),"l50"]=(lh[is.na(lh["l50"]),"l50min"]+lh[is.na(lh["l50"]),"l50max"])/2
+lh=lh[,-(9:10)]
+
+# Add extra parameters for pollack
+lh[lh$t0>=0,"t0"]=NA
+lh=rbind(lh[1,],lh)
+lh[1,-c(1,7:8)]=c(84.6,0.19,-0.94,0.01017,2.98)
+lh[1,"l50"]=0.72*lh[1,"linf"]^0.93
+
+lh=transform(lh,l50linf=l50/linf)
+
+fctr=ddply(lh,.(species),with,mean(linf))
+fctr=as.character(fctr[order(fctr$V1),"species"])
+
+lh$species=factor(as.character(lh$species),levels=fctr)
+```
+
+```{r, lhs, eval=FALSE}
+lhs=dlply(lh,.(species), with, {
+  
+    res=lhPar(FLPar(
+                   linf =mean(linf,na.rm=T),
+                   k    =mean(k,   na.rm=T),
+                   t0   =mean(t0,  na.rm=T),
+                   l50  =mean(l50, na.rm=T),
+                   a    =mean(a,   na.rm=T),
+                   b    =mean(b,   na.rm=T)))
+          
+     res=rbind(res,FLPar(lopt =2/3*mean(res["linf"])))
+     # also Linf*(3/(3+M/K)) 
+     res=rbind(res,FLPar(lmega=1.1*mean(res["lopt"])))
+     res})
+
+cor=cor(model.frame(lh)[,c("linf","k","l50","t0","a","b","l50linf")],
+        use="pairwise.complete.obs")
+
+save(lh,lhs,cor,file="data/lhs.RData")
+```
+
+```{r, design}
+load("/home/laurence-kell/Desktop/projects/mydas/papers/roc/data/lhs.RData")
+
+## Scenarios
+design=data.frame(s      =c( 0.9, 0.7, 0.9, 0.9, 0.9, 0.9),
+                  sel2   =c( 1.0, 1.0,5000, 1.0, 1.0, 1.0),
+                  sel3   =c(5000,5000,5000,  50,5000,5000),
+                  nsample=c( 500, 500, 500, 500, 250, 500),
+                  m      =c(rep("gislason",5),"constant"))
+design=mdply(expand.grid(Stock=names(lhs),CV=c("0.3","0.5","AR"),stringsAsFactors=FALSE), 
+             function(Stock,CV) design)
+
+key=rep(c("Base","h=0.7","Flat","Dome","Sample Size","M"),15)
+
+save(design,key,file="/home/laurence-kell/Desktop/papers/roc/results/design.RData")
+```
+
+```{r, cor, fig.height=10,fig.width=10}
+load("/home/laurence-kell/Desktop/projects/mydas/papers/roc/data/lhs.RData")
+
+my_smooth <- function(data,mapping,...){
+  ggplot(data=data,mapping=mapping)+
+    geom_point(...,size=.5)+
+    geom_smooth(...,method="lm",se=FALSE)}
+
+my_density <- function(data,mapping,...){
+  ggplot(data=data,mapping=mapping)+
+    geom_histogram(...,lwd=1)}
+
+theme_set(theme_bw(base_size=20))
+
+spp=c("Pollachius pollachius","Psetta maxima",
+      "Scophthalmus rhombus","Raja clavata",
+      "Sprattus sprattus","Sprattus sprattus sprattus")
+nm =c("Pollack","Turbot","Brill","Ray","Sprat","Sprat")
+
+names(nm)=spp
+
+dat=transform(lh[,c(1:3,8,6)],linf=log(linf),k=log(k),l50=log(l50))
+dat=transform(dat,name=nm[as.character(species)])[,-1]
+dat$name=factor(dat$name,levels=c("Sprat","Brill","Turbot","Pollack","Ray"))
+ggpairs(dat,
+          mapping = ggplot2::aes(colour=name,fill=name),
+          lower = list(continuous = wrap(my_smooth)),
+          diag=list(continuous=wrap(my_density,alpha=1)),
+          title = "")+
+  theme(legend.position ="none",
+        panel.grid.major =element_blank(),
+        axis.ticks       =element_blank(),
+        axis.text.x      =element_blank(),
+        axis.text.y      =element_blank(),
+        panel.border     =element_rect(linetype = 1, colour="black", fill=NA),
+        text = element_text(size = 30))
+```
+
+**Figure `r iFig=iFig+1; iFig`** Life history parameters and the correlations between them.
+
+
+```{r, oms, eval=FALSE}
+f=FLQuant(c(rep(0.1,60),seq(0.1,2.5,length.out=40)[-40],
+            seq(2.5,0.7,length.out=11),rep(0.7,20)))
+
+nits=100
+set.seed(234)
+srDev=rlnoise(nits,f%=%0,0.3,0)
+
+oms=llply(lhs, function(x,f,srDev){
+  eq      =lhEql(x)
+  fbar(eq)=f%*%refpts(eq)["msy","harvest"]
+  
+  ##check fmsy is estimated
+  if (any(is.na(refpts(eq)["msy","harvest"])))
+    fbar(eq)[,,,,,is.na(refpts(eq)["msy","harvest"])]=
+      f%*%refpts(eq)["f0.1","harvest",is.na(refpts(eq)["msy","harvest"])]
+  
+  om      =propagate(as(eq,"FLStock"),dim(srDev)[6])
+  om      =fwd(om,fbar=fbar(eq)[,-1],
+               sr=eq,residuals=srDev)
+  om},f=f,srDev=srDev)
+
+oms=FLStocks(oms)
+
+msy=ldply(lhs, function(x){
+  eq      =lhEql(x)
+  model.frame(refpts(eq)["msy",1:4])})
+
+msy=transform(msy,qname=factor(quant,labels=c("Rec","SSB","Catch","F"),
+                                      levels=c("rec","ssb","yield","harvest")))
+names(msy)[1]="stock"
+
+save(oms,msy,  
+     file="data/oms.RData")
+```
+
+
+\newpage
+\blandscape
+
+```{r, ts, fig.height=7, fig.width=12}
+library(ggh4x)
+
+load("/home/laurence-kell/Desktop/projects/mydas/papers/roc/data/oms.RData")  
+
+p=plot(FLStocks(llply(oms, window,start=50))) 
+p$data=transform(merge(p$data,msy,by=c("qname","stock")),data=data/msy)
+p$data=transform(p$data, quant=factor(quant,labels=c("Fishing \nMortality", "Yield", "Recruitment", "SSB")))
+
+p$data$stock=factor(p$data$stock,
+                    labels=c("sprat","brill","turbot","pollack","ray"),
+                    levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"))
+
+p=p+facet_grid(qname~stock,scale="free")+
+  geom_hline(aes(yintercept=1),col="red",linetype=2)+
+  theme_bw()+
+  theme(legend.position="none")+
+  xlab("Year")
+
+p8=plot(FLStocks(llply(oms, function(x) window(iter(x,8),start=50))))
+p8$data=transform(merge(p8$data,msy,by=c("qname","stock")),data=data/msy)
+p8$data=transform(p8$data, quant=factor(quant,labels=c("Fishing \nMortality", "Yield", "Recruitment", "SSB")))
+p8=p8+facet_grid(qname~stock,scale="free")+
+  geom_hline(aes(yintercept=1),col="red",linetype=2)+
+  theme_bw()+
+  theme(legend.position="none")+
+  xlab("Year")
+p8$data$stock=factor(p8$data$stock,
+                    labels=c("sprat","brill","turbot","pollack","ray"),
+                    levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"))
+
+p+geom_line(aes(year,data),data=p8$data,col="grey50")+
+  facet_grid(quant~stock,scale="free")+
+  scale_color_manual(values=rep("black",5))+
+  scale_fill_manual(values=rep("grey",5))+
+  theme_bw()+
+  theme(legend.position="none", text=element_text(size=20))+
+    facetted_pos_scales(
+    y = list(
+      quant == "Fishing \nMortality"~scale_y_continuous(limits=c(0, 2.5),  breaks=c(0,1.0,2.0)),
+      quant == "Yield"              ~scale_y_continuous(limits=c(0, 2.0),  breaks=c(0,1.0)),
+      quant == "Recruitment"        ~scale_y_continuous(limits=c(0, 3.0),  breaks=c(0,1.0,2.0)),
+      quant == "SSB"                ~scale_y_continuous(limits=c(0, 12.5), breaks=c(0,0.1,10))))
+
+```
+
+
+\elandscape
+
+```{r, lfd-data, eval=FALSE}
+invAlks =llply(lhs,invAlk,cv=0.1)
+
+lfds=mdply(data.frame(stock=as.character(names(oms)),stringsAsFactors=FALSE), 
+           function(stock){
+  om=window(oms[[stock]],start=2)
+  
+  if (any(any(catch.n(om)<0)))
+    catch.n(om)[catch.n(om)<0]=0.0
+  
+  catch.n(om)[1]=0
+  lfd=lenSample(catch.n(om),invAlks[[stock]],nsample=500)
+  lfd=transform(melt(lfd),data=value)[,-4]
+  lfd=subset(as.data.frame(lfd,drop=TRUE),data>0)
+  
+  lfd})
+
+save(lfds,invAlk,file="data/lfds.RData")
+```
+
+\newpage
+```{r, lfd, fig.width=12, fig.height=6}
+load("/home/laurence-kell/Desktop/projects/mydas/papers/roc/data/lfds.RData")
+load("/home/laurence-kell/Desktop/papers/roc/results/indicators.RData")
+
+dat=ddply(subset(lfds,year%in%c(51,100,120)&iter==2),.(stock), transform,
+          len =len/max(len),
+          max =max(len))
+dat$label=c("0.1Fmsy","2.5Fmsy","Fmsy")[factor(dat$year)]
+names(dat)[1]="Stock"
+max=dat[!duplicated(dat[,c("Stock")]),][,c("Stock","max")]
+
+lns=subset(indicators,year%in%c(51,100,120))
+lns=lns[!duplicated(lns[,c("Stock","year")]),
+                   c("Stock","year","lmega","lopt","linf","l50","lc")]
+                   
+lns=merge(lns,max,by="Stock")
+ln2=transform(lns,
+          lmega =lmega/max,
+          lopt  =lopt/max,
+          linf  =linf/max,
+          l50   =l50 /max,
+          lc    =lc/max)
+ln2=melt(ln2[,-(7:8)],id=c("Stock","year"))
+
+dat$Stock=factor(dat$Stock,levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"),
+                           labels=c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray"))
+ln2$Stock=factor(ln2$Stock,levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"),
+                           labels=c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray"))
+dat$year=factor(dat$year,levels=c(51,100,120),
+                         labels=c("FMSY","2.5FMSY","0.7FMSY"))
+ln2$year=factor(ln2$year,levels=c(51,100,120),
+                         labels=c("FMSY","2.5FMSY","0.7FMSY"))
+
+ggplot(dat)+    
+  geom_histogram(aes(len,weight=data),binwidth=0.05)+
+  geom_vline(aes(xintercept=value,col=variable),data=ln2)+
+  facet_grid(year~Stock,scale="free")+
+  xlab("Relative Length")+ylab("")+
+  scale_color_manual("Indicator",values=rainbow(5))+
+  theme_bw()+
+  theme(legend.position="none", text=element_text(size=20))
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Simulated length frequencies distributions with indicators.
+
+\blandscape
+```{r, inds,fig.width=12,fig.height=8}
+load("/home/laurence-kell/Desktop/papers/roc/results/indicators.RData")
+indicators=subset(indicators,!(scen%in%dimnames(subset(design,sel2==5000))[[1]]))
+
+quad=data.frame(x=c(50,80, 80, 50,  80,90,90,80, 90,105,105,90, 
+                    105,110,110,105, 110,120,120,110), 
+                y=rep(c(-Inf,-Inf,Inf,Inf),5),
+                f=c(rep("green", 4),rep("amber", 4),rep("red",4),
+                    rep("amber2",4),rep("green2",4)))
+indicators=transform(subset(indicators,Fishery=="Independent"),
+               l95   =(l95/linf),
+               l25   =(l25/l50),
+               lmax5 =(lmax5/linf),
+               lmean =(lmean/lopt),
+               lbar  =(lbar/l50),
+               lmaxy =(lmaxy/lopt),
+               lc    =(lc/l50),
+               pmega =(pmega))
+
+ref=data.frame(quant=c("l95","l25","lmax5","lmean","lbar","lmaxy","lc","pmega"),
+               ref  =c(  0.8,  1.0,    0.8,    1.0,   1.0,    1.0, 1.0,   0.3))          
+ref$quant=factor(ref$quant,levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+
+inds=subset(subset(indicators,scen%in%dimnames(subset(design,CV==0.3&sel2==1&sel3==5000&m=="gislason"&nsample==500&s==0.9))[[1]]&year>=50&year<=120))
+
+lind=dlply(inds,.(Stock),with, FLQuants(
+                  l25  =as.FLQuant(data.frame(year=year,iter=iter,data=l25),  units="NA"),
+                  lc   =as.FLQuant(data.frame(year=year,iter=iter,data=lc),   units="NA"),
+                  lmaxy=as.FLQuant(data.frame(year=year,iter=iter,data=lmaxy),units="NA"),
+                  lmean=as.FLQuant(data.frame(year=year,iter=iter,data=lmean),units="NA"),
+                  lbar =as.FLQuant(data.frame(year=year,iter=iter,data=lbar), units="NA"),
+                  lmax5=as.FLQuant(data.frame(year=year,iter=iter,data=lmax5),units="NA"),
+                  l95  =as.FLQuant(data.frame(year=year,iter=iter,data=l95) , units="NA"),
+                  pmega=as.FLQuant(data.frame(year=year,iter=iter,data=pmega),units="NA")))
+              
+# Reduce FLQuants to FLQuant with names as quant
+fqs <- FLQuants(lapply(lind, function(x) {
+  res <- Reduce(f=qbind, x=x)
+  dimnames(res)$quant <- names(x)
+  return(res)
+}))
+
+# plot FLQuants w/ facet quant~qname
+p=plot(fqs)
+p$data$qname=factor(p$data$qname,levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"),
+                                 labels=c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray"))
+p$data$quant=factor(p$data$quant,levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+
+
+p+facet_grid(quant~qname, scale="free")+
+  geom_polygon(aes(x,y,fill=f), data=quad, alpha=0.2) +
+  scale_fill_manual(values=c("orange","orange","orange","green","green","red"))+
+  geom_vline(aes(xintercept=x),
+    data=data.frame(y="2FMSY", x=c(90,105)), col="red") +
+  geom_vline(aes(xintercept=x),
+    data=data.frame(y="2FMSY", x=c(80,110)), col="orange") +
+  geom_hline(aes(yintercept=ref),data=ref, linetype=2)+
+  xlab("Year")+ylab("Indicator")  
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Time series of fishery independent indicators relative to $F:F_{MSY}$, vertical lines indicate 1 (green), 1.5 (orange) and 2 (red) times $F_{MSY}$.
+
+
+```{r, indc,fig.width=12,fig.height=8}
+load("/home/laurence-kell/Desktop/papers/roc/results/indicators.RData")
+indicators=subset(indicators,!(scen%in%dimnames(subset(design,sel2==5000))[[1]]))
+
+indicators=transform(subset(indicators,Fishery=="Dependent"),
+               l95   =(l95/linf),
+               l25   =(l25/l50),
+               lmax5 =(lmax5/linf),
+               lmean =(lmean/lopt),
+               lbar  =(lbar/l50),
+               lmaxy =(lmaxy/lopt),
+               lc    =(lc/l50),
+               pmega =(pmega))
+
+inds=subset(subset(indicators,scen%in%dimnames(subset(design,CV==0.3&sel2==1&sel3==5000&m=="gislason"&nsample==500&s==0.9))[[1]]&year>=50&year<=120))
+
+lind=dlply(inds,.(Stock),with, FLQuants(
+                  l25  =as.FLQuant(data.frame(year=year,iter=iter,data=l25),  units="NA"),
+                  lc   =as.FLQuant(data.frame(year=year,iter=iter,data=lc),   units="NA"),
+                  lmaxy=as.FLQuant(data.frame(year=year,iter=iter,data=lmaxy),units="NA"),
+                  lmean=as.FLQuant(data.frame(year=year,iter=iter,data=lmean),units="NA"),
+                  lbar =as.FLQuant(data.frame(year=year,iter=iter,data=lbar), units="NA"),
+                  lmax5=as.FLQuant(data.frame(year=year,iter=iter,data=lmax5),units="NA"),
+                  l95  =as.FLQuant(data.frame(year=year,iter=iter,data=l95) , units="NA"),
+                  pmega=as.FLQuant(data.frame(year=year,iter=iter,data=pmega),units="NA")))
+
+# Reduce FLQuants to FLQuant with names as quant
+fqs <- FLQuants(lapply(lind, function(x) {
+  res <- Reduce(f=qbind, x=x)
+  dimnames(res)$quant <- names(x)
+  return(res)
+}))
+
+# plot FLQuants w/ facet quant~qname
+p=plot(fqs) +
+  facet_grid(quant~qname, scale="free") +
+  geom_polygon(aes(x,y,fill=f), data=quad, alpha=0.2) +
+  geom_hline(aes(yintercept=ref),data=ref, linetype=2)+
+  geom_vline(aes(xintercept=x),
+    data=data.frame(y="2FMSY", x=c(90,105)), col="red") +
+  geom_vline(aes(xintercept=x),
+    data=data.frame(y="2FMSY", x=c(80,110)), col="orange") +
+  scale_fill_manual(values=c("orange","orange","orange","green","green","red"))+
+  xlab("Year")+ylab("Indicator")
+
+head(p$data$quant)
+p$data$qname=factor(p$data$qname,levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"),
+                                 labels=c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray"))
+p$data$quant=factor(p$data$quant,levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+
+p
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Time series of fishery dependent indicators relative to $F:F_{MSY}$, vertical lines indicate 1 (green), 1.5 (orange) and 2 (red) times $F_{MSY}$.
+
+
+\elandscape
+
+```{r}
+load("/home/laurence-kell/Desktop/papers/roc/results/indicators.RData")
+indicators=subset(indicators,!(scen%in%dimnames(subset(design,sel2==5000))[[1]]))  
+
+ind=transform(subset(indicators,year%in%61:100),
+              overfished=!(as.numeric(year)%in%80:100))
+ind=ind[,c("Fishery","Stock","scen","overfished","l95","l25","lmax5","lmean","lbar","lmaxy","lc","pmega","lmega")]
+ind=melt(ind,id=c("Fishery","Stock","scen","overfished"))
+
+roc=ddply(ind,.(Stock,Fishery,scen,variable),with, 
+                      mydas:::roc(overfished,value))
+
+bst=ddply(roc,.(Stock,Fishery,scen,variable), transform, 
+                     dst=(1-TPR)^2+(FPR)^2)
+bst=ddply(bst,.(Stock,Fishery,scen,variable), with, 
+                     data.frame(TPR      =TPR[dst==min(dst)],
+                                FPR      =FPR[dst==min(dst)],
+                                reference=reference[dst==min(dst)]))
+names(bst)[4]="Indicator"
+
+ices=transform(subset(indicators,year%in%61:100),
+               overfished=(as.numeric(year)%in%80:100),
+               l95   =(l95/linf-0.8)^2,
+               l25   =(l25/l50-1)^2,
+               lmax5 =(lmax5/linf-0.8)^2,
+               lmean =(lmean/lopt-1)^2,
+               lbar  =(lbar/l50-1)^2,
+               lmaxy =(lmaxy/lopt-1)^2,
+               lc    =(lc/l50-1)^2,
+               pmega =(pmega-0.3)^2)
+ices=melt(ices[,c("Fishery","Stock","scen","overfished","l95","l25","lmax5","lmean","lbar","lmaxy","lc","pmega","lmega")],
+          id=c("Fishery","Stock","scen","overfished"))
+ices=cbind(roc[ do.call("order",roc[,c("Fishery","Stock","scen","variable")]),],
+           ices=ices[do.call("order",ices[,c("Fishery","Stock","scen","variable")]),"value"])
+
+ices=ddply(ices,.(Stock,Fishery,scen,variable),with, data.frame(TPR  =TPR[ices==min(ices)][1],
+                                                                FPR  =FPR[ices==min(ices)][1],
+                                                                ices=ices[ices==min(ices)][1]))
+
+roc$Stock =factor(roc$Stock, levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"),
+                             labels=c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray"))
+bst$Stock =factor(bst$Stock, levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"),
+                             labels=c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray"))
+ices$Stock=factor(ices$Stock,levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"),
+                             labels=c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray"))
+
+names(roc)[4] ="Indicator"
+names(bst)[4] ="Indicator"
+names(ices)[4]="Indicator"
+
+roc =subset(roc, Indicator!="lmega")
+bst =subset(bst, Indicator!="lmega")
+ices=subset(ices,Indicator!="lmega")
+
+roc$Indicator =factor(roc$Indicator, levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+bst$Indicator =factor(bst$Indicator, levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+ices$Indicator=factor(ices$Indicator,levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+```
+
+
+```{r, roc-overf}
+ggplot(roc)+ 
+  geom_path(aes(FPR,TPR,group=paste(scen,Fishery),col=Fishery))+
+  facet_grid(Indicator~Stock)+
+  geom_line(aes(x,y),data.frame(x=seq(0,1,0.01),y=seq(0,1,0.01)),linetype="dashed")+
+  #geom_point(aes(FPR,TPR),data=bst,col="black")+
+  #geom_point(aes(FPR,TPR),data=subset(bst,TPR+FPR>1),col="blue",size=2)+
+  geom_point(aes(FPR,TPR,fill=Fishery),data=ices,shape=21,size=2.5)+
+  xlab("False Positive Rate")+ylab("True Positive Rate")+
+  scale_fill_manual(values=c("black","grey"))+
+  scale_colour_manual(values=c("black","grey"))+
+  theme_bw(16)+
+  theme(legend.position="bottom") 
+
+bst =transform(bst,score=((1-TPR)^2+FPR^2)^0.5)
+bst =cbind(bst,design[bst$scen,])
+ices=transform(ices,score=((1-TPR)^2+FPR^2)^0.5)
+ices=cbind(ices,design[ices$scen,])     
+
+save(roc,bst,ices,file="/home/laurence-kell/Desktop/papers/roc/results/overf.RData")  
+```
+**Figure `r iFig=iFig+1; iFig`.** ROC curves to detect overfishing i.e.  years 80 to 100 over 60 to 100
+
+
+```{r}
+load("/home/laurence-kell/Desktop/papers/roc/results/indicators.RData")
+indicators=subset(indicators,!(scen%in%dimnames(subset(design,sel2==5000))[[1]]))
+
+ind=transform(subset(indicators,year%in%100:120),
+              overfished=!(as.numeric(year)%in%100:109))
+ind=ind[,c("Fishery","Stock","scen","overfished","l95","l25","lmax5","lmean","lbar","lmaxy","lc","pmega")]
+ind=melt(ind,id=c("Fishery","Stock","scen","overfished"))
+
+roc=ddply(ind,.(Stock,Fishery,scen,variable),with, 
+                      mydas:::roc(overfished,value))
+
+bst=ddply(roc,.(Stock,Fishery,scen,variable), transform, 
+                     dst=(1-TPR)^2+(FPR)^2)
+bst=ddply(bst,.(Stock,Fishery,scen,variable), with, 
+                     data.frame(TPR      =TPR[dst==min(dst)],
+                                FPR      =FPR[dst==min(dst)],
+                                reference=reference[dst==min(dst)]))
+names(bst)[4]="Indicator"
+
+ices=transform(subset(indicators,year%in%100:120),
+               overfished=(as.numeric(year)%in%100:100),
+               l95   =(l95/linf-0.8)^2,
+               l25   =(l25/l50-1)^2,
+               lmax5 =(lmax5/linf-0.8)^2,
+               lmean =(lmean/lopt-1)^2,
+               lbar  =(lbar/l50-1)^2,
+               lmaxy =(lmaxy/lopt-1)^2,
+               lc    =(lc/l50-1)^2,
+               pmega =(pmega-0.3)^2)
+ices=melt(ices[,c("Fishery","Stock","scen","overfished","l95","l25","lmax5","lmean","lbar","lmaxy","lc","pmega")],
+          id=c("Fishery","Stock","scen","overfished"))
+ices=cbind(roc[ do.call("order",roc[,c("Fishery","Stock","scen","variable")]),],
+           ices=ices[do.call("order",ices[,c("Fishery","Stock","scen","variable")]),"value"])
+
+ices=ddply(ices,.(Stock,Fishery,scen,variable),with, data.frame(TPR  =TPR[ices==min(ices)][1],
+                                                                FPR  =FPR[ices==min(ices)][1],
+                                                                ices=ices[ices==min(ices)][1]))
+names(ices)[4]="Indicator"
+names(roc)[ 4]="Indicator"
+
+roc$Stock =factor(roc$Stock, levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"),
+                             labels=c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray"))
+bst$Stock =factor(bst$Stock, levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"),
+                             labels=c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray"))
+ices$Stock=factor(ices$Stock,levels=c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata"),
+                             labels=c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray"))
+
+roc =subset(roc, Indicator!="lmega")
+bst =subset(bst, Indicator!="lmega")
+ices=subset(ices,Indicator!="lmega")
+
+roc$Indicator=factor(roc$Indicator,levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+bst$Indicator=factor(bst$Indicator,levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+ices$Indicator=factor(ices$Indicator,levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+```
+
+
+```{r, roc-recover}
+ggplot(roc)+ 
+  geom_path(aes(FPR,TPR,group=paste(scen,Fishery),col=Fishery))+
+  facet_grid(Indicator~Stock)+
+  geom_line(aes(x,y),data.frame(x=seq(0,1,0.01),y=seq(0,1,0.01)),linetype="dashed")+
+  #geom_point(aes(FPR,TPR),data=bst)+
+  geom_point(aes(FPR,TPR,fill=Fishery),data=ices,shape=21,size=2.5)+
+  scale_fill_manual(values=c("black","grey"))+
+  scale_colour_manual(values=c("black","grey"))+
+  xlab("False Positive Rate")+ylab("True Positive Rate")+
+  theme(legend.position="none", text=element_text(size=20))+
+  theme_bw(16)+
+  theme(legend.position="bottom")
+
+bst =transform(bst,score=((1-TPR)^2+FPR^2)^0.5)
+bst =cbind(bst,design[bst$scen,])
+ices=transform(ices,score=((1-TPR)^2+FPR^2)^0.5)
+ices=cbind(ices,design[ices$scen,])
+
+save(roc,bst,ices,file="/home/laurence-kell/Desktop/papers/roc/results/recover.RData")  
+```
+
+**Figure `r iFig=iFig+1; iFig`.** ROC recovery, power to detect reduction in fishing from 100 to 120
+
+
+```{r, smry1-overf}
+load("/home/laurence-kell/Desktop/papers/roc/results/design.RData")  
+load("/home/laurence-kell/Desktop/papers/roc/results/overf.RData") 
+
+names(ices)[4]="Indicator"
+names(bst)[4] ="Indicator"
+dat=rbind(cbind(Source="ICES", ices[,c("Stock","Fishery","scen","score","Indicator")]),
+          cbind(Source="Tuned",bst[, c("Stock","Fishery","scen","score","Indicator")]))
+
+design$Stock=factor(design$Stock,levels=rev(c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata")),
+                                 labels=rev(c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray")))
+dat=subset(dat,Indicator!="lmega")
+
+dat$Indicator=factor(dat$Indicator,levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+
+dat=merge(dat,cbind(scen=seq(90),key=key,design))
+dat$Stock=factor(dat$Stock,levels=rev(c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray")))
+ggplot(dat)+
+  geom_boxplot(aes(Stock,score,fill=Fishery))+
+  scale_fill_manual(values=c("black","grey"))+
+  theme(legend.position="right")+
+  facet_grid(Indicator~Source)+
+  coord_flip()+scale_y_continuous(limits=c(0,1.25))+
+  ylab("Euclidean Distance Best Classification")+xlab("Indicator")+
+  theme_bw(16)+
+  theme(legend.position="bottom", text=element_text(size=20))
+dat1=dat
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Euclidean distance from TPR=1 and FPR=0 for detecting overfishing.
+
+```{r smry1-recover}
+load("/home/laurence-kell/Desktop/papers/roc/results/recover.RData")
+load("/home/laurence-kell/Desktop/papers/roc/results/design.RData")
+
+names(ices)[4]="Indicator" 
+names(bst)[ 4]="Indicator"
+dat=rbind(cbind(Source="ICES", ices[,c("Stock","Fishery","scen","score","Indicator")]),
+          cbind(Source="Tuned",bst[, c("Stock","Fishery","scen","score","Indicator")]))
+
+design$Stock=factor(design$Stock,levels=rev(c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata")),
+                                 labels=rev(c("Sprat",                     "Brill",               "Turbot",       "Pollack",              "Ray")))
+dat$Indicator=factor(dat$Indicator,levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+dat=merge(dat,cbind(scen=seq(90),key=key,design))
+dat$Stock=factor(dat$Stock,levels=rev(c("Sprat","Brill","Turbot","Pollack","Ray")))
+ggplot(dat)+
+  geom_boxplot(aes(Stock,score,fill=Fishery))+
+  scale_fill_manual(values=c("black","grey"))+
+  theme(legend.position="right")+
+  facet_grid(Indicator~Source)+
+  coord_flip()+scale_y_continuous(limits=c(0,1.25))+
+  ylab("Euclidean Distance From Best Classification")+xlab("Indicator")+
+  theme_bw(16)+
+  theme(legend.position="bottom", text=element_text(size=20))
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Euclidean distance from TPR=1 and FPR=0 for detecting recovery.
+
+
+```{r smry1-recover-over}
+ggplot(rbind(cbind(Stage="Overfish",dat1),cbind(Stage="Recovery",dat)))+
+  geom_boxplot(aes(Stock,score,fill=Fishery))+
+  scale_fill_manual(values=c("black","grey"))+
+  theme(legend.position="right")+
+  facet_grid(Indicator~Source+Stage)+
+  coord_flip()+scale_y_continuous(limits=c(0,1.25))+
+  ylab("Euclidean Distance From Best  Classification")+xlab("Indicator")+
+  theme_bw(16)+
+  theme(legend.position="bottom", text=element_text(size=20))
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Euclidean distance from TPR=1 and FPR=0 
+
+
+```{r, auc}
+library(pROC)
+
+load("/home/laurence-kell/Desktop/papers/roc/results/design.RData")
+design$Stock=factor(design$Stock,levels=rev(c("Sprattus sprattus sprattus","Scophthalmus rhombus","Psetta maxima","Pollachius pollachius","Raja clavata")),
+                                 labels=rev(c("Sprat",                     "Brill",              "Turbot",              "Pollack",              "Ray")))
+
+load("/home/laurence-kell/Desktop/papers/roc/results/overf.RData")  
+dat=cbind(Status="Over Fished",roc)
+load("/home/laurence-kell/Desktop/papers/roc/results/recover.RData")
+dat=rbind(dat,cbind(Status="Recovery",roc))
+dat=subset(dat,Indicator!="lmega")
+dat=ddply(dat,.(Stock,scen,Indicator,Fishery,Status), with, data.frame(auc=auc(labels, reference)))
+
+dat$Indicator=factor(dat$Indicator,levels=c("lc","l25","lmaxy","lmean","lbar","lmax5","l95","pmega"))
+dat=merge(dat,cbind(scen=seq(90),key=key,design))
+dat$Stock=factor(dat$Stock,levels=rev(c("Sprat","Brill","Turbot","Pollack","Ray")))
+ggplot(dat)+
+  geom_boxplot(aes(Stock,auc,fill=Fishery))+
+  geom_hline(aes(yintercept=c(0.5)))+
+  geom_hline(aes(yintercept=c(0.7)))+
+  geom_hline(aes(yintercept=c(0.8)))+
+  geom_hline(aes(yintercept=c(0.9)))+
+  scale_fill_manual(values=c("black","grey"))+
+  theme(legend.position="right")+
+  facet_grid(Indicator~Status)+
+  coord_flip()+ 
+  ylab("Area under the ROC curve")+xlab("Indicator")+
+  theme_bw(16)+
+  theme(legend.position="bottom", text=element_text(size=20))
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Area under the ROC curve.
+
+\newpage
+```{r}
+rsd=ddply(dat,.(Stock,Indicator,Fishery,Status), with, data.frame(scen=scen,residual=auc-mean(auc)))
+olr=subset(rsd,residual<(-0.1))
+subset(dat[dimnames(olr)[[1]],],Fishery=="Dependent")[,c(1,3,5,7)]
+```
+
+
+\newpage
+```{r, smry2-overf}
+load("/home/laurence-kell/Desktop/papers/roc/results/overf.RData")
+names(bst)[4]="Indicator"  
+
+tab=ddply(bst,.(Stock,Fishery,Indicator), with, data.frame(score=mean(score),TPR=mean(TPR),FPR=mean(FPR)))
+tab=melt(tab[,c(1:3,5:6)],id=c("Stock","Fishery","Indicator"))
+tab$Stock=factor(tab$Stock,levels=rev(c("Sprat","Brill","Turbot","Pollack","Ray")))
+
+ggplot(tab)+
+  geom_col(aes(x=value,y=Stock,fill=as.character(variable)))+
+  scale_fill_manual(values=c("black","grey"))+
+  facet_grid(Indicator~Fishery)+
+  scale_fill_manual("Runs Test",values=c("red","black"),labels=c("FPR","TPR"))+
+  xlab("Test")+
+  scale_x_continuous(limits=c(0,1.5))+
+  theme_bw(16)+
+  theme(legend.position="bottom", text=element_text(size=20))
+```
+**Figure `r iFig=iFig+1; iFig`.** Overfishing, Summary of TPR & FPR
+
+```{r, smry2-recover}
+load("/home/laurence-kell/Desktop/papers/roc/results/recover.RData")
+names(bst)[4]="Indicator"  
+
+tab=ddply(bst,.(Stock,Fishery,Indicator), with, data.frame(score=mean(score),TPR=mean(TPR),FPR=mean(FPR)))
+tab=melt(tab[,c(1:3,5:6)],id=c("Stock","Fishery","Indicator"))
+     
+tab$Stock=factor(tab$Stock,levels=rev(c("Sprat","Brill","Turbot","Pollack","Ray")))
+ggplot(tab)+ 
+  geom_col(aes(x=value,y=Stock,fill=as.character(variable)))+
+  facet_grid(Indicator~Fishery)+
+  scale_fill_manual("Runs Test",values=c("red","black"),labels=c("FPR","TPR"))+
+  xlab("Test")+
+  scale_x_continuous(limits=c(0,1.5))+
+  theme_bw(16)+
+  theme(legend.position="bottom", text=element_text(size=20))
+```
+**Figure `r iFig=iFig+1; iFig`.** Recovery, summary of TPR & FPR
+
+
+```{r, tree-overf, fig.width=8,fig.height=8}
+library(rpart)
+library(rpart.plot)  
+
+load("/home/laurence-kell/Desktop/papers/roc/results/overf.RData")
+
+names(bst)[4]="Indicator"
+dat=bst[,names(bst)[c(8,4,1:2,9:15)]]
+
+fit=rpart(1/score~Indicator+Stock+Fishery+Stock+CV+s+sel2 + sel3 + nsample + m, data=dat, maxdepth=3)
+
+rpart.plot(fit)
+```
+**Figure `r iFig=iFig+1; iFig`.** Overfishing, regression trees.
+
+
+\newpage
+```{r}
+rpart.rules(fit,style="tall")  
+
+class=cbind(class=fit[[2]],dat)
+save(roc,bst,ices,class,file="/home/laurence-kell/Desktop/papers/roc/results/overf.RData")  
+```  
+
+
+\newpage
+```{r, tree-recover, fig.width=8,fig.height=8}
+library(rpart)  
+
+load("/home/laurence-kell/Desktop/papers/roc/results/recover.RData")
+
+names(bst)[4]="Indicator" 
+
+dat=bst[,names(bst)[c(8,4,1:2,9:15)]]
+
+fit=rpart(1/score~Indicator+Stock+Fishery+Stock+CV+s+sel2 + sel3 + nsample + m, data=dat, maxdepth=3)
+
+rpart.plot(fit)
+```
+
+**Figure `r iFig=iFig+1; iFig`.** Recovery, regression trees.
+
+\newpage
+```{r}
+rpart.rules(fit,style="tall")  
+ 
+class=cbind(class=fit[[2]],dat) 
+save(roc,bst,ices,class,file="/home/laurence-kell/Desktop/papers/roc/results/recover.RData")  
+```
+
+
+```{r, ref}
+load("/home/laurence-kell/Desktop/papers/roc/results/indicators.RData")
+
+ref=transform(subset(indicators,year==100),
+               l95   =linf*0.8,
+               l25   =l50,
+               lmax5 =linf*0.8,
+               lmean =lopt,
+               lbar  =l50,
+               lmaxy =lopt,
+               lc    =l50,
+               pmega =0.3)
+ref=melt(ref[,c(1:2,9,12:20)],id=c("Stock","Fishery","scen"))
+names(ref)[4]="Indicator"
+names(nm)=spp
+ref$Stock=nm[ref$Stock]
+
+load("/home/laurence-kell/Desktop/papers/roc/results/overf.RData")
+
+dat=subset(merge(bst[,c(1:4,7)],ref,by=c("Stock","Fishery","scen","Indicator")),!(Indicator%in%c("lmega","pmega")))
+
+load("/home/laurence-kell/Desktop/papers/roc/results/recover.RData")
+dt2=subset(merge(bst[,c(1:4,7)],ref,by=c("Stock","Fishery","scen","Indicator")),!(Indicator%in%c("pmega")))
+
+dat=rbind(cbind(Stage="Overfished",dat),
+          cbind(Stage="Recovery", dt2))
+ggplot(transform(dat,ref=value/reference))+
+  geom_boxplot(aes(Stock,ref,fill=Fishery))+
+  theme(legend.position="right")+
+  facet_grid(Indicator~Stage)+
+  coord_flip()+ 
+  ylab("Ratio")+xlab("")+
+  theme_bw(16)+
+  theme(legend.position="bottom", text=element_text(size=20))
+```
+
+\newpage 
+# References {#References}
+
+## Author information
+
+**Laurence Kell**. laurie@seaplusplus.es
+
+## Acknowledgements
+
+This vignette and many of the methods documented in it were developed under the MyDas project funded by the Irish exchequer and EMFF 2014-2020. The overall aim of MyDas is to develop and test a range of assessment models and methods to establish Maximum Sustainable Yield (MSY) reference points (or proxy MSY reference points) across the spectrum of data-limited stocks.
+
+## Software Versions
+
+* `r version$version.string`
+* FLCore:    `r packageVersion('FLCore')`
+* FLBRP:     `r packageVersion('FLBRP')`
+* FLasher:   `r packageVersion('FLasher')`
+* FLife:     `r packageVersion('FLife')`
+* mydas:     `r packageVersion('mydas')`
+* **Compiled**: `r date()`
+
+
+```{r}
+flat=dimnames(subset(design,sel2==sel3))[[1]]
+
+```
+
