@@ -20,6 +20,14 @@
 #' \dontrun{
 #' }
 
+getBlim<-function(object,model="Segreg",nsamp=1000){
+  stk=trim(object, year=c(range(object)["minyear"]:range(object)["maxyear"]))
+  
+  srfit1=eqsr_fit(stk, nsamp=nsamp, models=model)
+  srfit1[["sr.det"]][,"b"]
+  }
+  
+  
 eqsim2<-function(stk,fbar=seq(0, 4, length=101), nsamp=2000, 
                   bio.years=c(-4,-0) + dims(stk)$maxyear,
                   sel.years=c(-4,-0) + dims(stk)$maxyear,

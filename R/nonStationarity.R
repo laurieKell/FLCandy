@@ -60,9 +60,55 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
   nms[[1]]=c(nms[[1]],"spr.100")
   refpts(eq)=FLPar(array(NA,lapply(nms,length),nms))
   
-  model(eq)=model(sr)
+  model(eq) =model(sr)
   params(eq)=params(sr)
+ 
+  rtn=list(computeRefpts(eq),
+            properties(eq))
+
+  rbind(transform(as.data.frame(rtn[[1]]),year=as.numeric(dimnames(object)$year[iter]))[,-3],
+        transform(as.data.frame(rtn[[2]]),year=as.numeric(dimnames(object)$year[iter]))[,-3])}
+
+processError<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel")){
   
-  rtn=computeRefpts(eq)
+  eq=FLBRP(object)
+  eq=propagate(eq,dim(object)[2])
   
-  transform(as.data.frame(rtn),year=as.numeric(dimnames(object)$year[iter]))[,-3]}
+  year2iter<-function(x){
+    tmp=as.data.frame(x,drop=T)
+    names(tmp)[names(tmp)=="year"]="iter"
+    as.FLQuant(tmp)}
+  
+  if ("m"%in%slots)     m(eq)=year2iter(m(object))
+  if ("mat"%in%slots) mat(eq)=year2iter(mat(object))
+  
+  if ("stock.wt"%in%slots) stock.wt(   eq)=year2iter(stock.wt(object))
+  if ("catch.wt"%in%slots|"landinhgs.wt"%in%slots) landings.wt(eq)=year2iter(landings.wt(object))
+  if ("catch.wt"%in%slots|"discards.wt" %in%slots) discards.wt(eq)=year2iter(discards.wt(object))
+  
+  if ("catch.sel"%in%slots|"landinhgs.sel"%in%slots) landings.sel(eq)=year2iter(catch.sel(object)%*%landings.n(object)%/%catch.n(object))
+  if ("catch.sel"%in%slots|"discards.sel"%in%slots)  discards.sel(eq)=year2iter(catch.sel(object)%*%discards.n(object)%/%catch.n(object))
+  
+  nms=dimnames(refpts(eq))
+  nms[[1]]=c(nms[[1]],"spr.100")
+  refpts(eq)=FLPar(array(NA,lapply(nms,length),nms))
+  
+  model(eq) =model(sr)
+  params(eq)=params(sr)
+                  
+  dmns=list(refpt=c("production"),
+             quant=c("harvest","yield","rec","ssb","biomass","revenue","cost","profit"),
+             iter =dimnames(eq)$iter)
+  prd=FLPar(array(NA,dim=laply(dmns,length),dimnames=dmns))
+  prd[,"ssb"]=c(ssb(object))
+  refpts(eq)=prd
+  prd=computeRefpts(eq)
+  
+  production=as.FLQuant(c(prd[,"yield"]),dimnames=dimnames(ssb(object)))
+  ssb.t=window(ssb(object),start=dims(ssb(object))$minyear+1,end=dims(ssb(object))$maxyear+1)
+
+  FLQuants(ssb=ssb(object),
+           catch=catch(object),
+           production=production,
+           error=-ssb(object)+ssb.t-catch(object)+production)
+  }

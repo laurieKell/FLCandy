@@ -34,3 +34,17 @@ spr0Yr<-function(object){
   rtn=apply(fec*survivors,2,sum)
   rtn}
 
+
+spawnpr <- function(x) {
+  
+  # survival rates
+  surv <- exp(apply(-m(x), 2:6, cumsum))
+  
+  fsurv <- exp(apply(-m(x) - harvest(x), 2:6, cumsum))
+  
+  # SPR
+  res <- quantSums(fsurv  mat(x)  stock.wt(x)) /
+    quantSums(surv  mat(x)  stock.wt(x))
+  
+  return(res)
+}

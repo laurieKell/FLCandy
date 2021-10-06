@@ -21,7 +21,6 @@
 #' }
 
 spr0Cohort<-function(object){
-  object=setPlusGroup(ple4,10)
   m     =FLCohort(m(object))
   mspwn =FLCohort(m.spwn(object))
   wt    =FLCohort(stock.wt(object))
