@@ -39,6 +39,7 @@
 nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel")){
   
   eq=FLBRP(object)
+  
   eq=propagate(eq,dim(object)[2])
   
   year2iter<-function(x){
@@ -53,8 +54,17 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
   if ("catch.wt"%in%slots|"landinhgs.wt"%in%slots) landings.wt(eq)=year2iter(landings.wt(object))
   if ("catch.wt"%in%slots|"discards.wt" %in%slots) discards.wt(eq)=year2iter(discards.wt(object))
   
-  if ("catch.sel"%in%slots|"landinhgs.sel"%in%slots) landings.sel(eq)=year2iter(catch.sel(object)%*%landings.n(object)%/%catch.n(object))
-  if ("catch.sel"%in%slots|"discards.sel"%in%slots)  discards.sel(eq)=year2iter(catch.sel(object)%*%discards.n(object)%/%catch.n(object))
+  if ("catch.sel"%in%slots|"landings.sel"%in%slots) {
+    sel=catch.sel(object)%*%landings.n(object)%/%catch.n(object)
+    sel[is.na(sel)]=0
+    sel[!is.finite(sel)]=0
+    landings.sel(eq)=year2iter(sel)}
+  
+  if ("catch.sel"%in%slots|"discards.sel"%in%slots)  {
+    sel=catch.sel(object)%*%discards.n(object)%/%catch.n(object)
+    sel[is.na(sel)]=0
+    sel[!is.finite(sel)]=0
+    discards.sel(eq)=year2iter(sel)}
   
   nms=dimnames(refpts(eq))
   nms[[1]]=c(nms[[1]],"spr.100")
@@ -63,11 +73,15 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
   model(eq) =model(sr)
   params(eq)=params(sr)
  
-  rtn=list(computeRefpts(eq),
+  rtn=rbind(computeRefpts(eq),
             properties(eq))
+  
+  rtn=rtn[!duplicated(dimnames(rtn)[[1]])]
+  rtn=rtn[,apply(rtn,2,function(x) all(is.na(x)))==0]
+  
+  names(dimnames(rtn))=names(refpts(eq))
 
-  rbind(transform(as.data.frame(rtn[[1]]),year=as.numeric(dimnames(object)$year[iter]))[,-3],
-        transform(as.data.frame(rtn[[2]]),year=as.numeric(dimnames(object)$year[iter]))[,-3])}
+  transform(as.data.frame(rtn),year=as.numeric(dimnames(object)$year[iter]))[,-3]}
 
 processError<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel")){
   
