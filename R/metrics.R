@@ -148,45 +148,45 @@ lenFn<-function(x,y){
   model.frame(FLQuants(x,"sln"=sln,"cln"=cln),drop=TRUE)}
 
 
-if (FALSE){
-
-library(FLCore)
-library(FLBRP)
-  
-data(ple4)
-data(ple4brp)
-setGeneric('ssbMetric', function(object,y,...) standardGeneric('ssbMetric'))
-setMethod('ssbMetric', signature(object="FLStock",y="missing"),
-          function(object,y,refpt="msy",quant="ssb",...){
-            ssb(object)})
-setMethod('ssbMetric', signature(object="FLStock",y="FLPar"),
-          function(object,y,refpt="msy",quant="ssb",...){
-            ssb(object)%/%y[refpt,quant]})
-setMethod('ssbMetric', signature(object="FLStock",y="FLBRP"),
-          function(object,y,refpt="msy",quant="ssb",...){
-            ssb(object)%/%properties(y)[refpt,quant]})
-setMethod('ssbMetric', signature(object="FLStock",y="FLQuant"),
-          function(object,y,...){
-            ssb(object)%/%y})
-
-ssbMetric(ple4)
-ssbMetric(ple4,properties(ple4brp))
-
-ssbMetric(ple4,ple4brp)
-ssbMetric(ple4,ple4brp,"lower pgy")
-
-ssbMetric(ple4,ple4brp,"virgin")
-
-ssbMetric(ple4,ple4brp,"virgin")
-
-    
-  ssb , stock, ebiomass, rec, juv,  catch, catchjuv, landings, landingsjuv, discards, discardsjuv, fbar , hvt , swt , cwt, sage, cage 
-  load("~/Desktop/rfmo/ices/wkref/data/ICESStocks_2021_eqsim_corrected_fishlife.Rdata")
-  
-  ple4=ICESStocks[["ple.27.420"]]
-  
-  head(omSmry(ple4))
-  head(omSmry(ple4,eq))
-  head(omSmry(ple4,FLPar(attributes(ICESStocks[[1]])$fishlife)))
-  head(omSmry(ple4,eq,FLPar(attributes(ICESStocks[[1]])$fishlife)))
-}
+# if (FALSE){
+# 
+# library(FLCore)
+# library(FLBRP)
+#   
+# data(ple4)
+# data(ple4brp)
+# setGeneric('ssbMetric', function(object,y,...) standardGeneric('ssbMetric'))
+# setMethod('ssbMetric', signature(object="FLStock",y="missing"),
+#           function(object,y,refpt="msy",quant="ssb",...){
+#             ssb(object)})
+# setMethod('ssbMetric', signature(object="FLStock",y="FLPar"),
+#           function(object,y,refpt="msy",quant="ssb",...){
+#             ssb(object)%/%y[refpt,quant]})
+# setMethod('ssbMetric', signature(object="FLStock",y="FLBRP"),
+#           function(object,y,refpt="msy",quant="ssb",...){
+#             ssb(object)%/%properties(y)[refpt,quant]})
+# setMethod('ssbMetric', signature(object="FLStock",y="FLQuant"),
+#           function(object,y,...){
+#             ssb(object)%/%y})
+# 
+# ssbMetric(ple4)
+# ssbMetric(ple4,properties(ple4brp))
+# 
+# ssbMetric(ple4,ple4brp)
+# ssbMetric(ple4,ple4brp,"lower pgy")
+# 
+# ssbMetric(ple4,ple4brp,"virgin")
+# 
+# ssbMetric(ple4,ple4brp,"virgin")
+# 
+#     
+#   #ssb , stock, ebiomass, rec, juv,  catch, catchjuv, landings, landingsjuv, discards, discardsjuv, fbar , hvt , swt , cwt, sage, cage 
+#   load("~/Desktop/rfmo/ices/wkref/data/ICESStocks_2021_eqsim_corrected_fishlife.Rdata")
+#   
+#   ple4=ICESStocks[["ple.27.420"]]
+#   
+#   head(omSmry(ple4))
+#   head(omSmry(ple4,eq))
+#   head(omSmry(ple4,FLPar(attributes(ICESStocks[[1]])$fishlife)))
+#   head(omSmry(ple4,eq,FLPar(attributes(ICESStocks[[1]])$fishlife)))
+# }
