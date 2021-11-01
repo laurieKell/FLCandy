@@ -124,5 +124,5 @@ processError<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.
   FLQuants(ssb=ssb(object),
            catch=catch(object),
            production=production,
-           error=-ssb(object)+ssb.t-catch(object)+production)
+           error=1/ssb(object)*(ssb.t-catch(object)+production))
   }
