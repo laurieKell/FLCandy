@@ -30,7 +30,9 @@ aopt <- function(object) {
 aopt(ple4brp)
 
 ### Lopt #####################################################
-lopt=vonB(aopt(ple4brp),pars)
+pars=FLPar(linf=100)
+
+lopt=vonB(aopt(ple4brp),lhPar(pars))
 lopt%/%pars["linf"]
 lopt%/%pars["l50"]
 
