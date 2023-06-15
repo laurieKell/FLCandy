@@ -1,0 +1,356 @@
+---
+title: "PSA priors"
+author: "L Kell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+mathjax: TRUE
+tags: FLR priors
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+# bibliography: refs.bib
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir="html")})
+---
+  
+```{r, knitr, eval=TRUE, echo=FALSE, warning=FALSE, cache=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# getwd()
+library(knitr)
+opts_chunk$set(cache     =!TRUE, 
+               comment   =NA, 
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =FALSE, 
+               eval      =TRUE,
+               cache     =TRUE,
+               cache.path="cache/era/",
+               fig.path  ="../tex/era/",
+               fig.width =8,
+               fig.height=8,
+               dev       ="png")
+iFig=0
+iTab=0
+```
+
+
+```{r, eval=FALSE, message=FALSE}
+install.packages("devtools")
+
+install.packages("ggplot2")
+install.packages("ggpubr")
+install.packages("GGallay")
+install.packages("plyr")
+
+devtools::install_github("flr/FLCore")
+devtools::install_github("flr/ggplotFL")
+devtools::install_github("flr/FLBRP")
+devtools::install_github("flr/FLife")
+
+devtools::install_github("henning-winker/FLRef")
+devtools::install_github("henning-winker/SPMpriors")
+
+devtools::install_github("ropensci/rfishbase")
+
+# FLR
+```
+
+```{r, pkgs, cache=FALSE}
+library(ggplot2)
+
+library(FLCore)
+library(ggplotFL)
+library(FLBRP)
+library(FLife)
+
+library(rfishbase)
+
+library(FishLife)
+library(SPMpriors)
+library(FLRef)
+
+library(ggpubr)
+library(GGally)
+
+library(plyr)
+library(reshape)
+
+theme_set(theme_bw(16))
+```
+
+
+# Risk Equivalence 
+
+Risk equivalence is an attempt to ensure that management advice and actions maintain a prescribed risk tolerance level across, stock and when uncertainty in the evaluation changes. Where risk is the probability that management targets will not be met or limits exceeded.
+
+
++ ICES Stock assessment categories	
+
+  + **Category 1: stocks with quantitative assessments**  Full analytical assessments and forecasts as well as stocks with quantitative assessments based on production models.
+  + **Category  2 stocks  with  analytical  assessments  that  are  only  treated  qualitatively**
+  Quantitative assessments and forecasts which for a variety of reasons are considered indicative of trends in fishing mortality, recruitment, and biomass.
+  + **Category 3: stocks for which survey based assessments indicate trends**
+  Survey or other indices are available that provide reliable indications of trends in stock metrics, such as total mortality, recruitment, and biomass.
+  + **Category 4: stocks for which only reliable catch data are available**
+  Time series of catch can be used to approximate MSY.
+  + **Category 5: landings only**
+  Only landings data are available.
+  + **Category 6: negligible landings**
+  Landings are negligible in comparison to discards and stocks that are  primarily caught as bycatch species in other targeted fisheries 
+  
++ Data quality categorisation (Patrick et al. 2009)
+  
+  + **Best data:** Information is based on collected data for the stock and area of interest that is established and substantial.
+  Data rich stock assessment, published literature that uses multiple methods, etc.
+  + **Adequate data:** Information with limited coverage and corroboration, or for some other reason deemed not as reliable as Tier 1 data
+  Limited temporal or spatial data, relatively old information, etc
+  + **Limited data:** Estimates with high variation and limited confidence and may be based on similar taxa or life history strategy.
+  Similar genus or family, etc.
+  + **Very limited data:** Expert opinion or based on general literature review from wide range of species, or outside of region
+  General data – not referenced
+  + **No data:** No information to base score on – not included in the PSA, but included in the DQI score.
+  		 
+
+## i) Get parameters from FishBase via FishLife
+```{r, getTraits}
+getTraits<-function(Class        ="predictive", 
+                    Order        ="predictive", 
+                    Family       ="predictive", 
+                    Genus        ="predictive", 
+                    Species      ="predictive",
+                    partial_match=!TRUE,
+                    add_ancestors=!TRUE, 
+                    Database     =FishLife::FishBase_and_RAM, 
+                    ParentChild_gz=Database$ParentChild_gz ){
+  
+  taxa=Search_species(Class,Order,Family,Genus,Species,add_ancestors,Database,ParentChild_gz)$match_taxonomy
+  
+  if(partial_match==TRUE)  Which=grep( taxa, ParentChild_gz[,'ChildName'])
+  if(partial_match==FALSE) Which=which(taxa==ParentChild_gz[,'ChildName'])
+  if( length(Which)!=1 ) stop( paste0("'Taxon' ",taxa," input matches more or less than one element") )
+
+  Cov_gjj       =Database$Cov_gvv
+  Mean_gj       =Database$beta_gv
+  ParentChild_gz=Database$ParentChild_gz
+  Y_ij          =Database$Y_ij
+  g_i           =Database$g_i
+
+  nms=c("linf","k","winf","amax","amat","m","l50","temperature","lnvar","rho","lnmasps","lnmargsd","s","logits","fmsym","fmsy","lnr","r","lhg","g")
+  mu =Mean_gj[Which,]
+  names(mu)=nms
+  mu =FLPar(mu)
+
+  cov=Cov_gjj[Which,,]
+  cov=as(array(cov,c(dim(cov),1),dimnames=list(params=nms,params=nms,iter=1)),"FLPar")
+  
+  FLPars(mu=mu,cov=cov)}
+```
+
+
+```{r, traits}
+pars=getTraits(Genus="Solea",Species="solea")
+
+par=c("linf","k","l50","s","m","lnmasps")
+ref=c("s","m","r","fmsy","fmsym")
+
+par(mfrow=c(2,2))
+plot(  princomp(pars$cov[par,par,1,drop=T]),main=paste(par,collapse=","))
+biplot(princomp(pars$cov[par,par,1,drop=T]))
+
+plot(  princomp(pars$cov[ref,ref,1,drop=T]),main=paste(ref,collapse=","))
+biplot(princomp(pars$cov[ref,ref,1,drop=T]))
+```
+
+**Figure `r iFig=iFig+1; iFig`** Summary of parameters
+
+
+## ii) simulate multinormal distribution
+```{r, mc}
+set.seed(12234)
+
+mu=pars$mu[ c("linf","k","l50","s"),1,drop=T]
+cv=pars$cov[c("linf","k","l50","s"),c("linf","k","l50","s"),1,drop=T]
+cvd=diag(cv)
+cv[]=0
+diag(cv)=cvd
+
+par=mvtnorm::rmvnorm(100,mu,cv)
+par=as(t(par),"FLPar")
+dimnames(par)=list(params=names(mu),iter=seq(100))
+
+par[c("linf","k","l50")]=exp(par[c("linf","k","l50")])
+
+my_smooth <- function(data,mapping,...){
+  ggplot(data=data,mapping=mapping)+
+  geom_point(...,size=.5)+
+  geom_smooth(...,method="lm",se=FALSE)}
+
+my_density <- function(data,mapping,...){
+  ggplot(data=data,mapping=mapping)+
+  geom_density(...,lwd=1)}
+
+ggpairs(model.frame(par)[,-5],
+  lower = list(continuous = wrap(my_smooth)),
+  diag=list(continuous=wrap(my_density,alpha=0.2)),
+  title = "")+
+  theme(legend.position ="none",
+  panel.grid.major =element_blank(),
+  axis.ticks       =element_blank(),
+  axis.text.x      =element_blank(),
+  axis.text.y      =element_blank(),
+  panel.border     =element_rect(linetype = 1, colour="black", fill=NA))
+```
+
+**Figure `r iFig=iFig+1; iFig`** Pairwise scatter plots of life history parameters.
+
+```{r}
+data(teleost)
+
+my_smooth <- function(data,mapping,...){
+  ggplot(data=data,mapping=mapping)+
+  geom_point(...,size=.5)+
+  geom_smooth(...,method="lm",se=FALSE)}
+
+my_density <- function(data,mapping,...){
+  ggplot(data=data,mapping=mapping)+
+  geom_density(...,lwd=1)}
+  
+ggpairs(cbind(transform(model.frame(teleost)[,-c(3,7)],
+                        linf=log(linf),k=log(k),l50=log(l50))),
+  lower = list(continuous = wrap(my_smooth)),
+  diag=list(continuous=wrap(my_density,alpha=0.2)),
+  title = "")+
+  theme(legend.position ="bottom",
+  panel.grid.major =element_blank(),
+  axis.ticks       =element_blank(),
+  axis.text.x      =element_text(angle=-45),
+  axis.text.y      =element_blank(),
+  panel.border     =element_rect(linetype = 1, colour="black", fill=NA))+
+  theme_bw()
+```
+
+
+## iii) Fill missing with default parameters
+```{r, lh}
+lh=lhPar(par)
+```
+
+## iv) natural mortality
+```{r, m, fig.height=4, fig.width=8}
+dat=c(m1= 0.28, m1=(0.48- 0.07)/(2 * 1.96),
+      m2=-1.30, m2=(- 1.19 +1.42)/(2 * 1.96),
+      m3= 1.08, m3=(1.24 - 0.92)/(2 * 1.96))
+mPar=FLPar(dat[seq(1,6,2)])
+mSD =FLPar(dat[seq(2,6,2)])
+
+set.seed(8899)
+mPar=rbind(rnorm(100,mPar["m1"],mSD["m1"]),
+           rnorm(100,mPar["m2"],mSD["m2"]),
+           rnorm(100,mPar["m3"],mSD["m3"]))
+
+lh=rbind(lh[!dimnames(lh)$params%in%c("m1","m2","m3")],mPar)
+
+## v) Create FLBRP
+mFn=function(object,par) {
+   len=wt2len(stock.wt(object),par)
+
+   #lnM= a + b ln(L/L∞) + c*lnK
+   
+   res= exp(par["m1"]%+%(par["m2"]%*%log(len/par["linf"]))%+%(par["m3"]%*%log(par["k"])))
+   
+   res}
+```
+
+## iv) Reference points and priors
+
+```{r, eq}
+eq =lhEql(lh, m=mFn)
+```
+
+```{r, fig.width=6,gig.height=10}
+ggplot(FLQuants(mat=mat(eq), mass=stock.wt(eq), m=m(eq)), aes(x=age, y=data))+ 
+  geom_flquantiles(fill="red",col="blue") + 
+  facet_grid(qname~., scales='free')
+```
+
+```{r}
+save(eq,file="~/Desktop/tmp/eq.RData")
+```
+
+**Figure `r iFig=iFig+1; iFig`** Biological parameters
+
+
+```{r, ffmsy}
+ggdensity(x="data", data=as.data.frame(refpts(eq)["msy","harvest"]))
+```
+
+**Figure `r iFig=iFig+1; iFig`** $F_{MSY}$.
+
+```{r, eval=FALSE}
+smeff=c("XIN","41","SQA","Cephalopods","Illex argentinus",        "Argentine shortfin squid",
+        "CSW","34","OCC","Cephalopods","Octopus vulgaris",        "Common octopus",
+        "CSW","34","DPS","Crustaceans","Parapenaeus longirostris","Deep-water rose shrimp",
+        "CSW","47","ARV","Crustaceans","Aristeus varidens",       "Striped red shrimp",
+        "CSW","47","GPW","Finfish",    "Epinephelus aeneus",      "White grouper",
+        "CSW","34","GPW","Finfish",    "Epinephelus aeneus",      "White grouper",
+        "XIN","41","HKX","Finfish",    "Merluccius spp",          "Hakes nei",
+        "XIN","41","GRM","Finfish",    "Macruronus magellanicus", "Patagonian grenadier")
+smeff=as.data.frame(t(array(smeff,c(6,8),list(variable=c("location", "FAO", "code","group","species","name"),.id=1:8))))
+smeff=transform(smeff,genus  =substr(species,1,regexpr(" ", species)-1),
+                      species=substr(species,  regexpr(" ", species)+1,nchar(species)))
+
+
+siofa=c("Centroscymnus coelolepis","Pailona commun","Portugese dogfish","CYO",
+        "Deania calcea","Squale savate","Birdbeak dogfish","DCA",
+        "Centrophorus granulosus","Requin chagrin ","ulper shark","GUP",
+        "Dalatias licha","Squale liche","Kitefin shark","SCK",
+        "Bythaelurus bachi","Requin chat de Bach","Bach's catshark","BZO",
+        "Chimaera buccanigella","Chimère bouche-foncée","Dark-mouth chimaera","ZZC",
+        "Chimaera didierae","Chimère de Didier","The Falkor chimaera","ZZD",
+        "Chimaera willwatchi","Chimère du marin","Seafarer's ghostshark","ZZE",
+        "Centroscymnus crepidater","Pailona à long nez","Longnose Velvet Dogfish","CYP",
+        "Centroscymnus plunketi","Pailona austral","Plunket shark","CYU",
+        "Zameus squamulosus","Squale-grogneur à queue échancrée","Velvet dogfish","SSQ",
+        "Etmopterus alphus","Requin lanterne à joues blanches","Whitecheek lanternshark","EZU",
+        "Apristurus indicus","Holbiche artouca","Smallbelly catshark","APD",
+        "Harriotta raleighana","Chimère à nez rigide","Bentnose rabbitfish","HCR",
+        "Bythaelurus tenuicephalus","Requin chat à tête étroite","Narrowhead catshark","BZL",
+        "Chlamydoselachus anguineus","Requin lézard","Frilled shark","HXC",
+        "Hexanchus nakamurai","Requin griset","Bigeyed six-gill shark","HXN",
+        "Etmopterus pusillus","Sagre nain","Smooth lanternshark","ETP",
+        "Somniosus antarcticus","Requin dormeur antarctique","Southern sleeper shark","SON",
+        "Mitsukurina owstoni","Requin lutin","Goblin shark","LMO")
+siofa=as.data.frame(t(array(siofa,c(4,20))))
+siofa=cbind(ldply(strsplit(siofa[,1]," ")),siofa)
+names(siofa)=c("genus","species","scientificName","french","name","FAO")
+
+dat=rbind.fill(smeff,siofa)
+
+mdply(dat, function(genus,species) {
+  res=try(FishLife::Search_species(Genus=genus,Species=species,add_ancestors=TRUE)$match_taxonomy)
+  if ("try-error"%in%is(res)) {
+    return(NULL)}
+  res[1]}
+  )
+
+sn=with(subset(smeff,group!="Finfish"),paste(genus,species))
+
+pg=popgrowth(    species_list=sn,server="sealifebase")[,c("Species","StockCode","Sex","Loo","K")]
+mt=maturity(     species_list=sn,server="sealifebase")[,c("Species","StockCode","Sex","Lm")]
+lw=length_weight(species_list=sn,server="sealifebase")[,c("Species","StockCode","Sex","a","b")]
+
+pg=ddply(pg,.(Species), with, data.frame("loo"=mean(`Loo`,na.rm=T),"k"=mean(`K`,na.rm=T)))
+mt=ddply(mt,.(Species), with, data.frame("l50"=mean(`Lm`,na.rm=T)))
+lw=ddply(lw,.(Species), with, data.frame("a"=mean(`a`,na.rm=T),"b"=mean(`b`,na.rm=T)))
+
+sl=merge(merge(pg,mt,by="Species"),lw,by="Species")
+
+                                 
+spp=data.frame(scientificName=c("Euthynnus affinis", "Thunnus tonggol", "Auxis rochei", "Auxis thazard"),
+               code          =c("KAW",               "LOT",             "BLT",          "FRI"))
+spp=transform(spp,genus  =substr(scientificName,1,regexpr(" ", scientificName)-1),
+                  species=substr(scientificName,  regexpr(" ", scientificName)+1,nchar(scientificName)))
+
+sardine
+sprat
+```
+

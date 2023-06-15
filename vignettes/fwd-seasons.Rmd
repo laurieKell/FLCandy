@@ -392,18 +392,18 @@ data(alb)
 Set up projection in the form of a hindcast
 
 ```{r, alb-fwd}
-sr=as.FLSR(alb,model="geomean")
+sr=as.FLSR(alb[[1]],model="geomean")
 params(sr)=FLPar(1,dimnames=list(params="a",iter=1))
-rec.devs=rec(alb)
+rec.devs=rec(alb[[1]])
 
-control <- as(FLQuants(fbar=unitMeans(fbar(alb)[,-1])*c(rep(1,50),rep(0.5,dim(fbar(alb))[2]-51))), 'fwdControl')
+control <- as(FLQuants(fbar=unitMeans(fbar(alb[[1]])[,-1])*c(rep(1,50),rep(0.5,dim(fbar(alb[[1]]))[2]-51))), 'fwdControl')
 
-alb.fwd <- fwd(alb, control=control, sr=sr, residuals=rec.devs)
+alb.fwd <- fwd(alb[[1]], control=control, sr=sr, residuals=rec.devs)
 ```
 
 
 ```{r, alb-plot}
-plot(FLStocks("Original"=alb, "Recent F drop"=alb.fwd))
+plot(FLStocks("Original"=alb[[1]], "Recent F drop"=alb.fwd))
 ```
 
 **Figure `r iFig=iFig+1; iFig`** Backtest for reduced F 
@@ -437,23 +437,23 @@ Recruitent is by year, unit & season, just provide the estimated recruitments
 sr=FLPar(NA, dimnames=list(params='a', year=1951:2017, unit=1:4, season=1:4, iter=1))
 
 # Set spawning seasons
-sr['a', , 1, 1]  <- c(rec(bet)[, -1, 1, 1, drop=TRUE] )
-sr['a', , 2, 2]  <- c(rec(bet)[, -1, 2, 2, drop=TRUE] )
-sr['a', , 3, 3]  <- c(rec(bet)[, -1, 3, 3, drop=TRUE] )
-sr['a', , 4, 4]  <- c(rec(bet)[, -1, 4, 4, drop=TRUE] )
+sr['a', , 1, 1]  <- c(rec(bet[[1]])[, -1, 1, 1, drop=TRUE] )
+sr['a', , 2, 2]  <- c(rec(bet[[1]])[, -1, 2, 2, drop=TRUE] )
+sr['a', , 3, 3]  <- c(rec(bet[[1]])[, -1, 3, 3, drop=TRUE] )
+sr['a', , 4, 4]  <- c(rec(bet[[1]])[, -1, 4, 4, drop=TRUE] )
 
 rec=predictModel(model=rec~a, params=sr)
 
 # project for obsevered F
-control=as(FLQuants(fbar=unitMeans(fbar(bet)[,-1])), 'fwdControl')
+control=as(FLQuants(fbar=unitMeans(fbar(bet[[1]])[,-1])), 'fwdControl')
 
-bet.fwd=fwd(bet, control=control, sr=rec)
+bet.fwd=fwd(bet[[1]], control=control, sr=rec)
 
 
 p=plot(bet.fwd, metrics=list(rec  =function(x) rec(x),
-                           SSB  =function(x) ssb(x),
-                           fbar =function(x) apply(fbar(x),c(2,3),mean),
-                           catch=function(x) apply(catch(x),c(2,3),sum)))
+                             SSB  =function(x) ssb(x),
+                             fbar =function(x) apply(fbar(x),c(2,3),mean),
+                             catch=function(x) apply(catch(x),c(2,3),sum)))
 p$data=subset(p$data, !(qname%in%c("rec","SSB")&ac(season)!=ac(unit)))
 p
 ```
@@ -467,12 +467,12 @@ Perform a projection for a TAC for 65K tons
 library(plyr)
 library(dplyr)
 
-params(bet.sr)["v"]/params(bet.sr)["R0"]
+params(bet[[2]])["v"]/params(bet[[2]])["R0"]
 
 ## Time series of recruits and SSB by season/unit
-bet=window(bet,start=1980)
-dat=merge(transmute(subset(as.data.frame(rec(bet),drop=T),season==unit),year=year,unit=unit,rec=data),
-          transmute(subset(as.data.frame(ssb(bet),drop=T),season==unit),year=year,unit=unit,ssb=data),
+bet[[1]]=window(bet[[1]],start=1980)
+dat=merge(transmute(subset(as.data.frame(rec(bet[[1]]),drop=T),season==unit),year=year,unit=unit,rec=data),
+          transmute(subset(as.data.frame(ssb(bet[[1]]),drop=T),season==unit),year=year,unit=unit,ssb=data),
       by=c("year","unit"))
 
 ## SRR
@@ -495,7 +495,7 @@ sr=laply(srs, function(x) params(ab(x))[-3])
 sr=FLPar(sr, dimnames=list(params=c('a','b'), season=1:4, iter=1))
 sr=predictModel(model=bevholt()$model, params=sr)
 
-ratio=apply(catch(bet)[,ac(2013:2017)],4,mean)/sum(apply(catch(bet)[,ac(2013:2017)],4,mean))
+ratio=apply(catch(bet[[1]])[,ac(2013:2017)],4,mean)/sum(apply(catch(bet[[1]])[,ac(2013:2017)],4,mean))
 ratio=FLCore:::expand(ratio,year=1:54,fill=T)
 dimnames(ratio)$year=as.numeric(dimnames(ratio)$year)+2016
 
@@ -556,8 +556,7 @@ ple4sex.4=fwd(ple4sex.4,control=control,sr=sr,residuals=recs)
 
 # Getting rid of seasons
 ```{r}
-
-sim=deSeason(bet)
+sim=deSeason(bet[[1]])
 
 plot(sim)
 ```

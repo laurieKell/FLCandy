@@ -42,4 +42,12 @@ Collate:
   metrics.R
   properties.R  
   selex.R
+  geom_split_violin.R
+  haupt.R
+  jabbaz.polsim.R
+  ldt.R
+  len2age.R
+  lime.R
+  recoveryMetrics.R
+  spict.mp.R
 LazyLoad: true

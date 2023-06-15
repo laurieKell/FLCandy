@@ -1,0 +1,176 @@
+---
+title: "**Predation Mortality**"
+subtitle: "M1 & M2"
+author: "L Kell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+mathjax: TRUE
+tags: FLR FLCore introduction
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+bibliography: refs.bib
+---
+
+
+```{r, knitr, eval=TRUE, echo=FALSE, warning=FALSE, cache=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# getwd()
+library(knitr)
+
+opts_chunk$set(cache     =TRUE, 
+               comment   =NA, 
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =!FALSE, 
+               eval      =TRUE,cache   =TRUE,
+               cache.path="../cache/m12/",
+               fig.path  ="../tex/m12",
+               fig.width =8,
+               fig.height=6,
+               dev       ="png")
+
+iFig=0
+iTab=0
+```
+
+```{r, pkgs}
+library(FLCore)    # install.packages("FLCore",   repos="http://flr-project.org/R")
+library(FLBRP)     # install.packages("FLBRP",    repos="http://flr-project.org/R")
+library(FLasher)   # install.packages("FLasher",  repos="http://flr-project.org/R")
+library(FLife)     # install.packages("FLife",    repos="http://flr-project.org/R")
+library(ggplotFL)  # install.packages("ggplotFL", repos="http://flr-project.org/R")
+
+theme_set(theme_bw(16))
+```
+
+```{r, methods}
+setGeneric("m1", function(object, ...)
+  standardGeneric("m1"))
+setGeneric("m2", function(object, ...)
+  standardGeneric("m2"))
+setGeneric("forage", function(object, ...)
+  standardGeneric("forage"))
+setGeneric("predNeed", function(object, ...)
+  standardGeneric("predNeed"))
+
+setMethod("z", "FLBRP", function(object, ...) {
+  f <- harvest(object)
+  if(units(f) != 'f')
+    stop("Your exploitation rate is not defined as F, cannot be added to M")
+  else 
+    return(m(object) %+% f)
+  })
+
+setMethod("m1", "FLComp", function(object, ...) {
+  if(units(harvest(object)) != 'f') 
+    stop("Exploitation not defined as 'f', cannot be combined with  'm'")
+  if (!"m1"%in%names(attributes(stk)))
+    stop("m1 is not an attribute")
+ 
+  return(attributes(object)$m1)})
+
+setMethod("m2", "FLComp", function(object, ...) {
+  if(units(harvest(object)) != 'f') 
+    stop("Exploitation not defined as 'f', cannot be combined with  'm'")
+  if (!"m1"%in%names(attributes(stk)))
+    stop("m1 is not an attribute")
+  
+  return(m(object) - m1(object))})
+
+setMethod("forage", "FLComp", function(object, ...) {
+  if(units(harvest(object)) != 'f') 
+    stop("Exploitation not defined as 'f', cannot be combined with  'm'")
+  if (!"m1"%in%names(attributes(stk)))
+    stop("m1 is not an attribute")
+
+  #zFn<-function(object) m(object)%+%harvest(object)
+  
+  return(FLCore:::apply((stock.wt(object)%*%stock.n(object)%*%(m2(object))%/%(z(object))%*%(1-exp(-z(object))))[-1],c(2,6),sum))})
+
+setMethod("predNeed", "FLBRP", function(object, ...) {
+  
+  # reference points
+  rfs=refpts(object)[,"harvest"]
+  
+  # F reference points
+  hvt=aperm(rfs,c(2,1,3:length(dim(rfs))))
+  
+  # Change to FLQuant  
+  dimnames(hvt)[1:2]=list(age="all","year"=seq(dim(hvt)[2]))
+  names(dimnames(hvt))[2]="year"
+  fbar(object)=FLQuant(hvt)
+    
+  # Calc forage
+  dimnames(rfs)[[2]]="forage"
+  rfs[]=c(forage(object))
+    
+  rfs})
+```
+
+
+```{r, lh}
+lh=FLPar(linf=25)
+lh=lhPar(lh)
+```
+
+```{r, eq}
+eq=lhEql(lh)
+
+plot(eq,refpts="msy")
+```
+
+**Figure `r iFig=iFig+1; iFig`** Equilibrium dynamics 
+
+```{r, stk}
+stk=as(eq,"FLStock")
+stk=qapply(stk, function(object) {dimnames(object)$year=an(dimnames(object)$year)+1960; object})
+stk=fwd(stk,f=fbar(stk)[,-1],sr=eq)
+
+attributes(eq)$m1 =FLQuant(0.025,dimnames=dimnames(m(eq)))
+attributes(stk)$m1=FLQuant(0.025,dimnames=dimnames(m(stk)))
+```
+
+```{r, ts}
+ggplot(model.frame(FLQuants(eq,ssb=ssb,yield=catch,forage=forage),drop=T))+
+  geom_line(aes(ssb,forage),col="red")+
+  geom_line(aes(ssb,yield),col="blue")+
+  xlab("SSB")+ylab("Production")
+```
+
+**Figure `r iFig=iFig+1; iFig`** Yiele verses Forage
+
+```{r, yield-forgage}
+plot(stk, metrics=list(F=fbar,SSB=ssb,Yield=catch,Forage=forage))+
+  geom_vline(aes(xintercept=1995),col="red")+
+  xlab("Year")
+```
+
+**Figure `r iFig=iFig+1; iFig`** Simulated time series.
+
+```{r, need}
+predNeed(eq)
+```
+
+## Software Versions
+
+* `r version$version.string`
+* FLCore:    `r packageVersion('FLCore')`
+* FLBRP:     `r packageVersion('FLCore')`
+* FLasher:   `r packageVersion('FLCore')`
+* FLife:   `r packageVersion('FLCore')`
+* ggplotFL:  `r packageVersion('FLCore')`
+
+* FLPKG: `r # packageVersion('FLPKG')`
+
+* **Compiled**: `r date()`
+* **Git Hash**: `r system("git log --pretty=format:'%h' -n 1", intern=TRUE)`
+
+## Author information
+
+**Laurence KELL**. laurie.kell.es
+
+
+## Acknowledgements
+
+
+# References {#References}

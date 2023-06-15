@@ -5,4 +5,5 @@ useDynLib(FLCandy)
 import("TMB")
 import("FLCore")
 import("FLBRP")
+import("ggplot2")
 
