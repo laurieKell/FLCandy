@@ -26,7 +26,7 @@ aopt <- function(object) {
   }
 }
 
-aopt(ple4)
+#aopt(ple4)
 aopt(ple4brp)
 
 ### Lopt #####################################################
