@@ -22,6 +22,29 @@ LinkingTo:
   TMB,
   RcppEigen
 Collate:
+  FLBRPSeasons.R
+  OMstats-aopt.R
+  OMstats-pe.R
+  OMstats-perm.R
+  OMstats-pf.R
+  OMstats-pt.R
+  OMstats.R
+  aucTss.R
+  bhz.R
+  brp2lh.R
+  cr.R
+  crosstest.R
+  eraPriors.R
+  icesUtil.R
+  jabbaPriors.R
+  length.R
+  lorenzenM.R
+  m12.R
+  roc.R
+  rocFLQ.R
+  trnd.R
+  violin.R
+  xoy.R
   addRefs.R  
   annualise.R  
   eqsim1.R  
