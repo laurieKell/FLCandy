@@ -34,7 +34,6 @@ Collate:
   brp2lh.R
   crosstest.R
   length.R
-  lorenzenM.R
   m12.R
   roc.R
   rocFLQ.R
@@ -62,7 +61,6 @@ Collate:
   properties.R  
   selex.R
   geom_split_violin.R
-  jabbaz.polsim.R
   len2age.R
   lime.R
   recoveryMetrics.R
