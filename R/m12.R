@@ -58,6 +58,7 @@ setMethod("predNeed", "FLBRP", function(object, ...) {
     
   rtn})
 
+if (FALSE){
 lh=FLPar(linf=25)
 lh=lhPar(lh)
 eq=lhEql(lh)
@@ -79,3 +80,4 @@ ggplot(model.frame(FLQuants(eq,ssb=ssb,yield=catch,forage=forage),drop=T))+
 
 plot(stk, metrics=list(SSB=ssb,Forage=forage,Yield=catch))+
   xlab("Year")
+}
