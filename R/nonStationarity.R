@@ -83,7 +83,7 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
 
   transform(as.data.frame(rtn),year=as.numeric(dimnames(object)$year[iter]))[,-3]}
 
-processError<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel")){
+processError<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel"),log=FALSE){
   
   eq=FLBRP(object)
   eq=propagate(eq,dim(object)[2])
@@ -121,8 +121,8 @@ processError<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.
   production=as.FLQuant(c(prd[,"yield"]),dimnames=dimnames(ssb(object)))
   ssb.t=window(ssb(object),start=dims(ssb(object))$minyear+1,end=dims(ssb(object))$maxyear+1)
 
-  FLQuants(ssb=ssb(object),
+  FLQuants(ssb  =ssb(object),
            catch=catch(object),
            production=production,
-           error=1/ssb(object)*(ssb.t-catch(object)+production))
+           error=(1/ssb(object))*(ssb.t-catch(object)+production))
   }

@@ -1,0 +1,644 @@
+---
+title: "Biomass Dynamic or Surplus Production or Models"
+subtitle: ""
+author: " L Kell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document:
+  number_sections: false
+toc: false
+keep_tex: false
+mathjax: TRUE
+vignette: >
+  %\VignetteIndexEntry{JABBA Guidelines}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, knitr, eval=TRUE, echo=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(knitr)
+
+opts_chunk$set(comment   =NA, 
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =FALSE,
+               fig.width =10, 
+               fig.height=4,
+               cache     =TRUE, 
+               fig.path  ="../tex/bd-",
+               cache.path="cache/bd/",
+               dev       ="png")
+
+iFig=0
+iTab=0
+```
+
+```{r, eval=FALSE}
+devtools::install_github("DTUAqua/spict/spict")
+```
+
+```{r, lib}
+library(ggplot2); theme_set(theme_bw())
+library(ggpubr)
+
+library(mpb)           
+library(FLife)
+library(kobe)
+
+library(reshape)     
+library(plyr)        
+library(dplyr)      
+
+library(rfishbase)
+library(SPMpriors)
+library(FishLife)
+
+library(qicharts2)
+
+library(FLCandy)
+
+library(JABBA)
+
+library(spict)
+
+library(readxl)
+```
+
+```{r}
+setwd("/home/laurence-kell/pCloudDrive/flr/FLCandy/vignettes")
+```
+
+```{r, src}
+source('~/pCloudDrive/flr/mpb/R/jabba-coerce.R')
+
+
+benchmarks<-function(x) {
+  if ("logical"%in%is(attributes(x)$benchmark))
+    return(FLPar(Fmsy=NA,Flim=NA,Fpa=NA,Blim=NA,Bpa=NA,Btrigger=NA))
+
+  as(attributes(x)$benchmark,"FLPar")}
+
+fishlife2lhPar<-function(x) {
+  res=attributes(x)$fishlife
+  
+  if ("lm"%in%names(res))
+    names(res)[seq(length(res))[(names(res)=="lm")]]="l50"
+
+  res=FLPar(res,units="NA")
+  
+  lhPar(res[c("linf","k","l50","s")])}
+```
+
+```{r}
+spp=data.frame(genus  ="Merluccius",
+               species=c("polli","senegalensis"))
+```
+
+```{r, data}
+ctc =as.data.frame(read_excel("/home/laurence-kell/pCloudDrive/rfmo/ices/wklife/X/blackhake/inputs/data.xls",1))
+u   =as.data.frame(read_excel("/home/laurence-kell/pCloudDrive/rfmo/ices/wklife/X/blackhake/inputs/data.xls",2))
+len =as.data.frame(read_excel("/home/laurence-kell/pCloudDrive/rfmo/ices/wklife/X/blackhake/inputs/data.xls",3))
+age =as.data.frame(read_excel("/home/laurence-kell/pCloudDrive/rfmo/ices/wklife/X/blackhake/inputs/data.xls",4))
+cltr=as.data.frame(read_excel("/home/laurence-kell/pCloudDrive/rfmo/ices/wklife/X/blackhake/inputs/data.xls",5))
+```
+
+\newpage
+```{r, ctc}
+ggplot(melt(ctc,id="year"))+
+  geom_line(aes(year,value,col=variable))+
+  theme_bw()+theme(legend.position="bottom")+
+  xlab("Year")+ylab("Catch (tonnes)")+
+  scale_colour_manual("Catch\nScenario",values=rainbow(6)[-2])
+```
+
+**Figure `r iFig=iFig+1; iFig`** Catch scenarios
+
+```{r, ctcmean}
+ggplot(ddply(melt(ctc,id="year"),.(variable), transform, value=value/mean(value)))+
+  geom_line(aes(year,value,col=variable))+
+  theme_bw()+theme(legend.position="bottom")+
+  xlab("Year")+ylab("Catch (relatives)")+
+  scale_colour_manual("Catch\nScenario",values=rainbow(6)[-2])
+```
+
+**Figure `r iFig=iFig+1; iFig`** Catch scenarios, scaled to mean.
+
+```{r, u}
+ggplot(ddply(melt(u,id="year"),.(variable), transform, value=value/mean(value)))+
+  geom_line(aes(year,value,col=variable))+
+  theme_bw()+theme(legend.position="bottom")+
+  xlab("Year")+ylab("CPUE")+
+  scale_colour_manual("CPUE\nScenario",values=rainbow(6)[-2])
+```
+
+**Figure `r iFig=iFig+1; iFig`** CPUE scenarios
+
+```{r, fig.height=8, fig.width=8}
+stk=flmvn_traits(Genus=spp[1,1],Species=spp[1,2],Plot=TRUE, h=c(0.6,.9))
+```
+
+**Figure `r iFig=iFig+1; iFig`** Priors for `r paste(spp[1,],sep=" ", collapse=" ")`.
+
+
+```{r, fig.height=8, fig.width=8}
+fl2asem(stk,mc=1000,Lc=20,plot.progress=F)
+#stk$traits[stk$traits$trait%in%"Lm","mu.stk"]*0.7
+```
+
+
+```{r, fig.height=8, fig.width=8}
+stk=flmvn_traits(Genus=spp[2,1],Species=spp[2,2],Plot=TRUE, h=c(0.6,.9)) 
+```
+
+**Figure `r iFig=iFig+1; iFig`** Priors for `r paste(spp[2,],sep=" ", collapse=" ")`.
+
+```{r, fig.height=8, fig.width=8}
+fl2asem(stk,mc=1000,Lc=20,plot.progress=F)
+#stk$traits[stk$traits$trait%in%"Lm","mu.stk"]*0.7
+```
+
+
+\newpage
+The Leslie-matrix r prior from FishLife can be used for Schaefer production function, but should not be applied in a Pella-Tomlison formaltion where the shape parameter differs from n = 2.
+
+For a Pella-Tomlison model it is more appropriate to approximate r and shape from an Age-Structured Equilibrium Model (Winker et al. 2020) The default assumption is that length at first capture = Lm:
+
+
+```{r, pars}
+params=flmvn_traits(Genus=spp[1,1],Species=spp[1,2],Plot=FALSE,h=c(0.6,0.9))
+par1=FLPar(c(cast(params[[1]][,c("trait","mu.sp")],.~trait)[,c("h","K","tm","Loo","sigR")]))
+dimnames(par1)[[1]]=c("s","k","t50","linf","sigmaR")
+
+par1=lhPar(par1)
+
+r=data.frame("r"=params[[3]]$r,Merluccius=spp[1,2])
+
+params=flmvn_traits(Genus=spp[2,1],Species=spp[2,2],Plot=FALSE,h=c(0.6,0.9))
+par2=FLPar(c(cast(params[[1]][,c("trait","mu.sp")],.~trait)[,c("h","K","tm","Loo","sigR")]))
+dimnames(par2)[[1]]=c("s","k","t50","linf","sigmaR")
+
+par2=lhPar(par2)
+
+r=rbind(r,data.frame("r"=params[[3]]$r,Merluccius=spp[2,2]))
+
+gghistogram(r, x = "r",
+   add = "mean", rug = TRUE,bins=75,
+   fill = "Merluccius", palette = c("#00AFBB", "#E7B800"))
+#,add_density = TRUE)  
+```
+
+**Figure `r iFig=iFig+1; iFig`** Priors for r.
+
+```{r}
+gghistogram(r, x = "r",
+   add = "mean", rug = TRUE,bins=75, position="stack",
+   fill = "Merluccius", palette = c("#00AFBB", "#E7B800"))
+#,add_density = TRUE)  
+```
+
+**Figure `r iFig=iFig+1; iFig`** Priors for r.
+\newpage
+```{r}
+len=as.data.frame(read_excel("/home/laurence-kell/pCloudDrive/rfmo/ices/wklife/X/blackhake/inputs/data.xls",3))
+lfd=as.FLQuant(transform(melt(len,id="year",variable_name="len"),data=value)[,-3])
+
+save(lfd,file="data/lfd.RData")
+
+gghistogram(as.data.frame(lfd),x="len",weight="data", bins=75)+
+  coord_flip()+
+  facet_grid(.~year,scale="free")+xlab("Length (cm)")+
+  geom_vline(aes(xintercept=data), data=as.data.frame(apply(lfd*as.numeric(dimnames(lfd)$len),2,sum)%/%apply(lfd,2,sum),drop=T),col="red")+
+  theme(legend.position = "none", 
+                    axis.title.x = element_blank(), 
+                    axis.text.x  = element_blank(), 
+                    axis.ticks.x = element_blank())
+```
+
+**Figure `r iFig=iFig+1; iFig`** Length data
+
+
+```{r}
+p=plot(apply(lfd*as.numeric(dimnames(lfd)$len),2,sum)%/%apply(lfd,2,sum))+
+  xlab("Year")+ylab("Mean Length")
+```
+
+
+```{r, haupt1}
+source('~/pCloudDrive/flr/FLCandy/R/haupt.R')
+
+z=haupt(lfd,par1,20)
+
+plot(z)
+```
+
+**Figure `r iFig=iFig+1; iFig`** Estimate of Z from length data for `r paste(spp[1,],collapse=" ")`
+
+
+```{r, haupt2}
+source('~/pCloudDrive/flr/FLCandy/R/haupt.R')
+
+z=haupt(lfd,par2,20)
+
+plot(z)
+```
+
+**Figure `r iFig=iFig+1; iFig`** Estimate of Z from length data for `r paste(spp[2,],collapse=" ")`
+
+
+```{r, eval=FALSE}
+dat=merge(merge(ctc[,1:2],u[,1:2],by="year"),as.data.frame(z,drop=T),by="year")
+names(dat)[-1]=c("catch","u","z")
+
+save(dat,file="data/dat.RData")
+```
+
+```{r, doIt, fig.height=10}
+doIt<-function(scenario="base",ctc,u,f,cv=0.15,bd=TRUE){
+
+  assessment="black-hake"
+  
+  td        =tempdir()
+  setwd(td)
+  output.dir=getwd()
+
+  sink(file=file.path("dump.txt"))
+  
+  jbinput=build_jabba(catch=data.frame(Yr=ctc[,1],Total=ctc[,scenario]),
+                      cpue =data.frame(Yr=u[  ,1],Index=u[  ,scenario]),
+                      se   =data.frame(Yr=u[  ,1],Index=u[,2]/u[,2]*cv),
+                      b.prior = c(1,0.3,2001,c("ffmsy")),
+                      model.type="Pella",
+                      r.prior   =c(0.25,  0.3),
+                      K.prior   =c(90000,0.3),
+                      psi.prior =c(1,    0.01),
+                      BmsyK     =c(0.4,2),
+                      igamma=c(4.9,0.01),
+                      proc.dev.all = T,
+                      sigma.est = TRUE,
+                      #sigma.add = FALSE,
+                      fixed.obsE = 0.3)
+  
+  sa=fit_jabba(jbinput,
+               init.values=TRUE,
+               init.K=90000,
+               init.r=0.6,
+               init.q=0.1,
+               ni    =5500,
+               nt    =1,
+               nb    =500,
+               nc    =2)
+  
+  try(sink(NULL))
+  
+  if (!bd) return(sa)
+  
+  bd=jabba2biodyn(sa)
+  
+  bd@diags=cbind(year=ctc[,1],diagsFn(data.frame(residual=c(sa$residuals))))
+  
+  bd@diags=cbind(bd@diags,hat=sa$cpue.hat[,"mu",],obs=u[,scenario])  
+  
+  bd}  
+
+u=merge(data.frame(year=ctc[,1]),u,by="year")
+
+wd=getwd()
+base =doIt(scenario="base",ctc,u,f,cv=0.1,bd=TRUE)
+setwd(wd)
+save(base,file="data/base.RData")
+```
+
+
+```{r, JabbaIt, fig.height=10}
+wd=getwd()
+baseJ =doIt(scenario="base",ctc,u,f,cv=0.1,bd=!TRUE)
+setwd(wd)
+save(baseJ,file="data/baseJ.RData")
+```
+
+## SPiCT
+
+Model parameters using the formulation of Fletcher (1978):
+
+
+```{r, eval=FALSE}
+logn #Parameter determining the shape of the production curve as in the generalised form of Pella & Tomlinson (1969).
+logm #Log of maximum sustainable yield.
+
+logK   #Log of carrying capacity.
+logq   #Log of catchability vector.
+logsdb #Log of standard deviation of biomass process error.
+logsdf #Log of standard deviation of fishing mortality process error.
+logsdi #Log of standard deviation of index observation error.
+logsdc #Log of standard deviation of catch observation error.
+
+# Unobserved states estimated as random effects:
+
+logB #Log of the biomass process given by the stochastic differential equation: dB_t = r*B_t*(1-(B_t/K)^n)*dt + sdb*dW_t, where dW_t is Brownian motion.
+logF #Log of the fishing mortality process given by: dlog(F_t) = f(t, sdf), where the function f depends on the choice of seasonal model.
+
+# Other parameters (which are only needed in certain cases):
+logphi #Log of parameters used to specify the cyclic B spline representing seasonal variation. Used when inp$nseasons > 1 and inp$seasontype = 1.
+logU #Log of the state of the coupled SDE system used to represent seasonal variation, i.e. when inp$nseasons > 1 and inp$seasontype = 2.
+loglambda #Log of damping parameter when using the coupled SDE system to represent seasonal variation, i.e. when inp$nseasons > 1 and inp$seasontype = 2.
+logsdu #Log of standard deviation of process error of U_t (the state of the coupled SDE system) used to represent seasonal variation, i.e. when inp$nseasons > 1 and inp$seasontype = 2.
+logsde #Log of standard deviation of observation error of effort data. Only used if effort data is part of input.
+logp1robfac #Log plus one of the coefficient to the standard deviation of the observation error when using a mixture distribution robust toward outliers, i.e. when either inp$robflag = 1 and/or inp$robflagi = 1.
+logitpp #Logit of the proportion of narrow distribution when using a mixture distribution robust toward outliers, i.e. when either inp$robflag = 1 and/or inp$robflagi = 1.
+
+## Parameters that can be derived from model parameters:
+
+logr #Log of intrinsic growth rate (r = 4m/K).
+
+logalpha #Proportionality factor for the observation noise of the indices and the biomass process noise: sdi = exp(logalpha)*sdb. (normally set to logalpha=0)
+
+logbeta #Proportionality factor for the observation noise of the catches and the fishing mortality process noise: sdc = exp(logbeta)*sdf. (this is often difficult to estimate and can result in divergence of the optimisation. Normally set to logbeta=0)
+
+logBmsy #Log of the equilibrium biomass (Bmsy) when fished at Fmsy.
+
+logFmsy #Log of the fishing mortality (Fmsy) leading to the maximum sustainable yield.
+MSY #The yield when the biomass is at Bmsy and the fishing mortality is at Fmsy, i.e. the maximum sustainable yield.
+
+# The above parameter values can be extracted from the fit.spict() results using get.par().
+
+# Model assumptions
+
+"1" The intrinsic growth rate (r) represents a combination of natural mortality, growth, and recruitment.
+
+"2" The biomass B_t refers to the exploitable part of the stock. Estimates in absolute numbers (K, Bmsy, etc.) should be interpreted in light of this.
+
+"3" The stock is closed to migration.
+
+"4" Age and size-distribution are stable in time.
+
+"5" Constant catchability of the gear used to gather information for the biomass index.
+
+```
+
+```{r, spict, fig.width=8,fig.height=8}
+spt=list(obsC =c(catch(base)),
+         timeC=as.numeric(dimnames(catch(base))$year),
+         obsI =diags(base)$obs,
+         timeI=diags(base)$year,
+         #ini  =list(logsdb   =log(1),
+         #            logsdc   =log(1),
+         #            logbkfrac=log(0.3)),
+         priors=list(logK    =c(log(params(base)["k"]), 2, 1),
+                     logB    =c(log(params(base)["k"]/4), 0.1, 1, 2001),
+                     logn    =c(log(1), 1e-3),
+                     logalpha=c(log(1), 1e-3),
+                     logbeta =c(log(1), 1e-3)))
+
+res=fit.spict(spt)
+
+plot(res)
+```
+
+
+```{r, eval=FALSE}
+xvalFn=function(object,peels=5){
+
+  doIt(scenario="base",ctc,u,f,cv=0.15)
+  
+  u =window(index,   end=minyear)
+  bd=window(object,  end=minyear)
+  bd=fit(bd,u)
+  bd=fwd(bd,catch=catch(object)[,ac((minyear+1):maxyear)])
+  
+  nU     =(dim(params(object))[1]-4)/2
+  biomass=(stock(bd)[,-dim(stock(bd))[2]]+stock(bd)[,-1])/2
+  
+  if (!("FLQuants"%in%is(index))) index=FLQuants(index)
+  
+  res=mdply(seq(nU), function(i)
+    model.frame(mcf(FLQuants(
+      hat=biomass%*%params(bd)[4+i],
+      obs=index[[i]])),drop=T))
+  
+  res=subset(res,year>=minyear)
+  names(res)[1]="index"
+  
+  res}
+
+wd=getwd()
+baseJ=doIt(scenario="base",ctc,u,f,cv=0.15,bd=!TRUE)
+setwd(wd)
+
+save(baseJ,file="data/baseJ.RData") 
+```
+
+
+```{r, fig.height=10}
+plot(FLQuants(base,  metrics=list(Catch  =function(x) catch(x)/refpts(x)["msy"],
+                                  Biomass=function(x) catch(x)/refpts(x)["bmsy"],
+                                  Harvest=function(x) harvest(x)/refpts(x)["fmsy"])))+
+          geom_hline(aes(yintercept=1),col="red",linetype=2)
+```
+
+**Figure `r iFig=iFig+1; iFig`** JABBA Base trajectories.
+
+```{r, kobe, fig.height=6,fig.width=6}
+kobePhase(kobe(base),ylim=c(0,2))+
+   geom_path(aes(stock,harvest))+
+   #geom_point(aes(stock,harvest),data=subset(kobe(base),year==2016),size=2)+
+   geom_label(aes(stock,harvest,label="2016"),data=subset(kobe(base),year==2016),size=2)
+```
+
+**Figure `r iFig=iFig+1; iFig`** Kobe Phase Plots.
+
+
+```{r, kobeMar, fig.width=6, fig.height=6}
+kobe:::kobePhaseMar3(kobe(base,"pts")[sample(seq(dim(base@kobe)[1]),250),c("stock","harvest")],xlim=3)
+```
+
+**Figure `r iFig=iFig+1; iFig`** Kobe Phase Plots.
+
+
+```{r, data2, eval=FALSE}
+load("~/Desktop/rfmo/ices/wklife/X/blackhake/siempre/jbs.RData")
+
+kb=ldply(jbs,function(x) x$kobe)
+
+
+pf=ldply(jbs,function(x) x$pfunc)
+
+load("/home/laurence-kell/Desktop/rfmo/ices/wklife/X/blackhake/siempre/hindcastJabba.RData")
+retro=ldply(hc$timeseries)
+```
+
+\newpage 
+```{r, trj, fig.height=6,fig.width=8, eval=FALSE}
+trj=ldply(jbs, function(x) cast(melt(x$timeseries),X1+X3~X2))
+names(trj)[2:3]=c("year","quantity")
+
+trj$quantity=factor(trj$quantity,labels=c("Biomass","B:Virgin","B:Bmsy","F","F:Fmsy","Process Error"))
+
+plot(FLQuants(base,  metrics=list(Catch  =function(x) catch(x)/refpts(x)["msy"],
+                                  Biomass=function(x) biomass(x)/refpts(x)["bmsy"],
+                                  Harvest=function(x) harvest(x)/refpts(x)["fmsy"])))+
+       geom_hline(aes(yintercept=1),col="red",linetype=2)+
+  xlab("Year")
+                         
+#ggplot(subset(trj,run==1&quantity%in%c("B:Bmsy","F:Fmsy")))+
+#  geom_hline(aes(yintercept=1),linetype=2,col="red")+
+#  geom_ribbon(aes(year,ymin=lci,ymax=uci),fill="blue",alpha=0.3)+
+#  geom_line(aes(year,mu),col="blue",size=2)+
+#  facet_grid(quantity~.)+
+#  xlab("Year")+ylab("") +
+#  theme_bw(18)
+```
+
+
+```{r, fig.width=6, fig.height=6, eval=FALSE}
+kobe:::kobePhaseMar3(subset(kb,run==1)[sample(seq(10000),500),c("stock","harvest")],xlim=3,
+                     layer=list(                           #geom_point(aes(BBmsy,FFmsy),data=subset(dat,year%in%range(dat$year))),
+                           geom_label(aes(`B:Bmsy`,`F:Fmsy`,label=year),data=subset(dat,year%in%range(dat$year))),
+                     geom_path(aes(`B:Bmsy`,`F:Fmsy`),data=dat)))+
+  geom_point(aes(stock,harvest))+
+  facet_wrap(~run)+
+  theme_bw(20)
+```
+
+
+
+```{r, pf, fig.height=6,fig.width=8}
+plotProduction(base)+
+  geom_path(aes(x,y),model.frame(FLQuants(base,"x"=biomass,"y"=catch)))+
+  geom_label(aes(x,y,label=label),data=data.frame(x    =c(biomass(base)[,ac(unlist(dims(base)[c("minyear","maxyear")]))]),
+                                                  y    =c(catch(  base)[,ac(unlist(dims(base)[c("minyear","maxyear")]))]),
+                                                  label=c(unlist(dims(base)[c("minyear","maxyear")]))),size=2)+
+  theme_bw()
+```
+
+**Figure `r iFig=iFig+1; iFig`** Production function.
+
+
+```{r, residual, fig.height=6,fig.width=8}
+dgs=data.frame(run=1,diags(base))
+runs=ddply(dgs, .(run), with, qic(year,residual,chart="i")$data)
+runs=ddply(runs,.(run),with, 
+               data.frame(crossings=all(n.crossings>n.crossings.min),
+                          runs     =all(longest.run<longest.run.max)))
+runs=transform(runs,Pass=runs&crossings)
+  
+ggplot(subset(dgs,run==1))+ 
+  geom_hline(aes(yintercept=0))+
+  geom_line( aes(year,residual),position=position_dodge(width=1),col="grey60")+
+  geom_point(aes(year,residual),position=position_dodge(width=1),col="red",lwd=0.5,
+             data=subset(dgs,residual<0&run==1))+
+  geom_linerange(aes(year,ymin=0,ymax=residual),position=position_dodge(width=1),col="red",lwd=0.5,
+             data=subset(dgs,residual<0&run==1))+
+  geom_point(aes(year,residual),position=position_dodge(width=1),col="black",lwd=0.5,
+             data=subset(dgs,residual>0&run==1))+
+  geom_linerange(aes(year,ymin=0,ymax=residual),position=position_dodge(width=1),col="black",lwd=0.5,
+             data=subset(dgs,residual>0&run==1))+
+  theme(legend.position="bottom")+
+  #facet_grid(run~.,scale="free",space="free_x")+
+  theme_bw(14)+
+  theme(legend.position="bottom",strip.text.y=element_text(angle=90),
+                                 strip.text.x=element_text(angle=0),
+                                 axis.text.x=element_text(angle=45, hjust=1))+ 
+  xlab("Year")+ylab("")+
+  geom_rect(aes(fill=Pass), xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf, alpha=0.25,
+            data=subset(runs,run==1))+
+     scale_fill_manual(values=c("red","green"))+
+     scale_x_continuous(breaks=seq(2000,2020,5))
+```
+
+**Figure `r iFig=iFig+1; iFig`** Residuals.
+
+
+
+# To Do
+
+```{r, pe, fig.height=6,fig.width=8, eval=FALSE}
+ggplot(subset(trj,run==1&quantity%in%c("Process Error")))+
+  geom_hline(aes(yintercept=0),linetype=2,col="red")+
+  geom_ribbon(aes(year,ymin=lci,ymax=uci),fill="blue",alpha=0.3)+
+  geom_line(aes(year,mu),col="blue",size=2)+
+  facet_grid(quantity~.)+
+  xlab("Year")+ylab("") +
+  theme_bw(18)
+```
+
+**Figure `r iFig=iFig+1; iFig`** Process error.
+
+```{r, residuals, fig.height=6,fig.width=8, eval=FALSE}
+dgs=ldply(jbs, function(x) data.frame(residual=c(x$residuals),
+                                      year    =as.numeric(dimnames(x$residuals)[[2]])))
+runs=ddply(dgs, .(run), with, qic(year,residual,chart="i")$data)
+runs=ddply(runs,.(run),with, 
+               data.frame(crossings=all(n.crossings>n.crossings.min),
+                          runs     =all(longest.run<longest.run.max)))
+runs=transform(runs,Pass=runs&crossings)
+
+print(subset(dgs,run==1))
+  
+ggplot(subset(dgs,run==1))+ 
+  geom_hline(aes(yintercept=0))+
+  geom_line( aes(year,residual),position=position_dodge(width=1),col="grey60")+
+  geom_point(aes(year,residual),position=position_dodge(width=1),col="red",lwd=0.5,
+             data=subset(dgs,residual<0&run==1))+
+  geom_linerange(aes(year,ymin=0,ymax=residual),position=position_dodge(width=1),col="red",lwd=0.5,
+             data=subset(dgs,residual<0&run==1))+
+  geom_point(aes(year,residual),position=position_dodge(width=1),col="black",lwd=0.5,
+             data=subset(dgs,residual>0&run==1))+
+  geom_linerange(aes(year,ymin=0,ymax=residual),position=position_dodge(width=1),col="black",lwd=0.5,
+             data=subset(dgs,residual>0&run==1))+
+  theme(legend.position="bottom")+
+  #facet_grid(run~.,scale="free",space="free_x")+
+  theme_bw(14)+
+  theme(legend.position="bottom",strip.text.y=element_text(angle=90),
+                                 strip.text.x=element_text(angle=0),
+                                 axis.text.x=element_text(angle=45, hjust=1))+ 
+  xlab("Year")+ylab("")+
+  geom_rect(aes(fill=Pass), xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf, alpha=0.25,
+            data=subset(runs,run==1))+
+     scale_fill_manual(values=c("red","green"))+
+     scale_x_continuous(breaks=seq(2000,2020,5))
+```
+
+**Figure `r iFig=iFig+1; iFig`** Residuals.
+
+
+```{r, kb, fig.width=6, fig.height=6, eval=FALSE}
+dat=cast(subset(trj,run==1&quantity%in%c("B:Bmsy","F:Fmsy")),year~quantity,value="mu")
+
+kobe:::kobePhaseMar3(subset(kb,run==1)[sample(seq(10000),500),c("stock","harvest")],xlim=3,
+                     layer=list(                           #geom_point(aes(BBmsy,FFmsy),data=subset(dat,year%in%range(dat$year))),
+                           geom_label(aes(`B:Bmsy`,`F:Fmsy`,label=year),data=subset(dat,year%in%range(dat$year))),
+                     geom_path(aes(`B:Bmsy`,`F:Fmsy`),data=dat)))+
+  geom_point(aes(stock,harvest))+
+  facet_wrap(~run)+
+  theme_bw(20)
+```
+
+```{r, retro, fig.height=6,fig.width=8, eval=FALSE}
+retro=ddply(retro,.(.id,level), transform, year=2001:2018)
+dat=cast(melt(retro[,c("year","level",".id","BBmsy","FFmsy")],id=c("year","level",".id")),year+level+variable~.id)
+
+ggplot(dat)+
+  geom_ribbon(aes(year,ymin=lci,ymax=uci,fill=ac(level)),alpha=0.3)+
+  geom_line(aes(year,mu,col=ac(level)),size=1.5)+
+  facet_grid(variable~.,scale="free")+
+  scale_colour_manual("Peel",values=rainbow(5))+
+  scale_fill_manual("Peel",values=rainbow(5))
+```
+
+**Figure `r iFig=iFig+1; iFig`** Retrospectives with projection
+
+
+```{r, pfs, fig.height=6,fig.width=8, eval=FALSE}
+plotProduction(base)
+
+ggplot(subset(pf,run==1))+
+  geom_path(aes(SB_i,SP),col="red")+
+  xlab("Biomass")+ylab("Production")+
+  theme_bw(18)+
+  geom_point(aes(bmsy,msy*1.005),data=jbs[[1]]$refpts[1,],col="red",size=3)
+```
+
+**Figure `r iFig=iFig+1; iFig`** Production functions.
