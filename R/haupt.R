@@ -1,22 +1,26 @@
-haupt<-function(lfd,pars,lc=FLife::vonB(pars["sel1"],pars)*.9){
+haupt<-function(lfd,pars,lc=FLife::vonB(pars["sel1"],pars)*.9,lmax="missing"){
   
-  lfd=lfd[as.numeric(dimnames(lfd)$len)>c(lc)]
-  l  =lfd
+  dat=lfd[as.numeric(dimnames(lfd)$len)>c(lc)]
+  if (!missing(lmax))
+    dat=dat[as.numeric(dimnames(dat)$len)<c(lmax)]
+  
+  l  =dat
   l[]=as.numeric(dimnames(l)[[1]])
 
-  l1  =lfd[-dim(lfd)[1]]
+  l1  =dat[-dim(dat)[1]]
   l1[]=as.numeric(dimnames(l1)[[1]])
 
-  l2  =lfd[-1]
+  l2  =dat[-1]
   l2[]=as.numeric(dimnames(l2)[[1]])
 
   dt=-log(1-l2%/%pars["linf"])/pars["k"]+log(1-l1/pars["linf"])/pars["k"]
   t =pars["t0"]*log(1-(l/pars["linf"]))/pars["k"]  
   
-  dat=model.frame(FLQuants("y"=log(lfd[-dim(t)[1]]%/%dt),
+  dat=model.frame(FLQuants("y"=log(dat[-dim(t)[1]]%/%dt),
                            "x"=      t[-dim(t)[1]]))
   dat=subset(dat,is.finite(y))
-  z  =ddply(dat,.(year,iter), with, data.frame(data=-lm(y~x,na.rm=TRUE)$coefficients["x"]))
+  #z  =ddply(dat,.(year,iter), with, data.frame(data=-lmRob(y~x)$coefficients["x"]))
+  z  =ddply(dat,.(year,iter), with, data.frame(data=-lm(y~x)$coefficients["x"]))
   z  =transform(z,year=factor(year),iter=factor(iter))
   as.FLQuant(z)
   }

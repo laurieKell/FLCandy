@@ -60,9 +60,9 @@ annualise<-function(x) {
   
   # totals
   
-  catch(res) <- computeCatch(res)
+  catch(res)    <- computeCatch(res)
   landings(res) <- computeLandings(res)
   discards(res) <- computeDiscards(res)
-  stock(res) <- computeStock(res)
+  stock(res)    <- computeStock(res)
   
   return(res)}
