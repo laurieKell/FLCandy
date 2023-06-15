@@ -22,6 +22,7 @@ LinkingTo:
   TMB,
   RcppEigen
 Collate:
+  FLBRPSeasonal.R
   FLBRPSeasons.R
   OMstats-aopt.R
   OMstats-pe.R
