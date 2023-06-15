@@ -1,3 +1,38 @@
+### Aopt #####################################################
+aopt <- function(object) {
+  
+  #
+  fbar(object) <- FLQuant(0)
+  
+  res <- stock.wt(object)[,1] * stock.n(object)[,1]
+  
+  if (is.na(range(object)["plusgroup"])) {
+    return(FLPar(aopt=apply(res, c(3,6), function(x)
+      as.numeric(dimnames(x)[[1]][x==max(x)]))))
+  } else {
+    return(FLPar(aopt=apply(res[-dim(res)[1]], c(3, 6), function(x)
+      as.numeric(dimnames(x)[[1]][x==max(x)]))))
+  }
+}
+
+
+## Process Error #############################################
+sp<-function(stk,eq,stock=ssb){
+  
+  fbar(eq)=FLQuant(seq(0,1,length.out=201))*refpts(eq)["crash","harvest"]
+  dat=with(model.frame(FLQuants(eq,"stock"=ssb,"catch"=catch),drop=T), 
+           approx(stock,catch,xout=c(ssb(stk))),dimnames=dimnames(ssb(stk)))
+  FLQuant(dat$y,dimnames=dimnames(stock(stk)))}
+
+pe<-function(stk,eq,stock=ssb){
+  (ssb(ple4)-
+     window(stock(ple4)[,-1],end=dims(ple4)$maxyear+1)-
+     catch(ple4)+
+     sp(ple4,ple4brp))%/%stock(ple4)}
+
+
+if(FALSE){
+  
 ################################################################################
 #### OM descriptive statistics & SPM priors ####################################
 ################################################################################
@@ -22,45 +57,12 @@ permutation_entropy(ordinal_pattern_distribution(x=rec(ple4), ndemb=5))
 permutation_entropy(ordinal_pattern_distribution(x=seq(0,10,0.1), ndemb=5))
 permutation_entropy(ordinal_pattern_distribution(x=rlnorm(100), ndemb=5))
 
-### Aopt #####################################################
-aopt <- function(object) {
-  
-  #
-  fbar(object) <- FLQuant(0)
-  
-  res <- stock.wt(object)[,1] * stock.n(object)[,1]
-  
-  if (is.na(range(object)["plusgroup"])) {
-    return(FLPar(aopt=apply(res, c(3,6), function(x)
-      as.numeric(dimnames(x)[[1]][x==max(x)]))))
-  } else {
-    return(FLPar(aopt=apply(res[-dim(res)[1]], c(3, 6), function(x)
-      as.numeric(dimnames(x)[[1]][x==max(x)]))))
-  }
-}
-
-if(FALSE){
 aopt(ple4brp)
 
 ### Lopt #####################################################
 lopt=vonB(aopt(ple4brp),pars)
 lopt%/%pars["linf"]
 lopt%/%pars["l50"]
-}
-
-## Process Error #############################################
-sp<-function(stk,eq,stock=ssb){
-  
-  fbar(eq)=FLQuant(seq(0,1,length.out=201))*refpts(eq)["crash","harvest"]
-  dat=with(model.frame(FLQuants(eq,"stock"=ssb,"catch"=catch),drop=T), 
-           approx(stock,catch,xout=c(ssb(stk))),dimnames=dimnames(ssb(stk)))
-  FLQuant(dat$y,dimnames=dimnames(stock(stk)))}
-
-pe<-function(stk,eq,stock=ssb){
-  (ssb(ple4)-
-     window(stock(ple4)[,-1],end=dims(ple4)$maxyear+1)-
-     catch(ple4)+
-     sp(ple4,ple4brp))%/%stock(ple4)}
 
 plot(pe(ple4,ple4brp,ebiomass))
 plot(pe(ple4,ple4brp,ssb))
@@ -247,5 +249,5 @@ hat=mpb:::prdFn("pellat",par,ebiomass(eq))
 ggplot()+
   geom_line( aes(x,y),data=model.frame(FLQuants(x=ssb(eq),y=hat)))+
   geom_point(aes(x,y),data=model.frame(FLQuants(x=ssb(eq),y=catch(eq))),col="red")
-
+}
 
