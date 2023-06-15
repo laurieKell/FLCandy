@@ -25,7 +25,6 @@ Collate:
   icesUtil.R
   FLBRPSeasonal.R
   OMstats-aopt.R
-  OMstats-pe.R
   OMstats-perm.R
   OMstats-pf.R
   OMstats-pt.R
