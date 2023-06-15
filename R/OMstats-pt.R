@@ -155,6 +155,7 @@ setMethod('pt', signature(object="FLBRP"),
           }) 
 
 
+if(FALSE){
 ################################################################################
 #### OM descriptive statistics & SPM priors ####################################
 ################################################################################
@@ -240,4 +241,5 @@ ggarrange(p1,p3,p2,p4,
 #stock Catchequi     BMSY      B0 FmsyMedianC FmsyMedianL F5percRiskBlim FlimEqsim
 
 
-load("/home/laurie/Desktop/inPrep/mse/ices/data/om/ices.stks.n78.wkref1.rdata")
+#load("/home/laurie/Desktop/inPrep/mse/ices/data/om/ices.stks.n78.wkref1.rdata")
+}

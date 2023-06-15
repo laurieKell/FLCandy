@@ -1,3 +1,4 @@
+if(FALSE){
 ################################################################################
 #### OM descriptive statistics & SPM priors ####################################
 ################################################################################
@@ -104,5 +105,5 @@ hat=mpb:::prdFn("pellat",par,ebiomass(eq))
 ggplot()+
   geom_line( aes(x,y),data=model.frame(FLQuants(x=ssb(eq),y=hat)))+
   geom_point(aes(x,y),data=model.frame(FLQuants(x=ssb(eq),y=catch(eq))),col="red")
-
+}
 
