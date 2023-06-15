@@ -1,11 +1,22 @@
 #basically i) coerce from FLstock to FLSAM, ii) compute FLBRP, iii) calc status relative to refpts iv) plot ROC curve to estimate classification skill and bias
 
+setGeneric("crosstest", function(object,...)
+  standardGeneric("crosstest"))
 
+setMethod("crosstest", signature(object="FLStock"),
+          function(object=object,...){
+            
+            res=crosstestFn(object)  
+            
+            res})  
+
+if (FALSE){
 ## Mackerel ####################################################################
 load("/home/laurie/Desktop/inPrep/pew/github/erp/data/om/om.RData")
 load("/home/laurie/Desktop/inPrep/pew/github/erp/data/inputs/ices/mac.RData")
 
 ## FLife #######################################################################
+
 par=FLPar(c(linf=8.0,
             k   =0.7,
             t0  =-0.1,
@@ -27,20 +38,8 @@ om=fwd(om,fbar=fbar(om)[,-1],
        sr  =eq,residuals=rlnorm(100,fbar(om)*0,0.3))
 
 mp=om
-
 m(mp)[]=0.2
 
-
-setGeneric("crosstest", function(object,...)
-  standardGeneric("crosstest"))
-
-setMethod("crosstest", signature(object="FLStock"),
-          function(object=object,...){
-          
-          res=crosstestFn(object)  
-          
-          res})  
-          
 control=as(FLQuants("catch"=catch[om][,"2022"],"f"=fbar[om][,"2023"]),"fwdControl")
 
 crosstestFn<-function(om,
@@ -48,4 +47,5 @@ crosstestFn<-function(om,
                       control="missing",indices="missing"){
   
            retrun(mp)}
+}
 

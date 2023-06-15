@@ -54,4 +54,6 @@ aopt <- function(object) {
   }
 }
 
+if(FALSE){
 plot(aopt(ple4))+ylab("Age at max Biomass")
+}
