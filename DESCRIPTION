@@ -35,8 +35,6 @@ Collate:
   brp2lh.R
   cr.R
   crosstest.R
-  eraPriors.R
-  icesUtil.R
   jabbaPriors.R
   length.R
   lorenzenM.R
