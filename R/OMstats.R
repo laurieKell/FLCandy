@@ -39,12 +39,14 @@ aopt <- function(object) {
   }
 }
 
-aopt(eq)
+if(FALSE){
+aopt(ple4brp)
 
 ### Lopt #####################################################
-lopt=vonB(aopt(eq),pars)
+lopt=vonB(aopt(ple4brp),pars)
 lopt%/%pars["linf"]
 lopt%/%pars["l50"]
+}
 
 ## Process Error #############################################
 sp<-function(stk,eq,stock=ssb){
