@@ -24,7 +24,6 @@ LinkingTo:
 Collate:
   icesUtil.R
   FLBRPSeasonal.R
-  FLBRPSeasons.R
   OMstats-aopt.R
   OMstats-pe.R
   OMstats-perm.R
@@ -34,9 +33,7 @@ Collate:
   aucTss.R
   bhz.R
   brp2lh.R
-  cr.R
   crosstest.R
-  jabbaPriors.R
   length.R
   lorenzenM.R
   m12.R
@@ -66,9 +63,7 @@ Collate:
   properties.R  
   selex.R
   geom_split_violin.R
-  haupt.R
   jabbaz.polsim.R
-  ldt.R
   len2age.R
   lime.R
   recoveryMetrics.R
