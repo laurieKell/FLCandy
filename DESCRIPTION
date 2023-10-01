@@ -65,4 +65,7 @@ Collate:
   lime.R
   recoveryMetrics.R
   spict.mp.R
+  abi.R
+  leslie.R
+  lorenzenM.R
 LazyLoad: true
