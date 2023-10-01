@@ -1,5 +1,5 @@
-library(FLBRP)
-library(FLife)
+require(FLBRP)
+require(FLife)
 
 brp2lh<-function(object,params=lhPar(linf=30)){
   

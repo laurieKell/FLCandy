@@ -1,7 +1,7 @@
-library(FLCore)
-library(FLBRP)
-library(FLasher)
-library(FLife)
+require(FLCore)
+require(FLBRP)
+require(FLasher)
+require(FLife)
 
 setGeneric("m1", function(object, ...)
   standardGeneric("m1"))

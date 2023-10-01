@@ -16,6 +16,8 @@ setMethod("window", signature(x="FLComp"),
             
         x})
 
+if(FALSE){
 data(ple4)
 range(ple4)[c("minyear","maxyear","min","max","plusgroup","Minfbar")]=c(1980,2010,5,7,7,5)
 plot(window(ple4))
+}

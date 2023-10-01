@@ -1,13 +1,13 @@
-# library(devtools)
+# require(devtools)
 # devtools::install_github("jabbamodel/JABBA")
 
-library(JABBA)
-library(FLCore)
-library(FLBRP)
-library(ggplotFL)
-library(ggplot2)
-library(kobe)
-library(plyr)
+require(JABBA)
+require(FLCore)
+require(FLBRP)
+require(ggplotFL)
+require(ggplot2)
+require(kobe)
+require(plyr)
 
 # load complete Pollack OM        
 load("/home/laurie/pCloudDrive/flr/FLCandy/data/omPollack2.RData")

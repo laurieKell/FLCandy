@@ -162,14 +162,14 @@ if(FALSE){
 #### Estimate Pella-T parameters fro FLBRP production function              ####
 ####      based on MSY ref pts                                              ####
 ################################################################################
-library(FLCore)
-library(FLBRP)
-library(FLife)
+require(FLCore)
+require(FLBRP)
+require(FLife)
 
-library(ggplotFL)
-library(ggpubr)
+require(ggplotFL)
+require(ggpubr)
 
-library(plyr)
+require(plyr)
 
 eq=lhEql(lhPar(FLPar(linf=100)))
 

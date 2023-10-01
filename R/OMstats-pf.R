@@ -2,12 +2,12 @@ if(FALSE){
 ################################################################################
 #### OM descriptive statistics & SPM priors ####################################
 ################################################################################
-library(FLCore)
-library(FLBRP)
-library(FLife)
-library(mpb)
-library(ggplotFL)
-library(plyr)
+require(FLCore)
+require(FLBRP)
+require(FLife)
+require(mpb)
+require(ggplotFL)
+require(plyr)
 
 pars=lhPar(FLPar(linf=100))
 eq  =lhEql(pars)

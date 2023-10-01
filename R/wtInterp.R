@@ -30,9 +30,11 @@
 #   wt[dimnames(incmt)$age]=wt[dimnames(incmt)$age]%+%incmt
 #   wt}
 
+if(FALSE){
 tst=FLQuant(1,dimnames=list(age=1:5,season=1:4,year=2001:2010))
 tst
 apply(tst,c(1,2), cumsum)
+}
 
 wtInterp<-function(wt){
   d4=dim(wt)[4]

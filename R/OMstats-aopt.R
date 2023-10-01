@@ -1,13 +1,15 @@
 ################################################################################
 #### OM descriptive statistics & SPM priors ####################################
 ################################################################################
-library(FLCore)
-library(FLBRP)
-library(mpb)
-library(ggplotFL)
+if(FALSE){
+require(FLCore)
+require(FLBRP)
+require(mpb)
+require(ggplotFL)
 
 data(ple4)
 data(ple4brp)
+}
 
 ### Aopt FLBRP #################################################################
 aopt <- function(object) {
@@ -26,6 +28,7 @@ aopt <- function(object) {
   }
 }
 
+if(FALSE){
 #aopt(ple4)
 aopt(ple4brp)
 
@@ -35,6 +38,7 @@ pars=lhPar(FLPar(linf=100))
 lopt=vonB(aopt(ple4brp),lhPar(pars))
 lopt%/%pars["linf"]
 lopt%/%pars["l50"]
+}
 
 ### Aopt FLStock#################################################################
 aopt <- function(object) {

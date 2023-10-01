@@ -1,7 +1,7 @@
-setGeneric('roc', function(label, ind, ...) standardGeneric('ind'))
+setGeneric('roc', function(label, ind, ...) standardGeneric('label'))
 
-setMethod('roc', signature(label="FLQuant", ind="FLQuant"),  FLCore:::roc(label,ind)) 
-setMethod('roc', signature(label="numeric", ind="Numeric"),  rocdf(state=abel,indicator=ind))
+#setMethod('roc', signature(label="FLQuant", ind="FLQuant"),  FLCore:::roc(label,ind)) 
+#setMethod('roc', signature(label="numeric", ind="Numeric"),  rocdf(state=label,indicator=ind))
                     
 roc2<-function(state, scores){
   
@@ -97,5 +97,4 @@ if (FALSE){
     geom_line(aes(FPR,TPR))
 
   auc(rDat$label,rDat$indicatotor)
-  
 }  

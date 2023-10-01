@@ -5,11 +5,11 @@
 ####      estimate process error from FLStock (Bt+1 - Bt - Ct + SP(Bt))/Bt  ####
 ################################################################################
 
-library(ggplot2); theme_set(theme_bw())
+require(ggplot2); theme_set(theme_bw())
 
-library(FLCore)
-library(FLBRP)
-library(ggplotFL)
+require(FLCore)
+require(FLBRP)
+require(ggplotFL)
 
 ebiomass<-function(object){
   sel=harvest(object)

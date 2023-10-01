@@ -24,8 +24,6 @@
 # 0               FP    TN
 # sum
 
-library(FLCore)
-
 #' @examples
 #' data(ple4)
 #' # OM 'realities' on stock status relative to refpt

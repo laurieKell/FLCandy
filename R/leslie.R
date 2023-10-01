@@ -114,22 +114,22 @@ setMethod("leslie", signature(object="FLStock",fec="missing"),  function(object)
 
 
 if(FALSE){
-library(FLCore)
-library(FLBRP)
-library(FLasher)
+require(FLCore)
+require(FLBRP)
+require(FLasher)
 
-library(FLife)
-library(FLSRTMB)
+require(FLife)
+require(FLSRTMB)
 
-library(popbio)
+require(popbio)
 
-library(FishLife)
-library(SPMpriors)
+require(FishLife)
+require(SPMpriors)
 
-library(demogR)
-library(epimdr2)
-library(lefko3)
-library(popReconstruct)
+require(demogR)
+require(epimdr2)
+require(lefko3)
+require(popReconstruct)
 
 ag=c(1:10,39:41)
 
@@ -213,11 +213,11 @@ L[1:5,1:5]
 # make.leslie.matrix {popReconstruct}
 
 
-library(FLCore)
-library(FLife)
-library(mydas)
-library(popbio)
-library(numDeriv)
+require(FLCore)
+require(FLife)
+require(mydas)
+require(popbio)
+require(numDeriv)
 
 eq=lhEql(lhPar(FLPar(linf=100)))
 L =leslie(eq,f=c(refpts(eq)["msy","harvest"]))

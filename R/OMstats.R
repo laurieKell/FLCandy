@@ -36,15 +36,15 @@ if(FALSE){
 ################################################################################
 #### OM descriptive statistics & SPM priors ####################################
 ################################################################################
-library(FLCore)
-library(FLBRP)
-library(mpb)
-library(ggplotFL)
+require(FLCore)
+require(FLBRP)
+require(mpb)
+require(ggplotFL)
 
 pars=lhPar(FLPar(linf=100))
 
 ### Entropy ##################################################
-library(statcomp)
+require(statcomp)
 
 data(ple4)
 data(ple4brp)

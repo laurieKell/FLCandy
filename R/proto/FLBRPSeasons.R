@@ -33,9 +33,9 @@
 ################################################################################
 ## Calculate refeence points with seasonality ##################################
 ################################################################################
-library(FLCore)
-library(FLBRP)
-library(ggplotFL)
+require(FLCore)
+require(FLBRP)
+require(ggplotFL)
 
 load("~/Dropbox/NEA.mac.MSE.Base_case.AL/test/sea4_stoch_rec.RData")
 

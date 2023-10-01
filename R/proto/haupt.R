@@ -32,8 +32,8 @@ gislasonM<-function(params,age=params["sel1"]) {
   }
 
 if (FALSE){
-library(ggplotFL)
-library(ggpubr)
+require(ggplotFL)
+require(ggpubr)
 
 load("/home/laurence-kell/Desktop/papers/COM3/R/runs/om/om.18.RData")
 load("/home/laurence-kell/Desktop/papers/COM3/R/runs/indicators/lfd.18.RData")

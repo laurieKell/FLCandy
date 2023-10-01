@@ -1,10 +1,10 @@
-library(FSA)
-library(FLCore)
-library(ggplotFL)
-library(plyr)
-library(dplyr)
-library(ggpubr)
-library(FLSRTMB)
+require(FSA)
+require(FLCore)
+require(ggplotFL)
+require(plyr)
+require(dplyr)
+require(ggpubr)
+require(FLSRTMB)
 
 source("~/pCloudDrive/flr/doc/R/candidates/roc.R")
 
