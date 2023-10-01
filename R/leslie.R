@@ -69,8 +69,10 @@ setMethod("leslie", signature(object="numeric",fec="numeric"),
           function(object,fec) {
                  leslieFn(object,fec)})
 
+if(FALSE){
 L=leslie(survivors,fec)
 eigen.analysis(L)
+}
 
 setMethod("leslie", signature(object="FLBRP",  fec="missing"),  
           function(object,f=refpts(object)["crash","harvest"]) {
@@ -90,8 +92,11 @@ setMethod("leslie", signature(object="FLBRP",  fec="missing"),
             
             
             return(L)})
+
+if(FALSE){
 L=leslie(ple4brp)
 eigen.analysis(L[,,1,drop=T])
+}
 
 setMethod("leslie", signature(object="FLQuant",fec="FLQuant"),  function(object,fec) {
   })
@@ -108,6 +113,7 @@ setMethod("leslie", signature(object="FLStock",fec="missing"),  function(object)
  })
 
 
+if(FALSE){
 library(FLCore)
 library(FLBRP)
 library(FLasher)
@@ -190,7 +196,7 @@ FishLife:::get_r(vec=NULL,
 
 
 # leslie.matrix {demogR}
-leslie.matrix(c(1-h(z(fls)[,100])),c(mat(fls)[,100])
+leslie.matrix(c(1-h(z(fls)[,100])),c(mat(fls)[,100]))
 eigen.analysis(L)
               
 # leslie {epimdr2}
@@ -227,7 +233,7 @@ var =(jac) %*% vc %*% t((jac))
 var^0.5
 
 exp(lambda(L[drop=T]))
-
+}
 
 
                  
