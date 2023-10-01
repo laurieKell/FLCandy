@@ -1,0 +1,145 @@
+---
+title: "Time Varying population growth rate"
+subtitle: "North Sea Sole"
+author: "L Kell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+mathjax: TRUE
+tags: FLR priors
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+# bibliography: refs.bib
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir="html")})
+---
+  
+
+```{r, knitr, eval=TRUE, echo=FALSE, warning=FALSE, cache=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# getwd()
+library(knitr)
+opts_chunk$set(cache     =!TRUE, 
+               comment   =NA, 
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =FALSE, 
+               eval      =TRUE,
+               cache     =TRUE,
+               cache.path="cache/rSole/",
+               fig.path  ="../tex/rSole/",
+               fig.width =8,
+               fig.height=8,
+               dev       ="png")
+iFig=0
+iTab=0
+```
+
+
+```{r, install, eval=FALSE, message=FALSE}
+install.packages("devtools")
+library(devtools)
+
+install.packages("ggplot2")
+install.packages("ggpubr")
+install.packages("GGallay")
+install.packages("plyr")
+
+devtools::install_github("flr/FLCore")
+devtools::install_github("flr/ggplotFL")
+devtools::install_github("flr/FLBRP")
+devtools::install_github("flr/FLife")
+
+devtools::install_github("henning-winker/FLRef")
+devtools::install_github("henning-winker/SPMpriors")
+
+devtools::install_github("ropensci/rfishbase")
+devtools::install_github("ricardo-bion/ggradar")
+```
+
+```{r, pkgs, cache=FALSE}
+library(ggplot2)
+
+library(FLCore)
+library(ggplotFL)
+library(FLBRP)
+library(FLife)
+library(mydas)
+library(FLCandy)
+
+library(FLSRTMB)
+
+library(popbio)
+
+library(rfishbase)
+
+library(FishLife)
+
+library(ggpubr)
+library(GGally)
+library(ggradar)
+
+library(statcomp)
+
+library(plyr)
+library(reshape)
+
+library(numDeriv)
+
+theme_set(theme_bw(16))
+```
+
+```{r, wd, eval=FALSE, echo=FALSE}
+setwd("~/Desktop/flr/FLCandy/vignettes")
+```
+
+```{r, data}
+load("data/sol274.rda") 
+```
+
+```{r, source}
+sr=as.FLSR(run,model=bevholtSV)
+sr=(sr,s.est=T,s=0.7,s.logitsd=0.3,spr0=spr0Yr(run))
+
+arsehole=nonStationarity(run,sr)
+
+ggplot(subset(arsehole,refpt%in%c("msy","crash")&quant=="harvest"&year>1970))+
+  geom_line(aes(year,1-exp(-data),col=refpt))
+```
+
+
+```{r} 
+permutation_entropy(ordinal_pattern_distribution(x=ssb(run),    ndemb=5))  
+permutation_entropy(ordinal_pattern_distribution(x=rlnorm(100), ndemb=5))
+permutation_entropy(ordinal_pattern_distribution(x=seq(1,100),  ndemb=5))
+```
+
+**Figure `r iFig=iFig+1; iFig`** Plot of biological vectors-at-age 
+
+```{r}
+load("data/sol274.rda") 
+
+fits=srrTMB(as.FLSRs(run, models=c("bevholt", "ricker", "segreg")), 
+  spr0=mean(spr0y(run)), uplim=0.4) 
+```
+
+```{r}
+load("data/sol274.rda")  
+
+eqs=FLBRPs(llply(fits, function(x) FLBRP(run,sr=x))) 
+
+ggplot(ldply(eqs,function(x) model.frame(FLQuants(ssb=ssb(x),yield=catch(x)),drop=T)))+
+  geom_line(aes(ssb,yield,col=.id))
+
+i=1
+fn<-function(x,i) {
+  params(eqs[[i]])[]=x
+  computeRefpts(eqs[[i]])["msy",c("harvest","ssb","yield"),drop=T]}
+
+jac=jacobian(fn,params(eqs[[i]]),i=i) 
+
+vcov =matrix((jac) %*% vcov(fits[[i]]) %*% t((jac)),
+               3,3,
+               dimnames=list(params=c("harvest","ssb","yield"),
+                             params=c("harvest","ssb","yield")))
+```
+

@@ -72,6 +72,12 @@ omSmryFn<-function(x,y="missing",z="missing"){
 
     names(rec)[(seq(dim(rec)[2]))[names(rec)=="data"]]="rec_hat"
     res=merge(res,rec)
+    
+    abi=as.data.frame(ABI(x,y))
+    names(abi)[(seq(dim(abi)[2]))[names(abi)=="data"]]="abi"
+    res=merge(res,abi)
+    
+    #print(ABI(x,y))
     }
   else if ("FLPar" %in% is(y)){
 

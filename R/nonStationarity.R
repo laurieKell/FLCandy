@@ -36,7 +36,7 @@
 #' ggplot(dat)+
 #'   geom_line(aes(year,data,col=refpt))+facet_grid(quant~.,scale="free")
 
-nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel")){
+nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel"),abi=FALSE){
   
   eq=FLBRP(object)
   
@@ -73,6 +73,14 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
   model(eq) =model(sr)
   params(eq)=params(sr)
  
+  refpts(eq)=rbind(refpts(eq),refpts(eq)[1,])
+  dimnames(refpts(eq))$refpt[dim(refpts(eq))[1]]="current"
+  refpts(eq)["current"]=NA
+  refpts(eq)["current","ssb"]=c(iter(ssb.obs(eq),1))
+  
+  if(abi)
+    return(FLQuant(c(ABIMSY(eq)),dimnames=dimnames(fbar(object))))
+    
   rtn=rbind(computeRefpts(eq),
             properties(eq))
   
@@ -81,7 +89,8 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
   
   names(dimnames(rtn))=names(refpts(eq))
 
-  transform(as.data.frame(rtn),year=as.numeric(dimnames(object)$year[iter]))[,-3]}
+  transform(as.data.frame(rtn),year=as.numeric(dimnames(object)$year[iter]))[,-3]
+  }
 
 processError<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel"),log=FALSE){
   
@@ -124,5 +133,49 @@ processError<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.
   FLQuants(ssb  =ssb(object),
            catch=catch(object),
            production=production,
-           error=(1/ssb(object))*(ssb.t-catch(object)+production))
-  }
+           error=(1/ssb(object))*(ssb.t-catch(object)+production))}
+
+## gets reference age
+ABIAge<-function(y,ref="msy",p=0.9){
+  
+  ## Set up numbers-at-age at equilibrium for MST
+  fbar(y)=as.FLQuant(computeRefpts(y)[ref,"harvest",drop=T],dimnames=list(iter=seq(dim(y)[6])))
+  
+  ## Find age at 90% 
+  stk.n=stock.n(y)[-1]
+  cumN =apply(stk.n,c(2,6),cumsum)%/%quantSums(stk.n)
+  ages =ages(stk.n)
+  
+  ages[cumN<=p]=NA
+  apply(ages,c(2:6),function(x) min(c(x+1,dims(y)$max),na.rm=T))}
+
+## Gets P>ref age for FLBRP
+ABIMSY<-function(y,ref="msy",p=0.9){
+  
+  fbar(y)=as.FLQuant(computeRefpts(y)[ref,"harvest",drop=T],dimnames=list(iter=seq(dim(y)[6])))
+  A=ABIAge(y,ref,p)
+  
+  stk.n=stock.n(y)[-1]
+  
+  ## Find proportion > Amsy
+  flag=FLQuant(ages(stk.n)>=FLCore:::expand(A,age=dimnames(stk.n)$age))
+  
+  apply(stk.n%*%flag,c(2,6),sum)%/%apply(stk.n,c(2,6),sum)}
+
+## Gets P>ref age for stock
+ABIstock<-function(x,A){
+  
+  stk.n=stock.n(x)[-1]
+  
+  ## Find proportion > Amsy
+  flag =FLQuant(ages(stk.n)>=expand(A,age=dimnames(stk.n)$age,year=dimnames(stk.n)$year))
+  
+  apply(stk.n%*%flag,c(2,6),sum)%/%apply(stk.n,c(2,6),sum)}
+
+abi<-function(x,y,ref="msy",p=0.9){
+  A   =ABIAge(y,ref,p)
+  pmsy=ABIMSY(y,ref,p)
+  pt  =ABIstock(mac,A)
+  pt%/%pmsy}
+
+  

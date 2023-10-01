@@ -1,3 +1,8 @@
+setGeneric('roc', function(label, ind, ...) standardGeneric('ind'))
+
+setMethod('roc', signature(label="FLQuant", ind="FLQuant"),  FLCore:::roc(label,ind)) 
+setMethod('roc', signature(label="numeric", ind="Numeric"),  rocdf(state=abel,indicator=ind))
+                    
 roc2<-function(state, scores){
   
   labels=state>1
@@ -22,7 +27,7 @@ roc2<-function(state, scores){
              TP=TP,TN=TN,FP=FP,FN=FN,
              TSS=TSS)}
 
-roc<-function(state, indicator){
+rocdf<-function(state, indicator){
   # label is true or false relative to an reference level, e.g. B/BMSY
   # indicatotor is from an indicator, does not need to be relative
   

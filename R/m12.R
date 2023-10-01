@@ -15,7 +15,7 @@ setGeneric("predNeed", function(object, ...)
 setMethod("m1", "FLComp", function(object, ...) {
   if(units(harvest(object)) != 'f') 
     stop("Exploitation not defined as 'f', cannot be combined with  'm'")
-  if (!"m1"%in%names(attributes(stk)))
+  if (!"m1"%in%names(attributes(object)))
     stop("m1 is not an attribute")
  
   return(attributes(object)$m1)})
@@ -23,7 +23,7 @@ setMethod("m1", "FLComp", function(object, ...) {
 setMethod("m2", "FLComp", function(object, ...) {
   if(units(harvest(object)) != 'f') 
     stop("Exploitation not defined as 'f', cannot be combined with  'm'")
-  if (!"m1"%in%names(attributes(stk)))
+  if (!"m1"%in%names(attributes(object)))
     stop("m1 is not an attribute")
   
   return(m(object) - m1(object))})
@@ -31,7 +31,7 @@ setMethod("m2", "FLComp", function(object, ...) {
 setMethod("forage", "FLComp", function(object, ...) {
   if(units(harvest(object)) != 'f') 
     stop("Exploitation not defined as 'f', cannot be combined with  'm'")
-  if (!"m1"%in%names(attributes(stk)))
+  if (!"m1"%in%names(attributes(object)))
     stop("m1 is not an attribute")
 
   zFn<-function(object) m(object)%+%harvest(object)
