@@ -54,6 +54,7 @@ leslieFn<-function(object,fec){
       L[length(object),length(object)]=L[length(object),length(object)-1]
       L}
 
+if(FALSE){
 survivors=cumprod(rep(0.5,10))
 fec      =c(0,rep(1,9))
 L        =leslieFn(survivors,fec)
@@ -61,7 +62,7 @@ L
   with(subset(mvln$kb,year==2021),cov(log(stock),log(harvest)))
 with(subset(mvln$kb,year==2021),cov(log(stock),log(harvest)))
 demogR:::eigen.analysis(L)
-
+}
 
 setGeneric('leslie', function(object, fec, ...) standardGeneric('leslie'))
 setMethod("leslie", signature(object="numeric",fec="numeric"),  
