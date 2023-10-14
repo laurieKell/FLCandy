@@ -24,6 +24,9 @@
 # 0               FP    TN
 # sum
 
+
+require(FLCore)
+
 #' @examples
 #' data(ple4)
 #' # OM 'realities' on stock status relative to refpt
