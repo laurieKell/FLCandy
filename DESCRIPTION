@@ -68,4 +68,9 @@ Collate:
   abi.R
   leslie.R
   lorenzenM.R
+  FLParPoint.R
+  effortBellWatson.R
+  mEmpirical.R
+  mglim.R
+  rlmvn.R
 LazyLoad: true
