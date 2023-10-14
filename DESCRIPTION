@@ -73,4 +73,5 @@ Collate:
   mEmpirical.R
   mglim.R
   rlmvn.R
+  jabba-coerce.R
 LazyLoad: true
