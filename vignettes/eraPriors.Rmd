@@ -134,7 +134,8 @@ getTraits<-function(Class        ="predictive",
   Y_ij          =Database$Y_ij
   g_i           =Database$g_i
 
-  nms=c("linf","k","winf","amax","amat","m","l50","temperature","lnvar","rho","lnmasps","lnmargsd","s","logits","fmsym","fmsy","lnr","r","lhg","g")
+  nms=c("linf","k","winf","amax","amat","m","l50","temperature","lnvar","rho",
+        "lnmasps","lnmargsd","s","logits","fmsym","fmsy","lnr","r","lhg","g")
   mu =Mean_gj[Which,]
   names(mu)=nms
   mu =FLPar(mu)
