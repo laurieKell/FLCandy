@@ -72,4 +72,7 @@ Collate:
   effortBellWatson.R
   mEmpirical.R
   mglim.R
+  rlmvn.R
+  jabba-coerce.R
+  traits.R
 LazyLoad: true
