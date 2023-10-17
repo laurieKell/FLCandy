@@ -75,5 +75,5 @@ Collate:
   rlmvn.R
   jabba-coerce.R
   traits.R
-  rlmvn.R"
+  rlmvn.R
 LazyLoad: true
