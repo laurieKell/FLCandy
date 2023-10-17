@@ -74,4 +74,6 @@ Collate:
   mglim.R
   rlmvn.R
   jabba-coerce.R
+  traits.R"  
+  rlmvn.R"
 LazyLoad: true

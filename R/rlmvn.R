@@ -1,10 +1,11 @@
 ## par on normal scale,
 ## cor is the correlation matrix on natural scale
 ## sigma is the CV on natural scale
-rlmvn<-function(n,par,sigma,cor){
+rlmvn<-function(n,par,sigma="missing",cor="missing",cvr="missing"){
   flag=par<0
   par[flag]=-par[flag]
-  cvr=cor2cov(cor[drop=T],sigma[drop=T]^2)
+  if (!missing(sigma)&!missing(cor))  
+    cvr=cor2cov(cor[drop=T],sigma[drop=T]^2)
   mvlmu=log(par[drop=T]) 
   rtn=exp(mvtnorm::rmvnorm(n, mean=mvlmu[drop=T], sigma=cvr[drop=T], method = c("svd")))
   rtn=FLPar(t(array(rtn,c(n,dim(par)[1]),dimnames=list(iter=seq(n),params=dimnames(par)[[1]]))))
