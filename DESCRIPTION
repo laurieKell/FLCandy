@@ -21,7 +21,8 @@ Imports:
 LinkingTo: 
   TMB,
   RcppEigen
-Collate:abi.R
+Collate:
+abi.R
 addRefs.R
 adjust.R
 annualise.R
