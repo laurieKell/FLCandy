@@ -21,58 +21,67 @@ Imports:
 LinkingTo: 
   TMB,
   RcppEigen
-Collate:
-  icesUtil.R
-  FLBRPSeasonal.R
-  OMstats-aopt.R
-  OMstats-perm.R
-  OMstats-pf.R
-  OMstats-pt.R
-  OMstats.R
-  aucTss.R
-  bhz.R
-  brp2lh.R
-  crosstest.R
-  length.R
-  m12.R
-  roc.R
-  rocFLQ.R
-  trnd.R
-  violin.R
-  xoy.R
-  addRefs.R  
-  annualise.R  
-  eqsim1.R  
-  eqsim2.R  
-  icesRefpts.R  
-  nonStationarity.R  
-  seasonalise.R  
-  spr0Yr.R  
-  spr0Cohort.R  
-  surplusProduction.R  
-  adjust.R  
-  wtInterp.R
-  ftmb.R
-  FLCandy-package.R
-  utils.R
-  windowRange.R
-  aopt.R
-  metrics.R
-  properties.R  
-  selex.R
-  geom_split_violin.R
-  len2age.R
-  lime.R
-  recoveryMetrics.R
-  spict.mp.R
-  abi.R
-  leslie.R
-  lorenzenM.R
-  FLParPoint.R
-  effortBellWatson.R
-  mEmpirical.R
-  mglim.R
-  rlmvn.R
-  jabba-coerce.R
-  traits.R
+Collate:abi.R
+addRefs.R
+adjust.R
+annualise.R
+aopt.R
+aucTss.R
+backup
+bhz.R
+blimV2.R
+Brebuild.R
+brp2lh.R
+crosstest.R
+effortBellWatson.R
+eqsim1.R
+eqsim2.R
+FLBRPSeasonal.R
+FLCandy-package.R
+FLParPoint.R
+ftmb.R
+geom_split_violin.R
+globalMSY.R
+hcrICESV2.R
+icesRefpts.R
+icesUtil.R
+jabba-coerce.R
+len2age.R
+length.R
+leslie.R
+lime.R
+lorenzenM.R
+m12.R
+mEmpirical.R
+metrics.R
+mglim.R
+nonStationarity.R
+OMstats-aopt.R
+OMstats-perm.R
+OMstats-pf.R
+OMstats-pt.R
+OMstats.R
+properties.R
+proto
+rebuild.R
+recoveryMetrics.R
+relMSY.R
+rlmvn.R
+rocFLQ.R
+roc.R
+seasonalise.R
+seasonUnit.R
+selex.R
+spict.mp.R
+spr0Cohort.R
+spr0Yr.R
+surplusProduction.R
+traits.R
+trnd.R
+t.txt
+utils.R
+violin.R
+windowRange.R
+wtInterp.R
+xoy.R
 LazyLoad: true
