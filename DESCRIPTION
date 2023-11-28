@@ -28,7 +28,6 @@ Collate:
   annualise.R
   aopt.R
   aucTss.R
-  backup
   bhz.R
   blimV2.R
   Brebuild.R
@@ -63,7 +62,6 @@ Collate:
   OMstats-pt.R
   OMstats.R
   properties.R
-  proto
   rebuild.R
   recoveryMetrics.R
   relMSY.R
@@ -79,7 +77,6 @@ Collate:
   surplusProduction.R
   traits.R
   trnd.R
-  t.txt
   utils.R
   violin.R
   windowRange.R
