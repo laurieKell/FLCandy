@@ -127,7 +127,8 @@ ABIstock<-function(x,A){
      A=propagate(A,dim(x)[6])
 
   ## Find proportion > Amsy
-  flag =FLQuant(ages(stk.n)>=FLCore:::expand(A,age=dimnames(stk.n)$age,year=dimnames(stk.n)$year,fill=T))
+  amsy =FLQuant(rep(c(A),each=prod(dim(stk.n)[-6])),dimnames=dimnames(stk.n))
+  flag =FLQuant(ages(stk.n)>=amsy)
   
   apply(stk.n%*%flag,c(2,6),sum)%/%apply(stk.n,c(2,6),sum)}
 

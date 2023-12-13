@@ -24,7 +24,7 @@ opts_chunk$set(cache     =TRUE,
                error     =FALSE, 
                echo      =FALSE, 
                eval      =TRUE,
-               fig.path  ="tex/historical/neamac")
+               fig.path  ="../outputs/texhistorical/neamac")
 iFig=0
 iTab=0
 ```
