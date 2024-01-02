@@ -57,13 +57,26 @@ Type objective_function<Type>::operator() () {
        v(t)=r0*spr0(t);
        log_rec_hat(t) = log(r0)+log(2.5*s/v(t)*(ssb(t)+0.2*v(t)/s-pow(pow(ssb(t)-0.2*v(t)/s,2.0),0.5)));//-pow(sigR,2)/2.0;
      }}
+
+
+   // Depensatory Beverton and Holt
+   // r=a/(1+(b/S)^d)
+   // V=a*spr0
+   // h=((1+b/V)^d)/((1+b/V*0.4)^d)
+   if(Rmodel==3){ 
+     for( int t=0; t< nyears; t++){
+       v(t)=r0*spr0(t);
+       log_rec_hat(t) = log(r0)+log(2.5*s/v(t)*(ssb(t)+0.2*v(t)/s-pow(pow(ssb(t)-0.2*v(t)/s,2.0),0.5)));//-pow(sigR,2)/2.0;
+     }}
    
    vector<Type> rec_hat = exp(log_rec_hat);
  
-   // OEM
+   // LL
    for( int t=0; t<nyears; t++){
      ans -= dnorm( log(rec(t)), log_rec_hat(t), sigR, true );
    }
+ 
+  // loglAR1 function(obs, hat, rho = 0) 
  
    //prior s
    ans -= dnorm(logit_s, prior_s(0), prior_s(1), 1); // Prior for logn
@@ -100,3 +113,26 @@ Type objective_function<Type>::operator() () {
    ADREPORT(v);
 // 
    return ans;}
+
+
+// loglAR1 function(obs, hat, rho = 0) 
+//  calculates likelihood for AR(1) process
+//for( int t=0; t< nyears; t++){
+//             n <- length(obs)
+//             rsdl <- (obs[-1] - rho * obs[-n] - hat[-1] + rho * hat[-n])
+//             s2 <- sum(rsdl^2, na.rm = T)
+//             s1 <- s2
+//             if (!all(is.na(rsdl[1]))) 
+//               s1 <- s1 + (1 - rho^2) * (obs[1] - hat[1])^2
+//             sigma2 <- sum((obs - hat)^2)
+//               n <- length(obs[!is.na(obs)])
+//               sigma2.a <- (1 - rho^2) * sigma2
+//               res <- (log(1/(2 * pi)) - n * log(sigma2.a) + log(1 - rho^2) - s1/(2 * sigma2.a))/2
+//             if (!is.finite(res)) res <- -1e+100
+//             return(res)}) # }}}
+
+
+// 
+//
+
+  

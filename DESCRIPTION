@@ -80,6 +80,5 @@ Collate:
   utils.R
   violin.R
   windowRange.R
-  wtInterp.R
   xoy.R
 LazyLoad: true

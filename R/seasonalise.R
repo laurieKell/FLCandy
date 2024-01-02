@@ -1,6 +1,12 @@
-#' @title 
+#' @title Seasonalise, takes an annually structured `FLStock` and creates seasons
 #' 
 #' @description 
+#'   While 'expand' adds seasons to an annually structured 'FLStock' it does not
+#'   change the 'FLQuants' such as m, stock.wt, mat, stock.n, catch.n and harvest
+#'   to take account of seasonal effects, such as growth and spawning. It also 
+#'   does not account for changes in the population due to seasonal fishing. 
+#'   Therefore 'seasonalise',  divides M into seasons, interpolates wts, and 
+#'   projects a cohort across ages to estimate numbers and catch-at-age.
 #'
 #' @param object an \code{FLStock} object 
 #' @param seasons a numeric with seasons
@@ -18,6 +24,9 @@
 #' 
 #' @examples
 #' \dontrun{
+#' data(ple4)
+#' ple4seasonal=seasonalise(ple4)
+#' plot(FLStocks("Annual"=ple4,"Seasonal"=ple4seasonal)
 #' }
 
 seasonalise<-function(object, season=1:4){
@@ -47,32 +56,31 @@ seasonalise<-function(object, season=1:4){
 
   object=adjust(object)
   
-  ## Project for historic F                              ###
+  ## Project for historic F                           ###
   #fbar=as(FLQuants("fbar"=fbar(object)[,-1]),"fwdControl")
   #object=fwd(object,control=fbar,sr=sr,residuals=recs)
   
   object}
 
-adjust<-function (object) 
-{
+adjust<-function (object) {
   dim = dim(object)
   un = units(catch.n(object))
   uwt = units(catch.wt(object))
   n = stock.n(object)
   m = m(object)
   f = harvest(object)
-  pg = stock.n(object)[dim[1], , , dim[4]] * exp(-f[dim[1], 
-                                                    , , dim[4]] - m[dim[1], , , dim[4]])
+  pg = stock.n(object)[dim[1],,,dim[4]] * exp(-f[dim[1],
+                                                    ,,dim[4]] - m[dim[1],,,dim[4]])
   for (i in seq(dim(object)[2] - 1)) for (j in seq(dim(object)[4])) {
     if (j != dim(object)[4]) 
-      stock.n(object)[, i, , j + 1] = stock.n(object)[, 
-                                                      i, , j] * exp(-f[, i, , j] - m[, i, , j])
+      stock.n(object)[,i,,j + 1] = stock.n(object)[,
+                                                      i,,j] * exp(-f[,i,,j] - m[,i,,j])
     else {
-      stock.n(object)[-1, i + 1, , 1] = stock.n(object)[-dim[1], 
-                                                        i, , j] * exp(-f[-dim[1], i, , j] - m[-dim[1], 
-                                                                                              i, , j])
-      stock.n(object)[dim[1], i + 1, , 1] = stock.n(object)[dim[1], 
-                                                            i + 1, , 1] + pg[, i, , 1]
+      stock.n(object)[-1,i + 1,,1] = stock.n(object)[-dim[1],
+                                                        i,,j] * exp(-f[-dim[1],i,,j] - m[-dim[1],
+                                                                                              i,,j])
+      stock.n(object)[dim[1],i + 1,,1] = stock.n(object)[dim[1],
+                                                            i + 1,,1] + pg[,i,,1]
     }
   }
   catch.n(object) = stock.n(object) * f/(m + f) * (1 - exp(-f-m))
@@ -93,8 +101,55 @@ adjust<-function (object)
   units(catch.wt(object)) = uwt
   units(landings.wt(object)) = uwt
   units(discards.wt(object)) = uwt
-  catch(object) = computeCatch(object, "all")
-  object
+  catch(object) = computeCatch(object,"all")
+  object}
+
+wtInterp<-function(wt){
+  d4=dim(wt)[4]
+  incmt=(-wt[-dim(wt)[1]]+wt[-1])%*%FLQuant(seq(0,1,length.out=d4+1)[-(d4+1)],dimnames=list(season=seq(d4)))
+  
+  wt[dimnames(incmt)$age]=wt[dimnames(incmt)$age]%+%incmt
+  wt}
+
+wtInterpOld<-function(wt){
+  
+  mlt=wt[,-dim(wt)[2]]
+  mlt=FLQuant(rep(seq(0,(dim(mlt)[4]-1)/dim(mlt)[4],1/dim(mlt)[4]),each=max(cumprod(dim(mlt)[1:3]))),
+              dimnames=dimnames(mlt))[-dim(mlt)[1]]
+  
+  incmt=wt[,,,1]
+  incmt=-incmt[-dim(incmt)[1],-dim(incmt)[2]]+incmt[-1,-1]
+  
+  wt[dimnames(incmt)$age,dimnames(incmt)$year]=
+    wt[dimnames(incmt)$age,dimnames(incmt)$year]+
+    incmt%+%(mlt%*%incmt)
+  
+  wt[,-dim(wt)[2]]}
+
+qp<-function(stk,eql){
+  
+  dat=rbind.fill(
+    cbind(What="Stock.wt",merge( model.frame(FLQuants("FLStock"=stock.wt(stk)),drop=T),
+                                  transform(model.frame(FLQuants("FLBRP"  =stock.wt(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
+    cbind(What="Catch.wt",merge( model.frame(FLQuants("FLStock"=catch.wt(stk)),drop=T),
+                                  transform(model.frame(FLQuants("FLBRP"  =catch.wt(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
+    cbind(What="Stock.n",merge( model.frame(FLQuants("FLStock"=stock.n(stk)),drop=T),
+                                 transform(model.frame(FLQuants("FLBRP"  =stock.n(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
+    cbind(What="Catch.n",merge( model.frame(FLQuants("FLStock"=catch.n(stk)),drop=T),
+                                 transform(model.frame(FLQuants("FLBRP"  =catch.n(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
+    cbind(What="M",      merge( model.frame(FLQuants("FLStock"=m(stk)),drop=T),
+                                 transform(model.frame(FLQuants("FLBRP"  =m(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
+    cbind(What="Mat",    merge( model.frame(FLQuants("FLStock"=mat(stk)),drop=T),
+                                 transform(model.frame(FLQuants("FLBRP"  =mat(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
+    cbind(What="Harvest",merge( model.frame(FLQuants("FLStock"=harvest(stk)),drop=T),
+                                 transform(model.frame(FLQuants("FLBRP"  =harvest(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))))
+  
 }
 
-  
+
+if(FALSE){
+  tst=FLQuant(1,dimnames=list(age=1:5,season=1:4,year=2001:2010))
+  tst
+  apply(tst,c(1,2),cumsum)
+}
+
