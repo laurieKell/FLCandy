@@ -20,6 +20,7 @@ Imports:
   ggplotFL
 LinkingTo: 
   TMB,
+  Rcpp,
   RcppEigen
 Collate:
   abi.R
@@ -30,7 +31,6 @@ Collate:
   aucTss.R
   bhz.R
   blimV2.R
-  Brebuild.R
   brp2lh.R
   crosstest.R
   effortBellWatson.R
@@ -81,4 +81,8 @@ Collate:
   violin.R
   windowRange.R
   xoy.R
+  FLCompBind.R
+  deSeason.R
+  haupt2.R
+  length2.R
 LazyLoad: true
