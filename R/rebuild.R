@@ -1,85 +1,100 @@
-setGeneric("Brebuild", function(object, ...)
-  standardGeneric("Brebuild"))
+#' Rebuild a fish population.
+#'
+#' @param 'object' of class \code{FLBRP} representing the fish population
+#' at equilibrium
+#' @param targetF The target fishing mortality rate during rebuilding, by default = 0
+#' @param targetSSB The highest initial SSB to rebuild from, by default $B_{MSY}$
+#' @param minSSB The lowest initial SSB to rebuild from, by default 1e-10
+#' @param length.out Number of initial SSB levels.
+#' @param burnin Number of iterations for burn-in, i.e., to make sure age-structure
+#' at the start of rebuilding is at equilibrium.
+#' @param truncate Logical, whether to truncate results, i.e., remove burn-in period.
+#'
+#' @export
+setGeneric("rebuild", function(object, ...) {
+  standardGeneric("rebuild")
+})
 
-# Brebuild {{{
+setMethod("rebuild", signature(object = "FLBRP"), 
+          function(object, 
+                   targetF = computeRefpts(object)["msy","harvest"] * 0,
+                   targetSSB = computeRefpts(object)["msy","ssb"],
+                   minSSB = 1e-10,
+                   length.out = 50, 
+                   burnin = 20, 
+                   truncate = TRUE) {
+  
+ 
+            eql=object
+            fbar(eql)[]=0.2
+            
+            targetSSB=c(targetSSB)*c(1e-10,seq(length.out)/length.out)
+            targetF=c(targetF)
+            
+            btar  =FLQuant(rep(targetSSB,each=dim(fbar(eql))[2]),dimnames=dimnames(propagate(ssb(eql),length.out+1)))
+            stk   =propagate(as(eql,"FLStock"),length.out+1)
+            stk   =fwd(stk,ssb_end=btar[,-c(1:2)],sr=eql)
+            ftar  =fbar(stk)%=%targetF
+            
+            stk   =fwd(stk,f=ftar[,-seq(burnin)],sr=eql)
+            
+            if (truncate) stk=stk[,-seq(burnin)]
+            
+            stk=qapply(stk,function(x) {dimnames(x)$year=seq(length(dimnames(x)$year))
+            x})
+  stk
+})
 
-#' @rdname Brebuild
-#' @description Calculates the SSB that would take a given time to rebuild to Bmsy from 
+#' Calculate rebuilding time based on fish stock data.
+#'
+#' @param stk An object of class \code{FLStock} representing the fish stock data.
+#'
+#' @return A data frame with columns "Initial" and "Year" representing the initial depletion 
+#' and the corresponding year, respectively.
+#'
+#' @export
+setGeneric("rebuildTime", function(object, ...) {
+  standardGeneric("rebuildTime")
+})
+setMethod("rebuildTime", signature(object = "FLStock"), 
+          function(object) {
+              
+              msy=c(ssb(iter(object,dim(object)[6]))[,1])
+              dt1=transmute(as.data.frame(ssb(object),drop=T),
+                            
+                            ssb    =data/msy,
+                            initial=c(ssb(object[,1]))[an(ac(iter))]/msy,
+                            year   =year)
+              t=suppressWarnings(as.data.frame(akima:::interp(dt1$initial,dt1$ssb,dt1$year,
+                                                              xo=seq(0,1,length.out=202)[-c(1,202)],yo=1,duplicate="mean")))
+              
+              data.frame(initial=t$x,year=t$z)})
 #' @examples
+#' \dontrun{
+#' library(FLCore)
+#' library(FLBRP)
+#'
 #' data(ple4brp)
-#' globalMsy(ple4brp)
 #' 
+#' stk=rebuild(eq)
+#' 
+#' rebuildTime(stk)
+#' }
 
-setMethod('Brebuild', signature(object='FLBRP'), function(object){
-  rebuildFn(object)})
+#' Rebuild Interpolation Method
+#'
+#' @param x Numeric vector representing the x-values.
+#' @param y Numeric vector representing the y-values.
+#' @param new Numeric vector representing the new values for interpolation.
+#' @return Interpolated values.
+#'
+#' @export
+setGeneric("rebuildInterp", function(x, y, new, ...) {
+  standardGeneric("rebuildInterp")
+})
 
-# }}}
-
-rebuild<-function(object,
-                  targetB=refpts(object)["msy","ssb"],
-                  targetF=refpts(object)["msy","harvest"]*0,
-                  n=50,burnin=20,truncate=TRUE){
-
-  eql=object
-  targetB=c(targetB)*c(1e-10,seq(n)/n)
-  targetF=c(targetF)
-  rfs        =refpts(eql)
-  refpts(eql)=FLPar(NA,dimnames=list(refpt="ssb",quant=dimnames(rfs)[[2]],iter=seq(n+1)))
-  refpts(eql)["ssb","ssb"][]=targetB
-  
-  refpts(eql)=computeRefpts(eql)
-  
-  fbar(eql)  =propagate(fbar(eql)%=%1,n+1)%*%refpts(eql)["ssb","harvest"]
-  stk        =as(brp(eql),"FLStock")
-  flag       =aaply(stock.n(stk),6, function(x) !any(is.na(x)))
-  flag       =seq(length(flag))[flag]
-  stk        =fwd(iter(stk,flag),f=fbar(eql)[,-(1:2),,,,flag],sr=eql)
-  
-  fbar(eql)[,-seq(burnin)][]=targetF
-  
-  stk=fwd(stk,f=fbar(eql)[,-1,,,,flag],sr=eql)
-  
-  if (truncate) stk=stk[,-seq(burnin)]
-  
-  stk=qapply(stk,function(x) {dimnames(x)$year=seq(length(dimnames(x)$year))
-                              x})
-  stk}
-
-rebuildDep<-function(object,
-                     targetB,
-                     targetF=0,
-                     n=50,burnin=30,truncate=TRUE){
-  
-  eql=object
-  fbar(eql)[]=0.2
-
-  targetB=c(targetB)*c(1e-10,seq(n)/n)
-  targetF=c(targetF)
-
-  btar  =FLQuant(rep(targetB,each=dim(fbar(eql))[2]),dimnames=dimnames(propagate(ssb(eql),n+1)))
-  stk   =propagate(as(eql,"FLStock"),n+1)
-  stk   =fwd(stk,ssb_end=btar[,-c(1:2)],sr=eql)
-  ftar  =fbar(stk)%=%targetF
-
-  stk   =fwd(stk,f=ftar[,-seq(burnin)],sr=eql)
-  
-  if (truncate) stk=stk[,-seq(burnin)]
-  
-  stk=qapply(stk,function(x) {dimnames(x)$year=seq(length(dimnames(x)$year))
-  x})
-  stk}
-
-rebuildTime<-function(stk){
-
-  msy=c(ssb(iter(stk,dim(stk)[6]))[,1])
-  dt1=transmute(as.data.frame(ssb(stk),drop=T),
-
-  SSB    =data/msy,
-  Initial=c(ssb(stk[,1]))[an(ac(iter))]/msy,
-  Year   =year)
-  t=suppressWarnings(as.data.frame(akima:::interp(dt1$Initial,dt1$SSB,dt1$Year,
-                                                  xo=seq(0,1,length.out=202)[-c(1,202)],yo=1,duplicate="mean")))
-  
-  data.frame(Initial=t$x,Year=t$z)}
-
-rebuildInterp<-function(x,y,new) splinefun(x, y)(new)
+setMethod("rebuildInterp", signature(x = "numeric", y = "numeric", new = "numeric"),
+          function(x, y, new, ...) {
+            splinefun(x, y)(new)
+          }
+)

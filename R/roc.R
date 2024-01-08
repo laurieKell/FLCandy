@@ -1,100 +1,87 @@
-setGeneric('roc', function(label, ind, ...) standardGeneric('label'))
+#' Calculate ROC (Receiver Operating Characteristic) statistics for two numeric vectors.
+#'
+#' This function calculates ROC statistics, including True Positive Rate (TPR), False Positive Rate (FPR), True Positives (TP), True Negatives (TN), False Positives (FP), False Negatives (FN), and True Skill Score (TSS) for two numeric vectors.
+#'
+#' @param state A numeric vector representing the state values.
+#' @param indicator A numeric vector representing the indicator values.
+#' 
+#' @return A data frame containing the following columns:
+#'   \describe{
+#'     \item{state}{The state values.}
+#'     \item{label}{A logical vector indicating whether each state is greater than 1 (TRUE) or not (FALSE).}
+#'     \item{indicator}{The indicator values.}
+#'     \item{TPR}{The True Positive Rate (TPR) calculated as TP / (TP + FN).}
+#'     \item{FPR}{The False Positive Rate (FPR) calculated as FP / (FP + TN).}
+#'     \item{TP}{The True Positives (TP).}
+#'     \item{TN}{The True Negatives (TN).}
+#'     \item{FP}{The False Positives (FP).}
+#'     \item{FN}{The False Negatives (FN).}
+#'     \item{TSS}{The True Skill Score (TSS) calculated as (TP / (TP + FN)) - (FP / (FP + TN)).}
+#'     \item{order}{The order of the indicator values after sorting in descending order.}
+#'   }
+#' 
+#' @export
+setGeneric("roc", function(state, indicator, ...) {
+  standardGeneric("roc")
+})
 
-#setMethod('roc', signature(label="FLQuant", ind="FLQuant"),  FLCore:::roc(label,ind)) 
-#setMethod('roc', signature(label="numeric", ind="Numeric"),  rocdf(state=label,indicator=ind))
-                    
-roc2<-function(state, scores){
-  
-  labels=state>1
-  labels=labels[order(scores, decreasing=TRUE)]
-  
-  reference=sort(scores)
-  cumn=cumsum(rep(1,length(labels)))
-  
-  TPR =cumsum( labels)/sum(   labels)
-  FPR =cumsum(!labels)/sum(  !labels)
-  
-  TP  =cumsum( labels)
-  TN  =cumsum(!labels)
-  
-  FP  =sum( labels)-TP
-  FN  =sum(!labels)-TN
-  
-  TSS =(TP/(TP+FN)-FP/(TN+FP))
-  
-  data.frame(state,score=reference,labels=labels,
-             TPR=TPR,FPR=FPR,
-             TP=TP,TN=TN,FP=FP,FN=FN,
-             TSS=TSS)}
+setMethod("roc",
+          signature(state = "numeric", indicator = "numeric"),
+          function(state, indicator, ...) {
+            order = order(indicator, decreasing = TRUE)
+            state = state[order]
+            indicator = indicator[order]
+            label = state > 1
+            
+            cumn = seq(1, length(label))
+            
+            TPR = cumsum(label) / sum(label)
+            FPR = cumsum(!label) / sum(!label)
+            
+            TP = cumsum(label)
+            FP = cumsum(!label)
+            
+            TN = sum(!label) - FP
+            FN = sum(label) - TP
+            
+            TSS = (TP / (TP + FN) - FP / (FP + TN))
+            
+            result_df = data.frame(
+              state = state,
+              label = label,
+              indicator = indicator,
+              TPR = TPR,
+              FPR = FPR,
+              TP = TP,
+              TN = TN,
+              FP = FP,
+              FN = FN,
+              TSS = TSS,
+              order = order
+            )
+            
+            return(result_df)
+          })
 
-rocdf<-function(state, indicator){
-  # label is true or false relative to an reference level, e.g. B/BMSY
-  # indicatotor is from an indicator, does not need to be relative
-  
-  # i) order by descending indicatotor, i.e. indicator value
-  order    =order(indicator, decreasing=TRUE)
-  state    =state[order]
-  indicator=indicator[order]
-  label    =state>1
-  
-  # ii) assign labels of T/F to known values
-  cumn     =seq(1,length(label))
-  
-  # iii) Calculate TRUE and FALSE positive rates
-  TPR =cumsum( label)/sum( label) 
-  FPR =cumsum(!label)/sum(!label)
-  
-  # iv) Calc TRUE and FALSE positives
-  TP  =cumsum( label)  
-  FP  =cumsum(!label)
-  
-  # v) Calc TRUE and FALSE negatives
-  TN  =sum(!label)-FP  
-  FN  =sum( label)-TP  
-  
-  # vi) calc True Skill Score for each indicatotor, i.e. indicator value
-  TSS =(TP/(TP+FN)-FP/(FP+TN))
-  
-  data.frame(state    =state,
-             label    =label,
-             indicator=indicator,
-             TPR=TPR,FPR=FPR,
-             TP=TP,TN=TN,FP=FP,FN=FN,
-             TSS=TSS,
-             order=order)}
-
-if (FALSE){
-  library(FLCore)
-  library(ggplotFL)
-  library(pROC)
-
-  
-  data(ple4)
-  
-  # obs is truth from OM
-  obs <- propagate(stock(ple4), 100)
-  set.seed(876)
-  
-  # pred are model predicitons under different values of
-  pred <- rlnorm(100, log(stock(ple4)), 0.6)
-  
-  plot(pred[,ac(2000:2017)])+
-     geom_hline(aes(yintercept=mean(pred[,ac(2001:2017)])),col="blue")
-
-  dat=model.frame(FLQuants(state=obs[, ac(2000:2017)],
-                           indicatotor=pred[,ac(2000:2017)]))
-
-  mn=mean(pred[,ac(2001:2017)])
-
-  ggplot(dat)+
-    geom_point(aes(state/mn,indicatotor/mn))+
-    geom_hline(aes(yintercept=1))+
-    geom_vline(aes(xintercept=1))
-
-  rDat=roc(dat$state/mn>1,dat$indicatotor/mn)
-
-  ggplot(roc(dat$state/mn,dat$indicatotor/mn))+
-    geom_line(aes(FPR,TPR))
-
-  auc(rDat$label,rDat$indicatotor)
-}  
+#' @examples
+#' # In this example, we first generate sample data for state and indicator vectors. 
+#' # Generate sample data
+#' state <- c(0.5, 2.3, 1.2, 1.8, 3.0, 0.7)
+#' indicator <- c(0.6, 2.2, 1.1, 1.9, 2.8, 0.5)
+#'
+#' # Then, we call the roc function to calculate ROC statistics and print the results.
+#' # Calculate ROC statistics
+#' roc_result=roc(state, indicator)
+#'
+#' # Print the ROC statistics
+#' roc_result
+#'
+#' #Plot the ROC curve using the ggplot2 package. 
+#' 
+#' library(ggplot2)
+#' ggplot(roc_result, aes(x = FPR, y = TPR)) +
+#'   geom_line() +
+#'   geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+#'   labs(x = "False Positive Rate (FPR)", y = "True Positive Rate (TPR)") +
+#'   ggtitle("ROC Curve") +
+#'   theme_minimal()

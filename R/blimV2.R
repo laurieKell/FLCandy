@@ -6,19 +6,20 @@ library(plyr)
 library(popbio)
 library(interp)
 
-E. Adding Flexibility in Rebuilding Plans
+# E. Adding Flexibility in Rebuilding Plans
+# 
+# Calculating Tmax
+# 
+# The NS1 guidelines provide guidance on determining the minimum (Tmin), maximum (Tmax), and target (Ttarget) time to rebuild a stock to a level that supports MSY (Bmsy). In the past, Councils have had difficulties calculating Tmax based on the original data-intensive method (i.e., Tmin + one generation time) that requires data on life history, natural mortality, age at maturity, fecundity, and maximum age of the stock (Restrepo, et al. 1998). In order to allow Councils to make Tmax calculations despite variable information and data availability amongst stocks, NMFS proposed specifying three methods to calculate Tmax within the guidelines: (1) Tmin plus one mean generation time (status quo); (2) the amount of time the stock is expected to take to rebuild to its Bmsy if fished at 75 percent of the MFMT; or (3) Tmin multiplied by two. Further background and rationale on the proposed revisions to the guidance on the calculation of Tmax was provided on pages 2795-2796 of the proposed rule. See80 FR 2795-2796, January 20, 2015.
+# https://www.federalregister.gov/documents/2016/10/18/2016-24500/magnuson-stevens-act-provisions-national-standard-guidelines
+# 
+# The IUCN Red List of Threatened Species (IUCN, 2017a) is the primary authority for extinction risk assessments. In the Red List assessment, species are categorized as threatened based on criteria related to population decline, geographic range size, fragmentation, and small population size (IUCN, 2017b). In criteria related to population decline, generation time acts as a standardization for time units that allows using the same criteria on species with extremely different life spans (Mace et al., 2008). In criterion A, for example, population size reduction is measured over 10 years or three generations, whichever is longer.
+# 
+# it is applied for decline
+# 
+# but I wonder if we can turn it around and use for recovery
 
-Calculating Tmax
-
-The NS1 guidelines provide guidance on determining the minimum (Tmin), maximum (Tmax), and target (Ttarget) time to rebuild a stock to a level that supports MSY (Bmsy). In the past, Councils have had difficulties calculating Tmax based on the original data-intensive method (i.e., Tmin + one generation time) that requires data on life history, natural mortality, age at maturity, fecundity, and maximum age of the stock (Restrepo, et al. 1998). In order to allow Councils to make Tmax calculations despite variable information and data availability amongst stocks, NMFS proposed specifying three methods to calculate Tmax within the guidelines: (1) Tmin plus one mean generation time (status quo); (2) the amount of time the stock is expected to take to rebuild to its Bmsy if fished at 75 percent of the MFMT; or (3) Tmin multiplied by two. Further background and rationale on the proposed revisions to the guidance on the calculation of Tmax was provided on pages 2795-2796 of the proposed rule. See80 FR 2795-2796, January 20, 2015.
-https://www.federalregister.gov/documents/2016/10/18/2016-24500/magnuson-stevens-act-provisions-national-standard-guidelines
-
-The IUCN Red List of Threatened Species (IUCN, 2017a) is the primary authority for extinction risk assessments. In the Red List assessment, species are categorized as threatened based on criteria related to population decline, geographic range size, fragmentation, and small population size (IUCN, 2017b). In criteria related to population decline, generation time acts as a standardization for time units that allows using the same criteria on species with extremely different life spans (Mace et al., 2008). In criterion A, for example, population size reduction is measured over 10 years or three generations, whichever is longer.
-
-it is applied for decline
-
-but I wonder if we can turn it around and use for recovery
-
+if (FALSE){
 par=lhPar(FLPar(linf=250,s=0.9))
 eq      =lhEql(par)
 ftar    =seq(c(refpts(eq)["msy","harvest"]),c(refpts(eq)["crash","harvest"]),length.out=51)
@@ -107,6 +108,6 @@ ggplot(dt2)+
   geom_vline(aes(xintercept=c(gt(iter(eq,1)))*0.5),col="orange")+
   xlab("Time to recovery")+ylab(expression(SSB/B[MSY]))+
   scale_x_continuous(limits=c(0,30))
-
+}
 
 
