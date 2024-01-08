@@ -54,7 +54,8 @@ Gompertz growth model.
 Richards growth model.
 }
 \details{
-This group of functions provides different growth models commonly used in fisheries science.
+This group of functions provides different growth models commonly used
+in fisheries science.
 }
 \examples{
 data(ple4)
