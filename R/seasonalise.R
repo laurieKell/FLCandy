@@ -104,6 +104,7 @@ adjust<-function (object) {
   catch(object) = computeCatch(object,"all")
   object}
 
+## interpolates seasonal values based on years 
 wtInterp<-function(wt){
   d4=dim(wt)[4]
   incmt=(-wt[-dim(wt)[1]]+wt[-1])%*%FLQuant(seq(0,1,length.out=d4+1)[-(d4+1)],dimnames=list(season=seq(d4)))
@@ -111,21 +112,7 @@ wtInterp<-function(wt){
   wt[dimnames(incmt)$age]=wt[dimnames(incmt)$age]%+%incmt
   wt}
 
-wtInterpOld<-function(wt){
-  
-  mlt=wt[,-dim(wt)[2]]
-  mlt=FLQuant(rep(seq(0,(dim(mlt)[4]-1)/dim(mlt)[4],1/dim(mlt)[4]),each=max(cumprod(dim(mlt)[1:3]))),
-              dimnames=dimnames(mlt))[-dim(mlt)[1]]
-  
-  incmt=wt[,,,1]
-  incmt=-incmt[-dim(incmt)[1],-dim(incmt)[2]]+incmt[-1,-1]
-  
-  wt[dimnames(incmt)$age,dimnames(incmt)$year]=
-    wt[dimnames(incmt)$age,dimnames(incmt)$year]+
-    incmt%+%(mlt%*%incmt)
-  
-  wt[,-dim(wt)[2]]}
-
+## used for extracting equilibrium values
 qp<-function(stk,eql){
   
   dat=rbind.fill(
@@ -146,10 +133,4 @@ qp<-function(stk,eql){
   
 }
 
-
-if(FALSE){
-  tst=FLQuant(1,dimnames=list(age=1:5,season=1:4,year=2001:2010))
-  tst
-  apply(tst,c(1,2),cumsum)
-}
 
