@@ -1,3 +1,4 @@
+if (FALSE){
 install.packages("abind")
 install.packages("FLCore")  # Assuming you have already installed FLR and its dependencies
 
@@ -6,7 +7,7 @@ install.packages("FLCore")  # Assuming you have already installed FLR and its de
 # flStockList <- list(flStock1, flStock2, ..., flStock1440)
 
 # Initialize a new FLStock object based on the structure of the first FLStock in your list
-#combinedFLStock <- flStockList[[1]]
+combinedFLStock <- flStockList[[1]]
 
 # Loop through each slot in the FLStock object that needs to be combined
 for(slotName in slotNames(combinedFLStock)) {
@@ -31,3 +32,4 @@ dimnames(combinedFLStock) <- list(year = as.character(year(combinedFLStock)),
                                   age = as.character(age(combinedFLStock)))
 
 # Now, `combinedFLStock` is your FLStock object with 1440 iterations
+}
