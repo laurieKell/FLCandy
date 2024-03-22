@@ -85,4 +85,7 @@ Collate:
   haupt2.R
   length2.R
   saveTmp.R
+  FLStock2FLStock.R
+  pid.R
+  spatial_funs.R
 LazyLoad: true
