@@ -88,4 +88,12 @@ Collate:
   FLStock2FLStock.R
   pid.R
   spatial_funs.R
+  fnLbi.R
+  icesPriors.R
+  icesPriorsV1.R
+  icesPriorsV2.R
+  indicatorsBiol.R
+  jk.R
+  mBoot.R
+  pellaT-m.R
 LazyLoad: true
