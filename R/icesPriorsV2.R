@@ -9,7 +9,7 @@ require(ggpubr)
 require(ggplotFL)
 
 require(plyr)
-require(dplyr)
+require(dplyr) 
 
 jabFn<-function(catch,index,priors,model="Fox",...){
   
