@@ -90,6 +90,5 @@ Collate:
   fnLbi.R
   indicatorsBiol.R
   jk.R
-  mBoot.R
   pellaT-m.R
 LazyLoad: true
