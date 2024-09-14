@@ -20,6 +20,3 @@ jkLmean<-function(dat) {
   res=jackknife(dat, Fn)
   
   return(res)}
-
-jk  =dlply(len, .(sp, gender), with, jkLmean(len))
-```
