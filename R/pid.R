@@ -1,7 +1,7 @@
 load("C:/flrpapers/jabba/data/eqs.RData")  
 load("C:/flrpapers/roc_ices_stocks/data/inputs/Updated_stks_n82_R0_updated202408.RData")
 
-library(FLCore)  
+library(FLCore)
 library(FLBRP)  
 library(FLasher)
 library(ggplotFL)  
