@@ -79,7 +79,7 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
   refpts(eq)["current","ssb"]=c(iter(ssb.obs(eq),1))
   
   if(abi)
-    return(FLQuant(c(ABIMSY(eq)),dimnames=dimnames(fbar(object))))
+    return(FLQuant(c(abiMsy(eq)),dimnames=dimnames(fbar(object))))
     
   rtn=rbind(computeRefpts(eq),
             properties(eq))

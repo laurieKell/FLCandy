@@ -31,7 +31,7 @@ opts_chunk$set(comment   =NA,
                fig.height=12,
                cache     =TRUE, 
                fig.path  ="../outputs/tex/roc-final/",
-               cache.path="../cache/roc-final/",
+               cache.path="cache/roc-final/",
                dev       =c("png"))
 
 iFig=0

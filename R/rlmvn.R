@@ -11,6 +11,7 @@ rlmvn<-function(n,par,sigma="missing",cor="missing",cvr="missing"){
   rtn=FLPar(t(array(rtn,c(n,dim(par)[1]),dimnames=list(iter=seq(n),params=dimnames(par)[[1]]))))
   rtn[flag]=-rtn[flag]
   rtn}
+rmvln<-rlmvn
 
 #' \dontrun{
 #'   par    =FLPar(c(linf=8,k=.7))

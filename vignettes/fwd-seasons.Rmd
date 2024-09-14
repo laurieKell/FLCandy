@@ -69,13 +69,9 @@ remotes:::install_github("lauriekell/FLCandy")
 
 ```{r, Flasher}
 library(FLasher) 
-library(FLCandy) 
+#library(FLCandy) 
 ```
 
-
-```{r}
-setwd("~/Desktop/inPrep/FAO/Rmd")
-```
 
 \newpage
 # Demersal stock 
@@ -386,8 +382,8 @@ deSeason<-function(x) {
 The 'seasonalise' function automates adding seasons
 
 ```{r, neamac-data}
-load("~/Desktop/flr/FLCandy/examples/seasonal/neamac.RData")
-data(neamac)
+load("P:/flr/FLCandy/data/neamac.RData")
+#data(neamac)
 ```
 
 ```{r, neamac-seasonlise3}
@@ -408,7 +404,7 @@ data(alb)
 Set up projection in the form of a hindcast
 
 ```{r, alb-fwd}
-load("/home/laurie/Desktop/flr/FLCandy/_data/alb.RData")
+load("P:/flr/FLCandy/data/alb.RData")
 
 mat(alb[[1]])[is.na(mat(alb[[1]]))]=0
 
@@ -437,7 +433,7 @@ Get SS3 object and perform hindcast to initialise
 ```{r, bet-data, eval=FALSE}
 library(ss3om)
 
-ss.file ="~/data/iccat/bet/2018/1-steepness0.7_MRef_sigmaR0.2_LengthLambda0.1_iter1"
+ss.file ="P:/rfmo/iccat/sc-eco/2020/inputs/ss/bet/2018/1-steepness0.7_MRef_sigmaR0.2_LengthLambda0.1_iter1"
 ss      =SS_output(ss.file,covar=FALSE)
 rec.dist=ss$recruitment_dist$recruit_dist$Value
 bet     =readFLSss3(ss.file)
@@ -447,7 +443,7 @@ harvest(bet)[is.nan(harvest(bet))] <- 0
 ```
 
 ```{r, bet-load}
-load("~/Desktop/flr/FLCandy/examples/seasonal/bet.RData")
+load("C:/active/FLCandy/examples/seasonal/bet.RData")
 ```
 
 Recruitment is by year, unit & season, just provide the estimated recruitments

@@ -1,3 +1,115 @@
+load("C:/flrpapers/jabba/data/eqs.RData")  
+load("C:/flrpapers/roc_ices_stocks/data/inputs/Updated_stks_n82_R0_updated202408.RData")
+
+library(FLCore)  
+library(FLBRP)  
+library(FLasher)
+library(ggplotFL)  
+library(plyr)
+library(ggpubr)
+
+pidAdjust<-function(current, ref, pid=FLPar(Kp=1,Ki=0.01,Kd=0.01,Kp2=1)) {
+  
+  # Calculate error terms
+  error     =  current  %-% ref
+  integral  <<-integral %+% error
+  derivative=  error    %-% prevErr
+  prevErr   <<- error
+  
+  kp=pid["Kp"]
+  if (any(error<0)) 
+     kp[error<0]=pid["Kp2"]
+  
+  # Calculate PID adjustment
+  adjustment=(kp%*%error)%+%
+             (pid["Ki" ]%*%integral)%+%
+             (pid["Kd" ]%*%derivative)
+  
+  return(adjustment)}
+
+stks=ldply(ICESStocks, function(x) !(any(is.na(catch.n(x)))|
+                                     any(is.na(landings.n(x)))))
+
+pid=as(expand.grid(Kp =seq(0.00,0.20, length.out=5),
+                   Kp2=seq(1.00,2.00, length.out=2),
+                   Ki =seq(0.00,0.00, length.out=1),
+                   Kd =seq(0.00,0.00, length.out=1)),"FLPar")
+pid["Kp2"]=pid["Kp"]*pid["Kp2"]
+
+
+for (.id in stks$.id){
+
+x   =ICESStocks[[.id]]
+y   =eqs[[.id]]
+yrs =dims(x)$maxyear+(-10:20)
+
+fmsy=unlist(attributes(x)$benchmark["Fmsy"])
+btar=unlist(attributes(x)$eqsim["BMSY"])
+maxF=mean(fbar(x))*2.5
+r0  =unlist(attributes(x)$eqsim["R0"])
+cEq =unlist(attributes(x)$eqsim["Catchequi"])
+
+if (any(is.na(btar))) btar = mean(ssb(x),na.rm=TRUE)
+
+#x2=window(   x, end=dimnames(x)$year[dim(x)[2]-10])
+#x2=fwdWindow(x2,end=dimnames(x)$year[dim(x)[2]],y)
+#x2=fwd(      x2,catch=catch(x)[,dimnames(x)$year[dim(x)[2]-(10:0)]],sr=y)
+#x3=try(fwd(  x, catch=catch(x)[,dimnames(x)$year[dim(x)[2]-(10:0)]],sr=rec(x)))
+
+if (!"try-error"%in%is(x3)){
+  
+  x4   =fwdWindow(x2,end=ac(an(dimnames(x)$year[dim(x)[2]])+20),y)
+  x4   =propagate(x4,dim(pid)[2])
+  btar=FLQuant(btar,dimnames=dimnames(ssb(x4)[,1]))
+  adj  =ssb(x4)[,ac(yrs[-1])]%=%0
+  
+  # Initialize static variables for integral and previous error
+  integral=btar%=%0
+  prevErr =btar%=%0
+  
+  for (iYr in an(dimnames(x4)$year[dim(x4)[2]-(29:21)])){
+    adj[,ac(iYr)]=1+pidAdjust(ssb(x4)[,ac(iYr-1)]%/%btar,btar%=%1,pid=pid)
+    #adj[,ac(iYr)]=qmax(qmin(adj[,ac(iYr)],1.2),0.5)
+    x4=fwd(x4, catch=adj[,ac(iYr)]%*%catch(x4)[,ac(iYr-1)],sr=rec(x),maxF=maxF)
+  }
+  
+  recDevs=FLQuant(mean(rec(x)[,ac(an(dims(x)[7])-10:0)])/mean(rec(x)), 
+                  dimnames=list(year=ac(an(dims(x)[7])+0:20)))
+  
+  for (iYr in an(dimnames(x4)$year[dim(x4)[2]-(20:0)])){
+    adj[,ac(iYr)]=1+pidAdjust(ssb(x4)[,ac(iYr-1)]%/%btar,btar%=%1,pid=pid)
+    adj[,ac(iYr)]=qmax(qmin(adj[,ac(iYr)],1.2),0.5)
+    x4=fwd(x4, catch=adj[,ac(iYr)]%*%catch(x4)[,ac(iYr-1)],sr=y,deviances=recDevs,maxF=maxF)
+  }
+  
+  p1=
+  plot(FLStocks("ICES"=x, "PID"=x4)) +
+    geom_line( aes(year,data,group=paste(stock,iter))) +
+    geom_hline(aes(yintercept = dat), col = "blue", data = data.frame(qname = "SB", dat = c(btar)[1])) +
+    geom_vline(aes(xintercept = dims(x)$maxyear-9), col = "red", linetype = "dashed") +
+    geom_vline(aes(xintercept = dims(x)$maxyear-1), col = "red", linetype = "dashed") +
+    labs(title=.id,
+         x = "",
+         y = "") +
+    theme_minimal(base_size = 14) +
+    theme(
+      panel.grid.major = element_line(color = "grey80"),
+      panel.grid.minor = element_blank(),
+      axis.text.x = element_blank(),  
+      axis.ticks.x = element_blank(), 
+      legend.position = "none")+
+    coord_cartesian(xlim=range(yrs))
+  p2=ggplot(adj)+
+    geom_line(aes(year,data,group=iter,col=iter))+xlab("Year")+ylab("Change")+
+    theme(legend.position="none")
+  
+  print(ggarrange(p1,p2,heights=c(4,1),ncol=1))
+  }
+  
+  }  
+
+
+
 #To incorporate a PID controller as a management procedure (harvest control rule) 
 #into the `hcrICES` function for setting Total Allowable Catch (TAC) based on the 
 #stock's status relative to a reference point for SSB, trends in an index of abundance, 
@@ -61,66 +173,10 @@
 #' }
 #'
 #' @export
-setMethod('hcrICES', signature(object="FLStock", eql='FLBRP'), function(object, eql, sr_deviances, params, start=max(dimnames(object)$year)-10, end=start+10, interval=1, lag=1, err=NULL, implErr=0, bndTac=c(0, Inf), bndWhen="btrig", bndCap=1e6, pidParams=list(Kp=1, Ki=0.01, Kd=0.01, SSB_ref=1000, F_target=0.2)) {
-  # Function body remains the same as previously defined
-})
 
-setMethod('hcrICES', signature(object="FLStock", eql='FLBRP'),
-          function(object, eql, sr_deviances, params,
-                   start=max(dimnames(object)$year)-10,
-                   end=start+10,
-                   interval=1,
-                   lag=1,
-                   err=NULL,
-                   implErr=0,
-                   bndTac=c(0, Inf),
-                   bndWhen="btrig",
-                   bndCap=1e6,
-                   pidParams=list(Kp=1, Ki=0.01, Kd=0.01, SSB_ref=1000, F_target=0.2)) { # PID parameters added here
-            # Additional code here...
-            
-            # Function to calculate PID adjustment
-            calculatePIDAdjustment <- function(currentSSB, pidParams) {
-              # Extract PID parameters
-              Kp <- pidParams$Kp
-              Ki <- pidParams$Ki
-              Kd <- pidParams$Kd
-              SSB_ref <- pidParams$SSB_ref
-              
-              # Initialize static variables for integral and previous error
-              if (!exists("integral")) {
-                integral <<- 0
-              }
-              if (!exists("prev_error")) {
-                prev_error <<- 0
-              }
-              
-              # Calculate error terms
-              error <- currentSSB - SSB_ref
-              integral <<- integral + error
-              derivative <- error - prev_error
-              prev_error <<- error
-              
-              # Calculate PID adjustment
-              adjustment <- Kp * error + Ki * integral + Kd * derivative
-              return(adjustment)
-            }
-            
-            # Modify the target F calculation to include PID adjustment
-            # Assuming target F calculation code exists here...
-            # Example of modifying target F with PID adjustment:
-            currentSSB <- # Obtain current SSB from the model
-            pidAdjustment <- calculatePIDAdjustment(currentSSB, pidParams)
-            F_target_adjusted <- pidParams$F_target + pidAdjustment
-            
-            # Ensure F_target_adjusted is within reasonable bounds
-            F_target_adjusted <- max(min(F_target_adjusted, 1), 0) # Example bounds [0, 1]
-            
-            # Continue with TAC setting using F_target_adjusted
-            # Additional code here...
-          })
 
-#In this code snippet, I introduced a `calculatePIDAdjustment` function within the 
+
+#In this code snippet, I introduced a `pidAdjust` function within the 
 #`hcrICES` method that calculates the PID adjustment based on the deviation of current 
 #SSB from the reference SSB (`SSB_ref`). The PID parameters
 #(`Kp`, `Ki`, `Kd`, `SSB_ref`, `F_target`) are passed to the 

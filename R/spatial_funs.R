@@ -593,7 +593,7 @@ equivalentarea <- function(z, w = 1){
 
 # Load the grDevices and rgeos packages
 library(grDevices)
-library(rgeos)
+library(rgeomstats)
 library(sp)
 library(sf)
 

@@ -17,18 +17,17 @@ aopt <- function(object) {
 
 
 ## Process Error #############################################
-sp<-function(stk,eq,stock=ssb){
+sp<-function(stk,eq,stock=FLCore:::ssb){
   
-  fbar(eq)=FLQuant(seq(0,1,length.out=201))*refpts(eq)["crash","harvest"]
-  dat=with(model.frame(FLQuants(eq,"stock"=ssb,"catch"=catch),drop=T), 
-           approx(stock,catch,xout=c(ssb(stk))),dimnames=dimnames(ssb(stk)))
+  fbar(eq)=FLQuant(seq(0,1,length.out=201))*computeRefpts(eq)["crash","harvest"]
+  dat=with(model.frame(FLQuants(eq,"stock"=function(x) stock(x),"catch"=function(x) catch(x)),drop=T), 
+           approx(stock,catch,xout=c(ssb(stk))),dimnames=dimnames(stock(stk)))
   FLQuant(dat$y,dimnames=dimnames(stock(stk)))}
 
-pe<-function(stk,eq,stock=ssb){
-  (ssb(ple4)-
-     window(stock(ple4)[,-1],end=dims(ple4)$maxyear+1)-
-     catch(ple4)+
-     sp(ple4,ple4brp))%/%stock(ple4)}
+pe<-function(stk,eq,stock=FLCore:::ssb){
+    (stock(stk)%-%
+     window(stock(stk)[,-1],end=dims(stk)$maxyear+1)-
+     catch(stk)%+%sp(stk,eq,stock))%/%stock(stk)}
 
 
 if(FALSE){

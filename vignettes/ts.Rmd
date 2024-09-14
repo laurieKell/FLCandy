@@ -1,0 +1,116 @@
+---
+title: "Analyzing FLQuant Data with FLR"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Analyzing Weights-at-Age Data with FLR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Introduction
+
+This vignette demonstrates how to analyze weights-at-age data using FLR (Fisheries Library in R) methods. We'll cover summarizing, visualizing, and simulating weights-at-age data using FLQuant objects.
+
+## Required Packages
+
+```{r packages}
+library(FLCore)
+library(ggplot2)
+library(plyr)
+library(dplyr)
+library(corrplot)
+
+source("C:/active/FLCandy/examples/var/ts.R")
+```
+
+## Loading and Preparing Data
+
+First, let's load our weights-at-age data from the CSV file and convert it to an FLQuant object:
+
+```{r load-data}
+data(ple4)
+
+waa=stock.wt(ple4)
+```
+
+## Summarizing Weights-at-Age
+
+We'll use the `tsSmry` function to calculate summary statistics:
+
+```{r summarize-weights}
+summary=tsSmry(waa)
+summary(summary)
+```
+
+## Visualizing Weights-at-Age
+
+Now let's create some visualizations of our data:
+
+```{r visualize-weights, fig.width=8, fig.height=6}
+# Time series plot
+ggplot(as.data.frame(waa), aes(x = year, y = data, color = factor(age))) +
+  geom_line() +
+  labs(title = "Weights-at-Age Over Time", x = "Year", y = "Weight", color = "Age") +
+  theme_minimal()
+
+# Boxplot of weights by age
+ggplot(as.data.frame(waa), aes(x = factor(age), y = data)) +
+  geom_boxplot() +
+  labs(title = "Distribution of Weights by Age", x = "Age", y = "Weight") +
+  theme_minimal()
+
+# Heatmap of weights-at-age over time
+ggplot(as.data.frame(waa), aes(x = year, y = factor(age), fill = data)) +
+  geom_tile() +
+  scale_fill_viridis_c() +
+  labs(title = "Heatmap of Weights-at-Age Over Time", x = "Year", y = "Age", fill = "Weight") +
+  theme_minimal()
+```
+
+## Analyzing Correlations
+
+Let's examine the correlations between age groups:
+
+```{r correlations, fig.width=8, fig.height=6}
+cor_matrix <- tsCor(waa)[,,drop=TRUE]
+corrplot(cor_matrix, method = "color", type = "upper", order = "hclust",
+         tl.col = "black", tl.srt = 45, addCoef.col = "black")
+```
+
+## Autocorrelation Analysis
+
+We can analyze the autocorrelation in the time series:
+
+```{r acf, fig.width=8, fig.height=6}
+acf_results <- tsACF(waa)
+ggplot(as.data.frame(acf_results), aes(x = year, y = data, color = factor(age))) +
+  geom_line() +
+  labs(title = "Autocorrelation Function by Age", x = "Lag", y = "ACF", color = "Age") +
+  theme_minimal()
+```
+
+## Generating Correlated Random Deviates
+
+Finally, let's generate correlated random deviates based on the original data:
+
+```{r deviates}
+n_simulations <- 100
+simulated_deviates <- deviates(n_simulations, waa, tsSmry(waa)[["var"]], tsCov(waa)[,,drop=TRUE])
+
+# Visualize the first simulation
+ggplot(as.data.frame(simulated_deviates[,,,,,1]), aes(x = year, y = data, color = factor(age))) +
+  geom_line() +
+  labs(title = "Simulated Weights-at-Age (First Simulation)", x = "Year", y = "Weight", color = "Age") +
+  theme_minimal()
+```
+
+## Conclusion
+
+This vignette demonstrated how to analyze weights-at-age data using FLR methods. We covered data loading, summarization, visualization, correlation analysis, and simulation of new data based on the original data's properties. These techniques can be valuable for understanding the dynamics of fish populations and for use in stock assessment models.
+

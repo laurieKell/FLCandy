@@ -64,14 +64,30 @@ setMethod("abiMsy",
 setGeneric("abi", function(object, age, ...) {
   standardGeneric("abi")})
 
+## Gets P>ref age for stock
+abistock<-function(x,A){
+  
+  stk.n=stock.n(x)[-1]
+  
+  if (dim(x)[6]>1&dim(A)[6]==1)
+    A=propagate(A,dim(x)[6])
+  
+  ## Find proportion > Amsy
+  amsy =FLQuant(rep(c(A),each=prod(dim(stk.n)[-6])),dimnames=dimnames(stk.n))
+  flag =FLQuant(ages(stk.n)>=amsy)
+  
+  apply(stk.n%*%flag,c(2,6),sum)%/%apply(stk.n,c(2,6),sum)}
+
+
 setMethod("abi",
           signature(object = "FLStock", age = "FLBRP"),
           function(object, age, ref = "msy", p = 0.9) {
-            brp <- age
-            age <- abiAge(brp, ref, p)
-            pmsy <- abiMsy(brp, ref, p)
-            abistock(object, age)
-            pt <- abistock(object, age)
+
+            pmsy=abiMsy(age, ref, p)
+           
+            age =abiAge(age, ref, p)
+            pt  =abistock(object, age)
+           
             pt %/% pmsy})
 
 setMethod("abi",

@@ -89,6 +89,7 @@ setMethod('hcrICES', signature(object="FLStock",eql='FLBRP'),
                   par=params[,min(iYr-start+1,dims(params)$iter),drop=T]}
               else
                   par=params
+              
               res=hcrFn(mp,eql,par,
                         stkYrs,
                         refYrs,
