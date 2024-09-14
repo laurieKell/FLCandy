@@ -1,3 +1,4 @@
+if(FALSE){
 require(JABBA)
 require(FLCore)
 require(FLBRP)
@@ -24,13 +25,13 @@ jabFn<-function(catch,index,priors,model="Fox",...){
   ## auxillary index
   auxillary      =NULL
   auxillary.type =""
-  auxiliary.sigma=TRUE, # estimated?
-  auxiliary.obsE =0.3,  # 
-  auxiliary.lag  =0,    # lag effect between impact and Z pop structure
+  auxiliary.sigma=TRUE # estimated?
+  auxiliary.obsE =0.3  # 
+  auxiliary.lag  =0    # lag effect between impact and Z pop structure
   
   args=list(...)
   if(names(args)%in%c("z", "f", "ffmsy", "bbmsy", "bk")){
-    auxillary.type=args[[names(args)%in%c("z", "f", "ffmsy", "bbmsy", "bk")]]][[1]]
+    auxillary.type=args[[names(args)%in%c("z", "f", "ffmsy", "bbmsy", "bk")]][1]
     auxillary     =args[[auxillary.type]]}
     
   ## Fit with Catch + Index: Simple Fox with r = Fmsy
@@ -57,7 +58,7 @@ jabFn<-function(catch,index,priors,model="Fox",...){
   
   if ("try-error"%in%is(jbI)) return(NULL)
   
-  jbI})
+  jbI}
 
 
 load("P:/rfmo/ices/data/Updated_stks_n81_R0_updated2023.RData")
@@ -694,4 +695,4 @@ ggplot(ddply(ts,.(.id), with,
 
 ggplot(ddply(ctc,.(FishStock), transform, ctc=Catches/mean(Catches,na.rm=T)))+
   geom_line(aes(Year,ctc,line=FishStock))
-
+}
