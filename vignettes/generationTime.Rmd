@@ -1,0 +1,199 @@
+---
+title: "Generation Time in Fish Populations"
+subtitle: ""
+author: " L Kell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document:
+  number_sections: false
+toc: false
+keep_tex: false
+mathjax: TRUE
+vignette: >
+  %\VignetteIndexEntry{JABBA Guidelines}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, knitr, eval=TRUE, echo=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(knitr)
+
+opts_chunk$set(comment   =NA, 
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =FALSE,
+               eval      =FALSE,
+               fig.width =10, 
+               fig.height=4,
+               cache     =TRUE, 
+               fig.path  ="../tex/gt-",
+               cache.path="cache/gt/",
+               dev       ="png")
+
+iFig=0
+iTab=0
+```
+
+
+# Generation time 
+
+Generation time is useful for comparing population dynamics across life-history 
+types, conducting phylogenetic analyses, and estimating extinction risk. 
+
+There are several ways to calculate generation time depending on the available data,
+for example using life history parameters or age-based models. In the later case 
+generation time can be estimated as the average age of parents of the recruits in 
+an unfished population, in the former generation time can be estimated as the age 
+at an optimal length ($L_{opt}$). For example the length at which a cohort reaches 
+it's maximum exploitable or spawning biomass, when fish are most valuable for commercial 
+purposes, or maximise their reproductive potential.
+
+## Life-history
+
+This can be calculated using growth models, such as the von Bertalanffy Growth Function (VBGF @vonB)
+
+The **von Bertalanffy Growth Function (VBGF)** is a widely used equation in fisheries science to model the growth of fish and other animals. The equation describes how the length of an organism changes with age.
+
+### Von Bertalanffy Growth Function (VBGF) Equation:
+
+$L(t) = L_\infty \left(1 - e^{-k(t - t_0)}\right)$
+
+Where, $L(t)$ is the length at age $t$, $L_\infty$ is the asymptotic maximum length 
+(the maximum theoretical length the organism can reach), $k$ is the growth rate 
+coefficient (how quickly the organism approaches $L_\infty$), and $t_0$ is the 
+theoretical age at which the organism would have zero length.
+
+If the optimal length is knowm, you can rearrange the equation to solve for age $t$:
+
+$t = t_0 - \frac{1}{k} \ln \left(1 - \frac{L(t)}{L_\infty}\right)$
+
+
+```{r, age}
+library(FLife)
+
+par=FLPar(linf=80,k=0.2,t0=0.2)
+
+vonB(age=5,par)
+```
+
+$L_{opt}$ is a function of growth and natural mortality-at-age and there are several 
+ approximations such as $L_{\infty}\frac{3}{3+k/m}$ and 2/3$L_{\infty}$
+
+
+
+## Leslie Matrix Framework
+
+
+A Leslie matrix is a discrete, age-structured model that describes population growth where:
+
+```R
+# Basic Leslie Matrix Structure
+L <- matrix(0, nrow = n, ncol = n)
+# First row contains fecundity rates (Fx)
+L[1, ] <- c(F1, F2, ..., Fn)
+# Subdiagonal contains survival rates (Sx)
+for(i in 1:(n-1)) {
+  L[i+1, i] <- Sx[i]
+}
+```
+
+## Generation Time Calculation Methods
+
+There are three main approaches to estimate generation time from a Leslie matrix:
+
+1. **Method A (Age-weighted)**
+$ A = \sum_{j=1}^n jp_j\lambda^{-j} $
+Where:
+- j is the age class
+- pj is the reproductive value
+- $\lambda$ is the population growth rate
+
+2. **Method T (Time-weighted)**
+$ T = \frac{\ln(R_0)}{\ln(\lambda)} $
+Where:
+- R0 is the net reproductive rate
+- $\lambda$ is the dominant eigenvalue of the Leslie matrix
+
+3. **Method m (Mean parent age)**
+$ m = \sum_{j=1}^n jp_j $
+
+
+```{r}
+# Example data for a fish population
+survival =c(0.5, 0.4,   0.3, 0.2, 0.2, 0.2)
+fecundity=c(0,   0,   100, 200, 200, 200, 200)
+
+leslieMatrix<-function(survival, fecundity) {
+  n= length(survival)+1
+  L= matrix(0, nrow=n, ncol=n)
+  
+  L[1,]=fecundity
+  
+  for(i in 1:(n-1))
+    L[i+1, i] = survival[i]
+  
+  return(L)}
+
+R0<-function(L) {
+  # Fertility rates
+  fertility=L[1, ]
+  
+  # Cumulative survival probabilities
+  survival=cumprod(c(1, diag(L[-1, -ncol(L)])))
+  
+  # Calculate R0 as sum of products of survival and fertility
+  R0 = sum(fertility*survival)
+  
+  return(R0)}
+
+# Method A: Age-weighted generation time
+gtA<-function(L) {
+  
+  lambda=Re(eigen(L)$values[1])
+  w     =Re(eigen(L)$vectors[,1])
+  v     =Re(eigen(t(L))$vectors[,1])
+  
+  # Normalize reproductive value vector
+  v     =v/sum(v*w)
+  
+  ages=1:nrow(L)
+  
+  A=sum(ages*v*lambda^(-ages))
+  
+  return(A)}
+
+# Method T: Time-weighted generation time
+gtT<-function(L) {
+  lambda=Re(eigen(L)$values[1])
+  r0    =R0(L)
+  T     =log(r0)/log(lambda)
+  
+  return(T)}
+
+# Method m: Mean parent age
+gtM<-function(L) {
+  ages = 1:nrow(L)
+  v = Re(eigen(t(L))$vectors[,1])
+  m = sum(ages*v)/sum(v)
+  
+  return(m)}
+
+
+# Create Leslie matrix
+L=leslieMatrix(survival, fecundity)
+
+# Calculate generation time using all methods
+A=gtA(L)
+T=gtT(L)
+M=gtM(L)
+
+# Compare results
+results=data.frame(
+  Method          =c("Age-weighted (A)", "Time-weighted (T)", "Mean parent age (m)"),
+  Generation_Time =c(A,                   T,                   M))
+
+results
+```

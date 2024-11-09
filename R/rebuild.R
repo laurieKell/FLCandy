@@ -28,12 +28,15 @@ setMethod("rebuild", signature(object = "FLBRP"),
             eql=object
             fbar(eql)[]=0.2
             
+            dimnames(landings.sel(eql))=dimnames(landings.sel(eql))
+            dimnames(discards.sel(eql))=dimnames(discards.sel(eql))
+
             targetSSB=c(targetSSB)*c(1e-10,seq(length.out)/length.out)
             targetF=c(targetF)
             
             btar  =FLQuant(rep(targetSSB,each=dim(fbar(eql))[2]),dimnames=dimnames(propagate(ssb(eql),length.out+1)))
             stk   =propagate(as(eql,"FLStock"),length.out+1)
-            stk   =fwd(stk,ssb_end=btar[,-c(1:2)],sr=eql)
+            stk   =fwd(stk,ssb_end=btar[,-seq(dims(stk)[["min"]]+2)],sr=eql)
             ftar  =fbar(stk)%=%targetF
             
             stk   =fwd(stk,f=ftar[,-seq(burnin)],sr=eql)
@@ -98,3 +101,38 @@ setMethod("rebuildInterp", signature(x = "numeric", y = "numeric", new = "numeri
             splinefun(x, y)(new)
           }
 )
+
+blimFn<-function(x){
+  rec=refpts(x)["virgin","rec",drop=T]*0.2
+  refpts(x)=FLPar(NA,dimnames=list(refpt="rec",quant=c("harvest","yield","rec","ssb","biomass","revenue","cost","profit"),iter=1))
+  refpts(x)[,"rec"]=rec
+  computeRefpts(x)["rec"]}
+
+## Define generic
+setGeneric("blim", function(object, ...) standardGeneric("blim"))
+
+## Method for FLBRP
+setMethod("blim", signature(object="FLBRP"),
+          function(object) {
+            # Get virgin recruitment at 20%
+            rec <- refpts(object)["virgin","rec",drop=TRUE] * 0.2
+            
+            # Create new FLPar with NAs
+            refpts(object) <- FLPar(NA, 
+                                    dimnames=list(refpt="rec",
+                                                  quant=c("harvest","yield","rec",
+                                                          "ssb","biomass","revenue",
+                                                          "cost","profit"),
+                                                  iter=dimnames(refpts(x))$iter))
+            
+            # Set recruitment
+            refpts(object)[,"rec"]=rec
+            
+            # Return computed reference points
+            rtn=computeRefpts(object)["rec"]
+            dimnames(rtn)
+            dimnames(rtn)$refpt="blim"
+            rtn
+          })
+
+

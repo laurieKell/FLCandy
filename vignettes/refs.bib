@@ -1,3 +1,227 @@
+@article{pianka1970rk,
+    author = {Pianka, Eric R.},
+    title = {On r and K selection},
+    journal = {American Naturalist},
+    volume = {104},
+    number = {940},
+    pages = {592--597},
+    year = {1970}
+}
+
+@article{froese2000gt,
+    author = {Froese, Rainer and Binohlan, Crispina},
+    title = {Empirical relationships to estimate asymptotic length, length at first maturity and length at maximum yield per recruit in fishes, with a simple method to evaluate length frequency data},
+    journal = {Journal of Fish Biology},
+    volume = {56},
+    pages = {758--773},
+    year = {2000}
+}
+
+@article{then2015m,
+    author = {Then, Amy Y. and Hoenig, John M. and Hall, Norman G. and Hewitt, David A.},
+    title = {Evaluating the predictive performance of empirical estimators of natural mortality rate using information on over 200 fish species},
+    journal = {ICES Journal of Marine Science},
+    volume = {72},
+    number = {1},
+    pages = {82--92},
+    year = {2015}
+}
+
+@techreport{wapleslh2013,
+    author = {Waples, Robin S. and Luikart, Gordon and Faulkner, James R. and Tallmon, David A.},
+    title = {Simple life-history traits explain key effective population size ratios across diverse taxa},
+    institution = {NOAA},
+    year = {2013},
+    number = {NMFS-NWFSC-117}
+}
+
+
+@article{Neuheimer2011,
+    author = {Neuheimer, Anna B. and Thresher, Ronald E. and Lyle, Jeremy M. and Semmens, Jayson M.},
+    title = {Tolerance limit for fish growth exceeded by warming waters},
+    journal = {Nature Climate Change},
+    volume = {1},
+    pages = {110--113},
+    year = {2011}
+},
+    author = {Neuheimer, Anna B. and Thresher, Ronald E. and Lyle, Jeremy M. and Semmens, Jayson M.},
+    title = {Tolerance limit for fish growth exceeded by warming waters},
+    journal = {Nature Climate Change},
+    volume = {1},
+    pages = {110--113},
+    year = {2011}
+}
+
+```yaml
+---
+title: "Calculating Generation Time Using Leslie Matrices"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+vignette: >
+  %\VignetteIndexEntry{Generation Time Using Leslie Matrices}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(popbio) # For matrix population models
+```
+
+## Introduction
+
+This vignette demonstrates how to calculate generation time using Leslie matrices in R. Generation time is a fundamental demographic parameter that can be estimated using several approaches based on Leslie matrix properties.
+
+## Creating a Leslie Matrix
+
+First, we'll create a function to construct a Leslie matrix:
+
+```{r}
+create_leslie_matrix <- function(survival, fecundity) {
+  n <- length(survival) + 1
+  L <- matrix(0, nrow = n, ncol = n)
+  L[1, ] <- fecundity
+  for(i in 1:(n-1)) {
+    L[i+1, i] <- survival[i]
+  }
+  return(L)
+}
+```
+
+## Calculating Generation Time
+
+Here are functions for the three main approaches:
+
+```{r}
+# Method A: Age-weighted generation time
+calc_gen_time_A <- function(leslie_mat) {
+  lambda <- Re(eigen(leslie_mat)$values[1])
+  w <- Re(eigen(leslie_mat)$vectors[,1])
+  v <- Re(eigen(t(leslie_mat))$vectors[,1])
+  
+  # Normalize reproductive value vector
+  v <- v/sum(v * w)
+  
+  n <- nrow(leslie_mat)
+  ages <- 1:n
+  
+  A <- sum(ages * v * lambda^(-ages))
+  return(A)
+}
+
+# Method T: Time-weighted generation time
+calc_gen_time_T <- function(leslie_mat) {
+  lambda <- Re(eigen(leslie_mat)$values[1])
+  R0 <- net.reproductive.rate(leslie_mat)
+  
+  T <- log(R0)/log(lambda)
+  return(T)
+}
+
+# Method m: Mean parent age
+calc_gen_time_m <- function(leslie_mat) {
+  n <- nrow(leslie_mat)
+  ages <- 1:n
+  v <- Re(eigen(t(leslie_mat))$vectors[,1])
+  
+  m <- sum(ages * v)/sum(v)
+  return(m)
+}
+```
+
+## Example Usage
+
+Let's calculate generation time for a hypothetical fish population:
+
+```{r}
+# Example data for a fish population
+survival <- c(0.5, 0.4, 0.3, 0.2)
+fecundity <- c(0, 100, 200, 300, 200)
+
+# Create Leslie matrix
+L <- create_leslie_matrix(survival, fecundity)
+
+# Calculate generation time using all methods
+gen_time_A <- calc_gen_time_A(L)
+gen_time_T <- calc_gen_time_T(L)
+gen_time_m <- calc_gen_time_m(L)
+
+# Compare results
+results <- data.frame(
+  Method = c("Age-weighted (A)", "Time-weighted (T)", "Mean parent age (m)"),
+  Generation_Time = c(gen_time_A, gen_time_T, gen_time_m)
+)
+print(results)
+```
+
+## Important Considerations
+
+1. **Population Growth Rate (λ)**
+   - For λ > 1: A ≤ T ≤ m
+   - For λ < 1: A ≥ T ≥ m
+   - For λ = 1: A = T = m
+
+2. **Data Requirements**
+   - Age-specific survival rates
+   - Age-specific fecundity rates
+   - Accurate population structure data
+
+3. **Matrix Construction**
+   - Proper time step alignment
+   - Pre- or post-birth pulse census
+   - Survival between census periods
+
+```bibtex
+@article{caswell2001,
+    author = {Caswell, Hal},
+    title = {Matrix Population Models: Construction, Analysis, and Interpretation},
+    journal = {Sinauer Associates},
+    year = {2001}
+}
+
+@article{leslie1945,
+    author = {Leslie, P. H.},
+    title = {On the use of matrices in certain population mathematics},
+    journal = {Biometrika},
+    volume = {33},
+    pages = {183--212},
+    year = {1945}
+}
+
+@article{lebreton1982,
+    author = {Lebreton, Jean-Dominique and Clobert, Jean},
+    title = {Estimation of demographic parameters in bird populations},
+    journal = {NATO Advanced Study Institute Series},
+    volume = {Series G},
+    pages = {337--362},
+    year = {1982}
+}
+
+@article{cochran1977,
+    author = {Cochran, Maria E. and Ellner, Stephen},
+    title = {Simple Methods for Calculating Age-Based Life History Parameters for Stage-Structured Populations},
+    journal = {Ecological Monographs},
+    volume = {62},
+    number = {3},
+    pages = {345--364},
+    year = {1992}
+}
+
+@article{felsenstein1971,
+    author = {Felsenstein, Joseph},
+    title = {The rate of loss of multiple alleles in finite haploid populations},
+    journal = {Theoretical Population Biology},
+    volume = {2},
+    pages = {391--403},
+    year = {1971}
+}
+```
 
 @article{kell2007flr,
 	title = {{FLR:} an open-source framework for the evaluation and development of management strategies},

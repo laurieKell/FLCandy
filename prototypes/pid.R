@@ -1,5 +1,5 @@
 load("C:/flrpapers/jabba/data/eqs.RData")  
-load("C:/flrpapers/roc_ices_stocks/data/inputs/Updated_stks_n82_R0_updated202408.RData")
+load("C:/active/icesdata/data-raw/Updated_stks_n82_R0_updated202408.RData")
 
 library(FLCore)
 library(FLBRP)  
@@ -30,35 +30,37 @@ pidAdjust<-function(current, ref, pid=FLPar(Kp=1,Ki=0.01,Kd=0.01,Kp2=1)) {
 stks=ldply(ICESStocks, function(x) !(any(is.na(catch.n(x)))|
                                      any(is.na(landings.n(x)))))
 
-pid=as(expand.grid(Kp =seq(0.00,0.20, length.out=5),
+pid=as(expand.grid(Kp =seq(0.00,0.30, length.out=11),
                    Kp2=seq(1.00,2.00, length.out=2),
                    Ki =seq(0.00,0.00, length.out=1),
-                   Kd =seq(0.00,0.00, length.out=1)),"FLPar")
+                   Kd =seq(0.00,0.00, length.out=1))[-12,],"FLPar")
 pid["Kp2"]=pid["Kp"]*pid["Kp2"]
 
 
 for (.id in stks$.id){
 
-x   =ICESStocks[[.id]]
-y   =eqs[[.id]]
-yrs =dims(x)$maxyear+(-10:20)
+  x   =ICESStocks[[.id]]
+  y   =eqs[[.id]]
+  yrs =dims(x)$maxyear+(-10:20)
+  
+  landings.n(x)[is.na(landings.n(x))]=0
+  discards.n(x)[is.na(discards.n(x))]=0
+  
+  fmsy=unlist(attributes(x)$benchmark["Fmsy"])
+  btar=unlist(attributes(x)$eqsim["BMSY"])
+  maxF=quantile(c(fbar(x)),0.9)
+  r0  =unlist(attributes(x)$eqsim["R0"])
+  cEq =unlist(attributes(x)$eqsim["Catchequi"])
 
-fmsy=unlist(attributes(x)$benchmark["Fmsy"])
-btar=unlist(attributes(x)$eqsim["BMSY"])
-maxF=mean(fbar(x))*2.5
-r0  =unlist(attributes(x)$eqsim["R0"])
-cEq =unlist(attributes(x)$eqsim["Catchequi"])
+  if (any(is.na(btar))) btar = mean(ssb(x),na.rm=TRUE)
 
-if (any(is.na(btar))) btar = mean(ssb(x),na.rm=TRUE)
-
-#x2=window(   x, end=dimnames(x)$year[dim(x)[2]-10])
-#x2=fwdWindow(x2,end=dimnames(x)$year[dim(x)[2]],y)
+#x2=window(   x, end=an(dimnames(x)$year[dim(x)[2]])-10)
+#x2=fwdWindow(x2,end=an(dimnames(x)$year[dim(x)[2]]),y)
 #x2=fwd(      x2,catch=catch(x)[,dimnames(x)$year[dim(x)[2]-(10:0)]],sr=y)
 #x3=try(fwd(  x, catch=catch(x)[,dimnames(x)$year[dim(x)[2]-(10:0)]],sr=rec(x)))
 
-if (!"try-error"%in%is(x3)){
-  
-  x4   =fwdWindow(x2,end=ac(an(dimnames(x)$year[dim(x)[2]])+20),y)
+
+  x4   =fwdWindow(x,end=an(dimnames(x)$year[dim(x)[2]])+20,y)
   x4   =propagate(x4,dim(pid)[2])
   btar=FLQuant(btar,dimnames=dimnames(ssb(x4)[,1]))
   adj  =ssb(x4)[,ac(yrs[-1])]%=%0
@@ -104,8 +106,7 @@ if (!"try-error"%in%is(x3)){
     theme(legend.position="none")
   
   print(ggarrange(p1,p2,heights=c(4,1),ncol=1))
-  }
-  
+
   }  
 
 
