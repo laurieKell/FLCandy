@@ -91,4 +91,13 @@ Collate:
   indicatorsBiol.R
   jk.R
   pellaT-m.R
+  invALK2.R
+  icesUtil.R
+  jabba-utils.R
+  jabbaFFmsy.R
+  jabbaPMPD.R
+  jabbaSmry.R
+  jabbaWrapper.R
+  priors.R
+  themes.R
 LazyLoad: true
