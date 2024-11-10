@@ -23,6 +23,9 @@ LinkingTo:
   Rcpp,
   RcppEigen
 Collate:
+  jabba-wrapper.R
+  jabba-coerce.R
+  jabba-smry.R
   abi.R
   FLBRPSeasonal.R
   FLCompBind.R
@@ -56,9 +59,6 @@ Collate:
   icesUtil.R
   indicatorsBiol.R
   invALK2.R
-  jabba-wrapper.R
-  jabba-coerce.R
-  jabba-smry.R
   jk.R
   len2age.R
   length2.R
