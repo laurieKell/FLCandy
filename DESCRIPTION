@@ -24,7 +24,7 @@ LinkingTo:
   RcppEigen
 Collate:
   abi.R
-    FLBRPSeasonal.R
+  FLBRPSeasonal.R
   FLCompBind.R
   FLParPoint.R
   FLStock2FLStock.R
@@ -56,8 +56,9 @@ Collate:
   icesUtil.R
   indicatorsBiol.R
   invALK2.R
-  jabba-Wrapper.R
+  jabba-wrapper.R
   jabba-coerce.R
+  jabba-smry.R
   jk.R
   len2age.R
   length2.R
