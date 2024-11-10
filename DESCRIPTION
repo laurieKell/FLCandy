@@ -23,7 +23,7 @@ LinkingTo:
   Rcpp,
   RcppEigen
 Collate:
-  jabba-wrapper.R
+  Wrapper.R
   jabba-coerce.R
   jabba-smry.R
   abi.R
