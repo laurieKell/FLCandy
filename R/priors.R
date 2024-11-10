@@ -79,6 +79,7 @@ setGeneric("calcPriors", function(object, ...) {
 #' @param object An object of class FLBRP
 #' @return A named vector of calculated prior values
 #' @export
+#' @import FLife 
 #' @importFrom stats optimize
 #' @examples
 #' \dontrun{
