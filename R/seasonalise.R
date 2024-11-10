@@ -1,7 +1,6 @@
 #' @title Seasonalise, takes an annually structured `FLStock` and creates seasons
 #' 
-#' @description 
-#'   While 'expand' adds seasons to an annually structured 'FLStock' it does not
+#' @description While 'expand' adds seasons to an annually structured 'FLStock' it does not
 #'   change the 'FLQuants' such as m, stock.wt, mat, stock.n, catch.n and harvest
 #'   to take account of seasonal effects, such as growth and spawning. It also 
 #'   does not account for changes in the population due to seasonal fishing. 

@@ -1,6 +1,6 @@
-#' @title 
+#' @title eqsim2 
 #' 
-#' @description 
+#' @description Runs ICES rountine to calculate MSY and PA reference points 
 #'
 #' @param object an \code{FLStock} object 
 #' @param seasons a numeric with seasons

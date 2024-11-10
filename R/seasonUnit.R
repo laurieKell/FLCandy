@@ -62,8 +62,8 @@ library(dplyr)
   
 data(ple4)
     
-source("~/Desktop/flr/FLCandy/R/wtInterp.R")
-source("~/Desktop/flr/FLCandy/R/seasonalise.R")
+#source("~/Desktop/flr/FLCandy/R/wtInterp.R")
+#source("~/Desktop/flr/FLCandy/R/seasonalise.R")
 
 p4=seasonFLStock(ple4,4)
 

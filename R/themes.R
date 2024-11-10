@@ -1,7 +1,6 @@
-#' Theme for Beamer Presentations
+#' @title Theme for Beamer Presentations
 #'
-#' @description
-#' Creates a minimal theme optimized for Beamer presentations with scaled text sizes
+#' @description Creates a minimal theme optimized for Beamer presentations with scaled text sizes
 #' and minimal space between panels
 #'
 #' @param scale Numeric scaling factor for text sizes, default is 1
@@ -47,10 +46,9 @@ theme_beamer <- function(scale = 1) {
     )
 }
 
-#' Custom Minimal Theme for ggplot2
+#' @title Custom Minimal Theme for ggplot2
 #'
-#' @description
-#' Creates a custom theme based on theme_minimal with specific text sizes and no legend by default
+#' @description Creates a custom theme based on theme_minimal with specific text sizes and no legend by default
 #'
 #' @param base_size Base font size, default is 12
 #' @param legend_position Position of the legend ("none", "left", "right", "bottom", "top"), default is "none"

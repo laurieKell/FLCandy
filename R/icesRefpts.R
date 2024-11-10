@@ -1,6 +1,6 @@
-#' @title 
+#' @title icesRefpts 
 #' 
-#' @description 
+#' @description Fits an SRR to an `FLStock` and estimates reference points
 #'
 #' @param object an \code{FLStock} object 
 #' @param seasons a numeric with seasons

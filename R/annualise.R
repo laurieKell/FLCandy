@@ -1,6 +1,6 @@
 #' @title 
 #' 
-#' @description 
+#' @description Takes an `FLStock` with seasons and collapses into years
 #'
 #' @param object an \code{FLStock} object 
 #' @param seasons a numeric with seasons

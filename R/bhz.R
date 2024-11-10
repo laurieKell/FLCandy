@@ -1,7 +1,6 @@
 #' @title Derives an \code{FLBRP} from life history parameters
 #' 
-#' @description 
-#' Takes an \code{FLPar} object with life history and selectivity parameters
+#' @description Takes an \code{FLPar} object with life history and selectivity parameters
 #' and generates a corresponding \code{FLBRP} object. Can use a range of functional forms.
 #'
 #' @param params an \code{FLPar} object with life history parameters

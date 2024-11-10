@@ -347,7 +347,8 @@ setGeneric("awa", function(object, ...) standardGeneric("awa"))
 #' @examples
 #' \dontrun{
 #' data(ple4)
-#' fjuv(ple4)}
+#' fjuv(ple4)
+#' }
 setMethod("awa", signature(object="FLQuant"), 
           function(object){
             object%*%quantMeans(object)})
@@ -355,14 +356,14 @@ setMethod("awa", signature(object="FLStock"),
           function(object){
             stock.wt(object)%*%quantMeans(stock.wt(object))})
 
-#' @example 
+#' @examples 
 #' \dontrun{
 #' library(FLCore)
 #' 
 #' data(ple4)
 #' 
 #' awa(ple4)
-#' 
+#' }
 #' 
 if (FALSE){
 plot(mcf(FLQuants(
@@ -376,8 +377,3 @@ plot(mcf(FLQuants(
           SPR0  =spr0Yr(ple4),
           ASA   =asa(ple4))))
 }
-#'          
-# load("C:/active/FLCandy/_data/bet.RData")
-# bet=bet[[1]]
-#'        
-#' }

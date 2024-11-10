@@ -1,7 +1,6 @@
 #' @title Leslie matrix
 #' 
-#' @description
-#' Creates a Leslie Matrix from a \code{FLBRP} object that represents a population at equilibrium
+#' @description Creates a Leslie Matrix from a \code{FLBRP} object that represents a population at equilibrium
 #'  
 #' @param object \code{FLBRP}
 #' @param fbar \code{numeric} F at whicj survival calculated

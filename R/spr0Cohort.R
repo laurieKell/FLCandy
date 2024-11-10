@@ -1,6 +1,6 @@
-#' @title 
+#' @title spr0chort
 #' 
-#' @description 
+#' @description Calculates the spawner per recruit down a cohort
 #'
 #' @param object an \code{FLStock} object 
 #' @param seasons a numeric with seasons

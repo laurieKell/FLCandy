@@ -1,6 +1,6 @@
-#' @title 
+#' @title properties 
 #' 
-#' @description 
+#' @description Calculates additional reference points
 #'
 #' @param object an \code{FLBRP} object 
 #' 

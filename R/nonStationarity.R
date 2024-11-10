@@ -1,7 +1,6 @@
-## Set M, wt, sel & mat to vary by iter based on annual values to look at non-stationarity
-#' @title 
+#' @title non-stationary reference points
 #' 
-#' @description 
+#' @description Sets M, wt, sel & mat to vary by iter based on annual values to look at non-stationarity
 #'
 #' @param object an \code{FLStock} object 
 #' @param seasons a numeric with seasons
@@ -35,6 +34,7 @@
 #' 
 #' ggplot(dat)+
 #'   geom_line(aes(year,data,col=refpt))+facet_grid(quant~.,scale="free")
+#' }
 
 nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel"),abi=FALSE){
   

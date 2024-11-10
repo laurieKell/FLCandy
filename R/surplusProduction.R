@@ -1,7 +1,6 @@
-## Calculates the surplus production and expected yield etc for the estinates of SSB and biomass
-#' @title 
+#' @title surplusProduction
 #' 
-#' @description 
+#' @description Calculates the surplus production and expected yield etc for the estinates of SSB and biomass
 #'
 #' @param object an \code{FLStock} object 
 #' @param seasons a numeric with seasons
@@ -12,9 +11,9 @@
 #'
 #' @seealso \code{\link{expand}}
 #'
-#' @export seasonalise
+#' @export surplusProduction
 #' @docType methods
-#' @rdname seasonalise
+#' @rdname surplusProduction
 #'
 #' 
 #' @examples

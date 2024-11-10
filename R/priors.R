@@ -1,4 +1,6 @@
-#' priors for biomass dynamic assessment from an `FLBRP` object
+#' @title priors
+#' 
+#' @description priors for biomass dynamic assessment from an `FLBRP` object
 #'
 #' @param object An `FLBRP` from which to extract priors
 #' @param ... additional arguments passed to methods
@@ -37,20 +39,20 @@ setMethod("priors", signature(object="FLBRPs"), function(object) {
   
   return(rtn)})  
 
-#' #' Assign an FLPar object as an attribute to an FLBRP object
-#' #' using the '<-' operator.
-#' #'
-#' #' @param x An object of class FLBRP
-#' #' @param i The name of the attribute to be assigned (as a character string)
-#' #' @param value An object of class FLPar to be assigned as an attribute
-#' #' @return The modified FLBRP object with the new attribute
-#' #' @exportMethod `[<-`
-#' #' @examples
-#' #' \dontrun{
-#' #'   eql=FLBRP(...)  # Create or load an FLBRP object
-#' #'   eql["priors"]<-FLPar()
-#' #'   attributes(eql)$priors=calcPriors(eql)
-#' #' }
+#' @description Assign an FLPar object as an attribute to an FLBRP object
+#' using the '<-' operator.
+#'
+#' @param x An object of class FLBRP
+#' @param i The name of the attribute to be assigned (as a character string)
+#' @param value An object of class FLPar to be assigned as an attribute
+#' @return The modified FLBRP object with the new attribute
+#' @exportMethod `[<-`
+#' @examples
+#' \dontrun{
+#'   eql=FLBRP(...)  # Create or load an FLBRP object
+#'   eql["priors"]<-FLPar()
+#'   attributes(eql)$priors=calcPriors(eql)
+#' }
 #' setMethod("[<-", signature(x="FLBRP", i="priors", j="missing", value="FLPar"),
 #'   function(x, i, value) {
 #'     if (!inherits(value, "FLPar")) {

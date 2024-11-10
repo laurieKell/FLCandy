@@ -88,10 +88,9 @@ setMethod("roc",
 #'   
 #'   
 
-#' Calculate ROC Curve Coordinates
+#' @title ROC Curve Coordinates
 #'
-#' @description
-#' Calculates the coordinates for a Receiver Operating Characteristic (ROC) curve
+#' @description Calculates the coordinates for a Receiver Operating Characteristic (ROC) curve
 #'
 #' @param labels Binary vector of true labels
 #' @param scores Numeric vector of prediction scores
@@ -125,10 +124,9 @@ setMethod("rocFn", signature(labels="numeric", scores="numeric"),
                        reference=sort(scores))
           })
 
-#' Calculate Confusion Matrix Statistics
+#' @title Confusion Matrix Statistics
 #'
-#' @description
-#' Calculates True Positive (TP), True Negative (TN), False Positive (FP), 
+#' @description Calculates True Positive (TP), True Negative (TN), False Positive (FP), 
 #' and False Negative (FN) counts from predicted and actual values
 #'
 #' @param x Numeric vector of predicted values
@@ -156,10 +154,9 @@ setMethod("PN", signature(x="numeric", y="numeric"),
                        FN=sum(x<0 & y>=0))
           })
 
-#' Calculate True Skill Statistic (TSS)
+#' @title Calculate True Skill Statistic (TSS)
 #'
-#' @description
-#' Calculates the True Skill Statistic (TSS) from confusion matrix elements
+#' @description Calculates the True Skill Statistic (TSS) from confusion matrix elements
 #'
 #' @param TP Number of True Positives
 #' @param TN Number of True Negatives

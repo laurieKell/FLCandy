@@ -1,6 +1,7 @@
 #' @title adjust
 #' 
-#' @description 
+#' @description Takes an `FLStock` that was annual and adjusts numbers-at-age to 
+#' take accoubt of seasons  
 #'
 #' @param object an \code{FLStock} object 
 #' @param seasons a numeric with seasons

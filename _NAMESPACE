@@ -1,0 +1,10 @@
+exportPattern("^[[:alpha:]]+")
+
+useDynLib(FLCandy)
+
+import("TMB")
+import("FLCore")
+import("FLBRP")
+import("FLife")
+import("ggplot2")
+import("plyr")

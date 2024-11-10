@@ -1,7 +1,7 @@
 # Plus group infinite series
-#' @title 
+#' @title spr0yr
 #' 
-#' @description 
+#' @description Calculates the spawner per recruit in each year
 #'
 #' @param object an \code{FLStock} object 
 #' @param seasons a numeric with seasons
