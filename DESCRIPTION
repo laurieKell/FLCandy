@@ -56,7 +56,7 @@ Collate:
   haupt2.R
   hcrICESV2.R
   icesRefpts.R
-  icesUtil.R
+  icesdata-utils.R
   indicatorsBiol.R
   invALK2.R
   jk.R
