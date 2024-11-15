@@ -157,3 +157,8 @@ setMethod("calcPriors", signature(object="FLStock"), function(object,nmin=0:2,nm
     
     rtn})
   
+setMethod("calcPriors", signature(object="FLStocks"), 
+          function(object,nmin=0:2,nmax=0:2){
+          ldply(object, function(x) tryIt(calcPriors(x, nmin=nmin, nmax=nmax)))})
+          
+  

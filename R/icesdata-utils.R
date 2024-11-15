@@ -1,6 +1,7 @@
-#' @title Extract Time Series Statistics from FLStock Objects
+#' Extract Time Series Statistics from FLStock Objects
 #'
-#' @description Creates a data frame of time series statistics from FLStock objects, including
+#' @description
+#' Creates a data frame of time series statistics from FLStock objects, including
 #' catch, ebiomass, SSB, fishing mortality, harvest rate, and mean natural mortality.
 #'
 #' @param object An object of class FLStock or FLStocks
@@ -58,9 +59,10 @@ setMethod("tseries", signature(object="FLStocks"),
             rtn=cbind(.id=gsub("\\.([^.]+)$","",dimnames(rtn)[[1]]),rtn)
             rtn})
 
-#' @title Calculate Exploitable Biomass
+#' Calculate Exploitable Biomass
 #'
-#' @description Calculates the exploitable biomass from an FLStock object using selectivity-weighted
+#' @description
+#' Calculates the exploitable biomass from an FLStock object using selectivity-weighted
 #' catch weights and stock numbers.
 #'
 #' @param object An object of class FLStock
@@ -150,9 +152,10 @@ setMethod("stdz", signature(x="FLQuant"),
             x/sqrt(var(x, na.rm=na.rm))
           })
 
-#' @title Extract Benchmark Reference Points
+#' Extract Benchmark Reference Points
 #'
-#' @description generic function to extract benchmark reference points from FLStock objects
+#' @description
+#' A generic function to extract benchmark reference points from FLStock objects
 #'
 #' @param object An FLStock or FLStocks object
 #' @param ... Additional arguments (not currently used)
@@ -194,9 +197,10 @@ setMethod("benchmark", signature(object="FLStocks"), function(object) {
   ldply(llply(icesdata, function(x) t(benchmark(x))),rbind.fill)
 })
 
-#' @title Extract FishLife Parameters
+#' Extract FishLife Parameters
 #'
-#' @description Generic function to extract FishLife parameters from FLStock objects
+#' @description
+#' A generic function to extract FishLife parameters from FLStock objects
 #'
 #' @param object An FLStock or FLStocks object
 #' @param ... Additional arguments (not currently used)
@@ -238,9 +242,10 @@ setMethod("fishlife", signature(object="FLStocks"), function(object) {
   ldply(llply(icesdata, function(x) t(fishlife(x))),rbind.fill)
 })
 
-#'  @title Extract EqSim Reference Points
+#' Extract EqSim Reference Points
 #'
-#' @description Generic function to extract EqSim reference points from FLStock objects
+#' @description
+#' A generic function to extract EqSim reference points from FLStock objects
 #'
 #' @param object An FLStock or FLStocks object
 #' @param ... Additional arguments (not currently used)
@@ -282,9 +287,10 @@ setMethod("eqsim", signature(object="FLStocks"), function(object) {
   ldply(llply(icesdata, function(x) t(eqsim(x))),rbind.fill)
 })
 
-#' @title Extract FLife Parameters
+#' Extract FLife Parameters
 #'
-#' @description Generic function to extract FLife parameters from FLStock objects
+#' @description
+#' A generic function to extract FLife parameters from FLStock objects
 #'
 #' @param object An FLStock or FLStocks object
 #' @param ... Additional arguments (not currently used)
@@ -344,3 +350,13 @@ setMethod("FLifePar", signature(object="FLStocks"), function(object) {
   rtn=ldply(llply(object, function(x) t(FLifePar(x))),rbind.fill)
   rtn
 })
+
+
+tryIt<-function(x){
+  rtn=try(x)
+  if ("try-error"%in%is(rtn)) return(NULL)
+  return(rtn)}
+
+setGeneric('kobe',  function(path,method,...) standardGeneric('kobe'))
+setMethod( 'kobe',  signature(path='FLStock',method="missing"), 
+           function(path,method) {kobeFn(path)})
