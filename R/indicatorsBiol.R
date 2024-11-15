@@ -40,18 +40,18 @@ setMethod("ssb", signature(object="FLStock"), function(object, ...) {
   
   if(uns == 'f') {
     return(quantSums(stock.n(object) * exp(-(harvest(object) *
-       harvest.spwn(object) + m(object) * m.spwn(object))) *
-   stock.wt(object) * mat(object)))
+                                               harvest.spwn(object) + m(object) * m.spwn(object))) *
+                       stock.wt(object) * mat(object)))
     
   } else if(uns == 'hr') {
     return(quantSums(stock.n(object) * stock.wt(object) * mat(object) *
-   (1 - harvest(object) * harvest.spwn(object)) *
-   exp(-m(object) * m.spwn(object))))
+                       (1 - harvest(object) * harvest.spwn(object)) *
+                       exp(-m(object) * m.spwn(object))))
     
   } else {
     stop("Correct units (f or hr) not specified in the harvest slot")
   }
-  })
+})
 
 
 ################################################################################
@@ -76,28 +76,28 @@ setGeneric("ssb.age", function(object, ...) standardGeneric("ssb.age"))
 #' data(ple4)
 #' ssb.age(ple4)
 setMethod("ssb.age", signature(object="FLStock"),
-function(object, ...) {
-  
-  for (i in names(list(...)))
-    slot(object,i)=list(...)[[i]]
-  
-  # CALCULATE by units
-  uns <- units(harvest(object))
-  
-  if(uns == 'f') {
-    return(stock.n(object) * exp(-(harvest(object) *
-       harvest.spwn(object) + m(object) * m.spwn(object))) *
-   stock.wt(object) * mat(object))
-    
-  } else if(uns == 'hr') {
-    return(stock.n(object) * stock.wt(object) * mat(object) *
-   (1 - harvest(object) * harvest.spwn(object)) *
-   exp(-m(object) * m.spwn(object)))
-    
-  } else {
-    return(rec(object) %=% as.numeric(NA))
-  }
-  })
+          function(object, ...) {
+            
+            for (i in names(list(...)))
+              slot(object,i)=list(...)[[i]]
+            
+            # CALCULATE by units
+            uns <- units(harvest(object))
+            
+            if(uns == 'f') {
+              return(stock.n(object) * exp(-(harvest(object) *
+                                               harvest.spwn(object) + m(object) * m.spwn(object))) *
+                       stock.wt(object) * mat(object))
+              
+            } else if(uns == 'hr') {
+              return(stock.n(object) * stock.wt(object) * mat(object) *
+                       (1 - harvest(object) * harvest.spwn(object)) *
+                       exp(-m(object) * m.spwn(object)))
+              
+            } else {
+              return(rec(object) %=% as.numeric(NA))
+            }
+          })
 
 
 ################################################################################
@@ -163,7 +163,7 @@ setGeneric("pos", function(object, ...) standardGeneric("pos"))
 #' pos(ple4)}
 setMethod("pos", signature(object="FLStock"), 
           function(object,ogive=spawnOnce(mat(object))) 
-              ssb(object,mat=ogive)%/%ssb(object))
+            ssb(object,mat=ogive)%/%ssb(object))
 
 ################################################################################
 ## asa: the Average Age of Spawners                                           ##
@@ -199,7 +199,7 @@ setMethod("asa", signature(object="FLStock"),
             quantSums(ages(mat(object))%*%ssb.age(object))%/%ssb(object)})
 
 ################################################################################
-  ## amat: age at a specific maturity                                           ##
+## amat: age at a specific maturity                                           ##
 ################################################################################
 setGeneric("amat", function(object, ...) standardGeneric("amat"))
 #' @title amat: age at a specific maturity
@@ -229,23 +229,23 @@ setGeneric("amat", function(object, ...) standardGeneric("amat"))
 setMethod("amat", signature(object="FLQuant"), 
           function(object,value=1,what=c("i","g")[1]){
             
-      amatFn<-function(mat,value=1){
-        age=an(ac(dimnames(mat)[[1]]))
-        apply(mat, 2:6, function(x) approx(x,age,xout=value,ties=min)$y)}
-
-      ## greater than
-      amatFn2<-function(mat,value=1){
-        a  =ages(mat)
-        b  =mat>=value
-        apply(a%*%b, 2:6, function(x) min(x[x>0],na.rm=T))}
-      
-      switch(what[1],
-             "i"=amatFn( object,value),
-             "g"=amatFn2(object,value))})
+            amatFn<-function(mat,value=1){
+              age=an(ac(dimnames(mat)[[1]]))
+              apply(mat, 2:6, function(x) approx(x,age,xout=value,ties=min)$y)}
+            
+            ## greater than
+            amatFn2<-function(mat,value=1){
+              a  =ages(mat)
+              b  =mat>=value
+              apply(a%*%b, 2:6, function(x) min(x[x>0],na.rm=T))}
+            
+            switch(what[1],
+                   "i"=amatFn( object,value),
+                   "g"=amatFn2(object,value))})
 setMethod("amat", signature(object="FLStock"),
           function(object,value=1,what=c("i","g")[1]){
             amat(mat(object),value,what)})
-          
+
 ################################################################################
 ## wmat                                                                       ##
 ################################################################################
@@ -312,14 +312,14 @@ setGeneric("fjuv", function(object, ...) standardGeneric("fjuv"))
 #' fjuv(ple4)}
 setMethod("fjuv", signature(object="FLStock"), 
           function(object,value=0.5){
-  
-  age=amat(mat(object),0.5)-1
-  age=floor(age)
-  
-  wts=FLQuant(rep(c(age),each=dim(mat(object))[1]), dimnames=dimnames(mat(object)))
-  wts=FLQuant(wts>=ages(mat(object)))
-  
-  quantSums(harvest(object)%*%wts)%/%quantSums(wts)})
+            
+            age=amat(mat(object),0.5)-1
+            age=floor(age)
+            
+            wts=FLQuant(rep(c(age),each=dim(mat(object))[1]), dimnames=dimnames(mat(object)))
+            wts=FLQuant(wts>=ages(mat(object)))
+            
+            quantSums(harvest(object)%*%wts)%/%quantSums(wts)})
 
 ################################################################################
 ## awa                                                                        ##
@@ -366,14 +366,14 @@ setMethod("awa", signature(object="FLStock"),
 #' }
 #' 
 if (FALSE){
-plot(mcf(FLQuants(
-          SSB   =ssb(ple4),
-          F     =fbar(ple4),
-          FRatio=fjuv(ple4)%/%fapex(ple4),
-          amat  =amat(mat(ple4),0.5,what="i"),
-          wmat  =wmat(ple4),
-          POS   =pos(ple4),
-          SPR   =ssb(ple4)/rec(ple4),
-          SPR0  =spr0Yr(ple4),
-          ASA   =asa(ple4))))
+  plot(mcf(FLQuants(
+    SSB   =ssb(ple4),
+    F     =fbar(ple4),
+    FRatio=fjuv(ple4)%/%fapex(ple4),
+    amat  =amat(mat(ple4),0.5,what="i"),
+    wmat  =wmat(ple4),
+    POS   =pos(ple4),
+    SPR   =ssb(ple4)/rec(ple4),
+    SPR0  =spr0Yr(ple4),
+    ASA   =asa(ple4))))
 }
