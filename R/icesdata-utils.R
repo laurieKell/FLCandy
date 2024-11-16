@@ -173,12 +173,17 @@ setGeneric("benchmark", function(object, ...) {
 #' @return An FLPar object
 benchmarksFn <- function(x) {
   if ("logical"%in%is(attributes(x)$benchmark))
-    return(FLPar(Fmsy=NA,Flim=NA,Fpa=NA,Blim=NA,Bpa=NA,Btrigger=NA))
+    return(FLPar(fmsy=NA,flim=NA,fpa=NA,blim=NA,bpa=NA,btrigger=NA))
   
   if ("numeric"%in%is(attributes(x)$benchmark))
     attributes(x)$benchmark=FLPar(attributes(x)$benchmark)
   
-  as(attributes(x)$benchmark,"FLPar")
+  names(attributes(x)$benchmark)=tolower(names(attributes(x)$benchmark))
+
+  nms=names(attributes(x)$benchmark)[names(attributes(x)$benchmark)%in%
+                                   c("fmsy","flim","fpa","blim","bpa","btrigger")]
+                                 
+  as(attributes(x)$benchmark[nms],"FLPar")
 }
 
 #' @rdname benchmark
@@ -188,13 +193,15 @@ setMethod("benchmark", signature(object="FLStock"), function(object) {
     warning("No benchmark attribute found for this FLStock object.")
     return(NULL)}
   
+  names(attributes(object)$benchmark)=tolower(names(attributes(object)$benchmark))
+
   benchmarksFn(object)
 })
 
 #' @rdname benchmark
 #' @export
 setMethod("benchmark", signature(object="FLStocks"), function(object) {
-  ldply(llply(icesdata, function(x) t(benchmark(x))),rbind.fill)
+  ldply(llply(object, function(x) t(benchmark(x))),rbind.fill)
 })
 
 #' Extract FishLife Parameters
@@ -261,15 +268,22 @@ setGeneric("eqsim", function(object, ...) {
 #'
 #' @param x An FLStock object
 #' @return An FLPar object
-eqsimsFn <- function(x) {
+eqsimFn <- function(x) {
   if ("logical"%in%is(attributes(x)$eqsim))
-    return(FLPar(Fmsy=NA,Flim=NA,Fpa=NA,Blim=NA,Bpa=NA,Btrigger=NA))
+    return(FLPar(catchequi=NA,bmsy=NA,b0=NA,fmsyMedianC=NA,fmsyMedianL=NA,f5percRiskBlim=NA,flimEqsim=NA,r0)) 
   
   if ("numeric"%in%is(attributes(x)$eqsim))
     attributes(x)$eqsim=FLPar(attributes(x)$eqsim)
   
-  as(attributes(x)$eqsim,"FLPar")
-}
+  names(attributes(x)$eqsim)=str_c(tolower(str_sub(names(attributes(x)$eqsim), 1, 1)), 
+                                           str_sub(names(attributes(x)$eqsim), 2))
+
+  names(attributes(x)$eqsim)=str_replace_all(names(attributes(x)$eqsim), "MSY", "msy")
+  
+  nms=names(attributes(x)$eqsim)[names(attributes(x)$eqsim)%in%
+    c("catchequi","bmsy","b0","fmsyMedianC","fmsyMedianL","f5percRiskBlim","flimEqsim","r0")]
+
+  as(attributes(x)$eqsim[nms],"FLPar")}
 
 #' @rdname eqsim
 #' @export
@@ -278,7 +292,7 @@ setMethod("eqsim", signature(object="FLStock"), function(object) {
     warning("No eqsim attribute found for this FLStock object.")
     return(NULL)}
   
-  eqsimsFn(object)
+  eqsimFn(object)
 })
 
 #' @rdname eqsim
@@ -350,12 +364,6 @@ setMethod("FLifePar", signature(object="FLStocks"), function(object) {
   rtn=ldply(llply(object, function(x) t(FLifePar(x))),rbind.fill)
   rtn
 })
-
-
-tryIt<-function(x){
-  rtn=try(x)
-  if ("try-error"%in%is(rtn)) return(NULL)
-  return(rtn)}
 
 tryIt<-function(x){
   rtn=try(x)
