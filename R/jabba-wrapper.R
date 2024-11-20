@@ -36,11 +36,13 @@ jabbaWrapper<-function(catch,
   
   ## priors
   r        =unlist(c(pr[c("r")]))
+  r.prior  =c(r,  pr.sd["r"])
+
   psi      =unlist(c(pr[c("ssb.minyr")]))
   if (is.na(psi)) psi=0.9
-  shape    =unlist(c(pr[c("shape")]))
-  r.prior  =c(r,  pr.sd["r"])
   psi.prior=c(psi,pr.sd["ssb.minyr"])
+
+  shape    =unlist(c(pr[c("shape")]))
   
   if (!is.null(q_bounds))
     args=list(q_bounds=q_bounds)
