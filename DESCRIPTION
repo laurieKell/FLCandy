@@ -1,12 +1,11 @@
 Package: FLCandy
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Candidate methods for FLR
+Version: 1.1.0
+Author: Laurence Kell
+Maintainer: The package maintainer <laurie@kell.es>
+Description: Contains prototypes for FLR and methods under development.
+License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
