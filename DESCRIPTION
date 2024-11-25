@@ -69,10 +69,10 @@ Collate:
   mEmpirical.R
   mglim.R
   nonStationarity.R
-  pellaT-m.R
+  pellaT.R
   priors.R
   properties.R
-  rebuild.R
+  FLBRP-rebuild.R
   recoveryMetrics.R
   relMSY.R
   rlmvn.R
