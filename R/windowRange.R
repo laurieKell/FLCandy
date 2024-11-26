@@ -1,4 +1,4 @@
-setMethod("window", signature(object="FLComp"),
+setMethod("window", signature(x="FLComp"),
           function(x,start=range(x)["minyear"], end=range(x)["maxyear"],
                      min  =range(x)["min"],     max=range(x)["max"],    plusgroup=range(x)["plusgroup"],   
                      extend=TRUE, frequency=1){
