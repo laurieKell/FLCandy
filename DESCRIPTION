@@ -22,25 +22,14 @@ LinkingTo:
   Rcpp,
   RcppEigen
 Collate:
-  jabba-wrapper.R
-  jabba-coerce.R
-  jabba-smry.R
   abi.R
-  FLBRPSeasonal.R
-  FLCompBind.R
-  FLParPoint.R
-  FLStock2FLStock.R
-  OMstats-aopt.R
-  OMstats-perm.R
-  OMstats-pf.R
-  OMstats-pt.R
-  OMstats.R
   addRefs.R
   adjust.R
   annualise.R
   aopt.R
   aucTss.R
   bhz.R
+  biodyn/
   blimV2.R
   brp2lh.R
   crosstest.R
@@ -48,48 +37,71 @@ Collate:
   effortBellWatson.R
   eqsim1.R
   eqsim2.R
+  FLBRP-blim.R
+  FLBRP-leslie.R
+  FLBRP-msyVirgin.R
+  FLBRP-pellaT.R
+  FLBRP-priors.R
+  FLBRP-processError.R
+  FLBRP-properties.R
+  FLBRP-rebuild.R
+  FLBRPSeasonal.R
+  FLBRP-tseries.R
+  FLCompBind.R
+  FLCore/
+  FLPar-biodyn.R
+  FLParPoint.R
+  FLStock2FLStock.R
+  FLStock-indicatorsBiol.R
+  FLStock-tseries.R
   fnLbi.R
   ftmb.R
+  generic.R
   geom_split_violin.R
   globalMSY.R
   haupt2.R
   hcrICESV2.R
-  icesRefpts.R
   icesdata-utils.R
-  indicatorsBiol.R
+  icesRefpts.R
+  icesUtil.R
   invALK2.R
+  jabba-coerce.R
+  jabba-smry.R
+  jabba-wrapper.R
   jk.R
-  tryIt.R
   len2age.R
   length2.R
-  leslie.R
   lime.R
   lorenzenM.R
   m12.R
   mEmpirical.R
   mglim.R
   nonStationarity.R
-  pellaT.R
-  priors.R
-  properties.R
-  FLBRP-rebuild.R
+  OMstats.R
+  OMstats-aopt.R
+  OMstats-perm.R
+  OMstats-pf.R
+  OMstats-pt.R
   recoveryMetrics.R
+  refs.bib
   relMSY.R
   rlmvn.R
   roc.R
   rocFLQ.R
   saveTmp.R
-  seasonUnit.R
   seasonalise.R
+  seasonUnit.R
   selex.R
   spatial_funs.R
   spict.mp.R
   spr0Cohort.R
   spr0Yr.R
-  surplusProduction.R
+  ss-sp.R
+  t.txt
   themes.R
   traits.R
   trnd.R
+  tryIt.R
   utils.R
   violin.R
   windowRange.R
