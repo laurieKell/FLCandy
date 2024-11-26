@@ -17,6 +17,7 @@ Imports:
   FLBRP,
   ggplot2,
   ggplotFL
+  mpb
 LinkingTo: 
   TMB,
   Rcpp,
