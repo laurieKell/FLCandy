@@ -46,6 +46,7 @@ Collate:
   FLBRP-processError.R
   FLBRP-properties.R
   FLBRP-rebuild.R
+  FLBRP-seasonal.R
   FLBRP-tseries.R
   FLCompBind.R
   FLPar-biodyn.R
