@@ -6,9 +6,8 @@ seasonalRefs<-function(om){
     if (dim(x)[1]==1) {
       x=x[,,,1]
       return(x)}
-    
+  
     dnms=dimnames(x)
-    
     dnms[[4]]=1
     dnms[[1]]=(as.numeric(rep(dnms[[1]],each=dim(x)[4]))+seq(0,1,length.out=dim(x)[4]+1)[-(dim(x)[4]+1)])*dim(x)[4]
     
