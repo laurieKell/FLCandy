@@ -39,34 +39,34 @@ setMethod("ebiomass", signature(object="FLStock"),
 
 #' @rdname stdz
 #' @export
-setMethod("stdz", signature(x="numeric"),
-          function(x, na.rm=TRUE) {
-            x=x-mean(  x, na.rm=na.rm)
-            x/sqrt(var(x, na.rm=na.rm))
+setMethod("stdz", signature(object="numeric"),
+          function(object, na.rm=TRUE) {
+            object=object-mean(  object, na.rm=na.rm)
+            object/sqrt(var(object, na.rm=na.rm))
           })
 
 #' @rdname stdz
 #' @export
-setMethod("stdz", signature(x="matrix"),
-          function(x, na.rm=TRUE) {
-            x=x-mean(x, na.rm=na.rm)
-            x/sqrt(var(x, na.rm=na.rm))
+setMethod("stdz", signature(object="matrix"),
+          function(object, na.rm=TRUE) {
+            object=object-mean(object, na.rm=na.rm)
+            object/sqrt(var(object, na.rm=na.rm))
           })
 
 #' @rdname stdz
 #' @export
-setMethod("stdz", signature(x="array"),
-          function(x, na.rm=TRUE) {
-            x=x-mean(x, na.rm=na.rm)
-            x/sqrt(var(x, na.rm=na.rm))
+setMethod("stdz", signature(object="array"),
+          function(object, na.rm=TRUE) {
+            object=object-mean(object, na.rm=na.rm)
+            object/sqrt(var(object, na.rm=na.rm))
           })
 
 #' @rdname stdz
 #' @export
-setMethod("stdz", signature(x="FLQuant"),
-          function(x, na.rm=TRUE) {
-            x=x-mean(x, na.rm=na.rm)
-            x/sqrt(var(x, na.rm=na.rm))
+setMethod("stdz", signature(object="FLQuant"),
+          function(object, na.rm=TRUE) {
+            object=object-mean(object, na.rm=na.rm)
+            object/sqrt(var(object, na.rm=na.rm))
           })
 
 
@@ -74,14 +74,14 @@ setMethod("stdz", signature(x="FLQuant"),
 #'
 #' @param x An FLStock object
 #' @return An FLPar object
-benchmarksFn <- function(x) {
-  if ("logical"%in%is(attributes(x)$benchmark))
+benchmarksFn <- function(object) {
+  if ("logical"%in%is(attributes(object)$benchmark))
     return(FLPar(Fmsy=NA,Flim=NA,Fpa=NA,Blim=NA,Bpa=NA,Btrigger=NA))
   
-  if ("numeric"%in%is(attributes(x)$benchmark))
-    attributes(x)$benchmark=FLPar(attributes(x)$benchmark)
+  if ("numeric"%in%is(attributes(object)$benchmark))
+    attributes(object)$benchmark=FLPar(attributes(object)$benchmark)
   
-  as(attributes(x)$benchmark,"FLPar")
+  as(attributes(object)$benchmark,"FLPar")
 }
 
 #' @rdname benchmark
@@ -100,14 +100,14 @@ setMethod("benchmark", signature(object="FLStocks"), function(object) {
   ldply(llply(icesdata, function(x) t(benchmark(x))),rbind.fill)
 })
 
-fishlifesFn <- function(x) {
-  if ("logical"%in%is(attributes(x)$fishlife))
+fishlifesFn <- function(object) {
+  if ("logical"%in%is(attributes(object)$fishlife))
     return(FLPar(Fmsy=NA,Flim=NA,Fpa=NA,Blim=NA,Bpa=NA,Btrigger=NA))
   
-  if ("numeric"%in%is(attributes(x)$fishlife))
-    attributes(x)$fishlife=FLPar(attributes(x)$fishlife)
+  if ("numeric"%in%is(attributes(object)$fishlife))
+    attributes(object)$fishlife=FLPar(attributes(object)$fishlife)
   
-  as(attributes(x)$fishlife,"FLPar")
+  as(attributes(object)$fishlife,"FLPar")
 }
 
 #' @rdname fishlife

@@ -30,15 +30,15 @@ setMethod("priors", signature(object="FLBRPs"), function(object) {
 #'   eql["priors"]<-FLPar()
 #'   attributes(eql)$priors=calcPriors(eql)
 #' }
-#' setMethod("[<-", signature(x="FLBRP", i="priors", j="missing", value="FLPar"),
-#'   function(x, i, value) {
+#' setMethod("[<-", signature(object="FLBRP", i="priors", j="missing", value="FLPar"),
+#'   function(object, i, value) {
 #'     if (!inherits(value, "FLPar")) {
 #'       stop("The assigned value must be an FLPar object")
 #'     }
 #'     
-#'     attributes(x,i)=value
+#'     attributes(object,i)=value
 #' 
-#' return(x)})
+#' return(object)})
 
 setMethod("calcPriors", signature(object="FLBRP"), function(object) {
     # Extract reference points

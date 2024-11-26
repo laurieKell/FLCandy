@@ -287,7 +287,7 @@ setGeneric("tseries", function(object, ...) standardGeneric("tseries"))
 #' \dontrun{
 #' # For numeric vector
 #' x <- 1:10
-#' stdz(x)
+#' stdz(object)
 #'
 #' # For FLQuant
 #' data(ple4)
@@ -528,7 +528,7 @@ setGeneric("benchmark", function(object, ...) {
 #' \dontrun{
 #' # For numeric vector
 #' x <- 1:10
-#' stdz(x)
+#' stdz(object)
 #'
 #' # For FLQuant
 #' data(ple4)
