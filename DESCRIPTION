@@ -12,13 +12,11 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
 Depends:
   FLCore (>= 2.6.16),
-  FLBRP,
-  biodyn
+  FLBRP
 Imports: 
   TMB (>= 1.7.19),
   ggplot2,
-  ggplotFL,
-  mpb
+  ggplotFL
 LinkingTo: 
   TMB,
   Rcpp,
@@ -49,7 +47,6 @@ Collate:
   FLBRP-rebuild.R
   FLBRP-tseries.R
   FLCompBind.R
-  FLPar-biodyn.R
   FLParPoint.R
   FLStock2FLStock.R
   FLStock-indicatorsBiol.R
@@ -64,7 +61,6 @@ Collate:
   icesRefpts.R
   icesUtil.R
   invALK2.R
-  jabba-coerce.R
   jabba-smry.R
   jabba-wrapper.R
   jk.R

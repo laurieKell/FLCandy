@@ -760,8 +760,6 @@ setGeneric("invALK", function(object, model=vonbert, age,
                               cv=0.1, lmax=1.2, bin=1, max=ceiling(object["linf"]*lmax), reflen=NULL) 
   standardGeneric("invALK"))
 
-setGeneric('as.biodyn', function(object, ...) standardGeneric('as.biodyn'))
-
 setGeneric('leslie', function(object, fec, ...) standardGeneric('leslie'))
 
 setGeneric("m1", function(object, ...)
@@ -1011,6 +1009,3 @@ setGeneric("rebuild", function(object, targetF=NULL, targetSSB=NULL,
 setGeneric("rebuildTime", function(object, nx=101) {
   standardGeneric("rebuildTime")
 })
-
-setGeneric('biodyn',      function(object,params,...)            standardGeneric('biodyn'))
-
