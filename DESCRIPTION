@@ -29,7 +29,6 @@ Collate:
   aopt.R
   aucTss.R
   bhz.R
-  biodyn/
   blimV2.R
   brp2lh.R
   crosstest.R
@@ -48,7 +47,6 @@ Collate:
   FLBRPSeasonal.R
   FLBRP-tseries.R
   FLCompBind.R
-  FLCore/
   FLPar-biodyn.R
   FLParPoint.R
   FLStock2FLStock.R
@@ -97,7 +95,6 @@ Collate:
   spr0Cohort.R
   spr0Yr.R
   ss-sp.R
-  t.txt
   themes.R
   traits.R
   trnd.R
