@@ -13,7 +13,8 @@ RoxygenNote: 7.3.1
 Depends:
   FLCore (>= 2.6.16),
   FLBRP  (>= 2.5.9.9025),
-  FLife  (>= 3.5.0)
+  FLife  (>= 3.0.0),
+  mydas  (>= 1.2.2)
 Imports: 
   methods,
   TMB (>= 1.7.19),
