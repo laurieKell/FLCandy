@@ -1011,3 +1011,6 @@ setGeneric("rebuild", function(object, targetF=NULL, targetSSB=NULL,
 setGeneric("rebuildTime", function(object, nx=101) {
   standardGeneric("rebuildTime")
 })
+
+setGeneric('biodyn',      function(object,params,...)            standardGeneric('biodyn'))
+
