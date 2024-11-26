@@ -1,20 +1,20 @@
 setMethod("window", signature(object="FLComp"),
-          function(object,start=range(object)["minyear"], end=range(object)["maxyear"],
-                     min  =range(object)["min"],     max=range(object)["max"],    plusgroup=range(object)["plusgroup"],   
+          function(x,start=range(x)["minyear"], end=range(x)["maxyear"],
+                     min  =range(x)["min"],     max=range(x)["max"],    plusgroup=range(x)["plusgroup"],   
                      extend=TRUE, frequency=1){
             
-            object=qapply(object, window, start=start, end=end, extend=extend, frequency=frequency)
+            x=qapply(x, window, start=start, end=end, extend=extend, frequency=frequency)
             
-            object=object[as.numeric(dimnames(object)[[1]])>=min]
+            x=x[as.numeric(dimnames(x)[[1]])>=min]
             
             if (!is.na(plusgroup)){
-              object=setPlusGroup(object,plusgroup) 
+              x=setPlusGroup(x,plusgroup) 
             }else{
-              object=object[as.numeric(dimnames(object)[[1]])<=max]}
+              x=x[as.numeric(dimnames(x)[[1]])<=max]}
         
-        range(object)[c("minyear","maxyear","min","max","plusgroup")]=c(start,end,min,max,plusgroup)
+        range(x)[c("minyear","maxyear","min","max","plusgroup")]=c(start,end,min,max,plusgroup)
             
-        object})
+        x})
 
 if(FALSE){
 data(ple4)
