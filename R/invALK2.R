@@ -1,7 +1,3 @@
-setGeneric("invALK", function(object, model=vonbert, age, 
-                              cv=0.1, lmax=1.2, bin=1, max=ceiling(object["linf"]*lmax), reflen=NULL) 
-  standardGeneric("invALK"))
-
 setMethod("invALK", signature(object="FLQuant", model="missing", age="missing"), 
           function(object, model, age=ages(object), cv=0.1, lmax=1.2, bin=1,
                    max=NULL, reflen=NULL) {

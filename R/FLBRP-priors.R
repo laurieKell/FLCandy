@@ -1,26 +1,3 @@
-#' @title priors
-#' 
-#' @description priors for biomass dynamic assessment from an `FLBRP` object
-#'
-#' @param object An `FLBRP` from which to extract priors
-#' @param ... additional arguments passed to methods
-#' @return `priors` attribute as an `FLPar` 
-#' @export
-
-setGeneric("priors", function(object, ...) {
-  standardGeneric("priors")})
-
-#' Get priors for biomass dynamic assessment from an `FLBRP` object
-#'
-#' @param object An object of class `FLBRP`
-#' @return priors attribute as an `FLPar` of the `FLBRP` object
-#' @export
-#' 
-#' @examples
-#' \dontrun{
-#'   eql=FLBRP(...)  # Create or load an FLBRP object
-#'   priors(eql)
-#' }
 setMethod("priors", signature(object="FLBRP"), function(object) {
     if (!("priors" %in% names(attributes(object)))) {
       warning("No priors attribute found for this FLBRP object.")
@@ -63,29 +40,6 @@ setMethod("priors", signature(object="FLBRPs"), function(object) {
 #' 
 #' return(x)})
 
-#' Calculate priors for an `FLBRP` based on reference points and observations.
-#'
-#' @param object `An`FLBRP` object for which to calculate priors
-#' @param ... Additional arguments passed to methods
-#' @return A named vector of calculated prior values
-#' @export
-setGeneric("calcPriors", function(object, ...) {
-  standardGeneric("calcPriors")})
-
-#' Calculate priors for an FLBRP object
-#'
-#' This method calculates priors for an FLBRP object based on reference points and observations.
-#'
-#' @param object An object of class FLBRP
-#' @return A named vector of calculated prior values
-#' @export
-#' @import FLife 
-#' @importFrom stats optimize
-#' @examples
-#' \dontrun{
-#'   eql=FLBRP(...)  # Create or load an FLBRP object
-#'   calcPriors(eql)
-#' }
 setMethod("calcPriors", signature(object="FLBRP"), function(object) {
     # Extract reference points
     fmsy=c(refpts(object)["msy", "harvest"])

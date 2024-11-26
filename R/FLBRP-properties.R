@@ -1,32 +1,3 @@
-#' @title properties 
-#' 
-#' @description Calculates additional reference points
-#'
-#' @param object an \code{FLBRP} object 
-#' 
-#' @return \code{FLPar} with estimates of MSY based reference points
-#'
-#' @seealso \code{\link{FLBRP},\link{refpts}}
-#'
-#' @export metrics
-#' @docType methods
-#' @rdname metrics
-#'
-#' 
-#' @examples
-#' \dontrun{
-#' 
-#' data(ple4brp)
-#' 
-#' fbar(ple4brp)=FLQuant(seq(0,c(refpts(ple4brp)["crash","harvest"]),length.out=101))
-#' refpts(ple4brp)=properties(ple4brp)
-#' 
-#' plot(ple4brp,ncol=2)
-#' }
-#' 
-setGeneric("properties", function(object, ...)
-  standardGeneric("properties"))
-
 setMethod("properties", signature(object="FLBRP"),
     function(object, ...) {
   

@@ -1,8 +1,5 @@
 #basically i) coerce from FLstock to FLSAM, ii) compute FLBRP, iii) calc status relative to refpts iv) plot ROC curve to estimate classification skill and bias
 
-setGeneric("crosstest", function(object,...)
-  standardGeneric("crosstest"))
-
 setMethod("crosstest", signature(object="FLStock"),
           function(object=object,...){
             

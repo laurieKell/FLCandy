@@ -1,6 +1,3 @@
-utils::globalVariables(c("bdModel","biomass"))
-
-setGeneric('as.biodyn', function(object, ...) standardGeneric('as.biodyn'))
 
 jabba2biodyn<-function(object, phase=c("b0"=-1,"r"=4,"k"=3,"p"=-2,"q"=2,"sigma"=1),
                                min=0.1,max=10){

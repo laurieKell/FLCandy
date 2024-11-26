@@ -1,34 +1,3 @@
-#' Calculate total mortality-at-age (Z) using length data.
-#' 
-#' This is a generic S4 method that calculates something using the `haupt` function.
-#' The specific implementation depends on the class of the input object.
-#' 
-#' @param object An object of class FLQuant or data.frame (depends on the method).
-#' @param pars A parameter object (class FLPar) containing necessary parameters.
-#' @param lc A threshold value for lc.
-#' @param lmax A threshold value for lmax.
-#' @param ... Additional arguments .
-#' 
-#' @return estimates of Z.
-#' 
-#' @export
-setGeneric("haupt", function(object, pars, lc, lmax, ...) {
-  standardGeneric("haupt")
-})
-
-#' Calculate something using the haupt method for FLQuant and FLPar objects.
-#' 
-#' This method calculates something using the `haupt` function when the input object is of class FLQuant and the parameter object is of class FLPar.
-#' 
-#' @param object An object of class FLQuant.
-#' @param pars A parameter object (class FLPar) containing necessary parameters.
-#' @param lc A threshold value for lc.
-#' @param lmax A threshold value for lmax.
-#' @param ... Additional arguments (not used in this example).
-#' 
-#' @return The result of the calculation.
-#' 
-#' @export
 setMethod("haupt", signature("FLQuant", "FLPar"), 
           function(object, pars, lc = FLife::vonB(pars["sel1"], pars) * 0.9, lmax = "missing", ...) {
             result = hauptFn(object, pars, lc = lc, lmax = lmax)

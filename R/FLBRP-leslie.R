@@ -63,7 +63,6 @@ with(subset(mvln$kb,year==2021),cov(log(stock),log(harvest)))
 demogR:::eigen.analysis(L)
 }
 
-setGeneric('leslie', function(object, fec, ...) standardGeneric('leslie'))
 setMethod("leslie", signature(object="numeric",fec="numeric"),  
           function(object,fec) {
                  leslieFn(object,fec)})

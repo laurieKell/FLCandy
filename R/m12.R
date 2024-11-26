@@ -3,15 +3,6 @@ require(FLBRP)
 require(FLasher)
 require(FLife)
 
-setGeneric("m1", function(object, ...)
-  standardGeneric("m1"))
-setGeneric("m2", function(object, ...)
-  standardGeneric("m2"))
-setGeneric("forage", function(object, ...)
-  standardGeneric("forage"))
-setGeneric("predNeed", function(object, ...)
-  standardGeneric("predNeed"))
-
 setMethod("m1", "FLComp", function(object, ...) {
   if(units(harvest(object)) != 'f') 
     stop("Exploitation not defined as 'f', cannot be combined with  'm'")

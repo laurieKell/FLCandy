@@ -1,27 +1,3 @@
-#' pt
-#'
-#' pt function
-#' 
-#' @param object \code{FLPar} or \code{numeric} with values for $b_{msy}$, $f_{msy}$ as a minimum; $msy$ and $v$ (virgin biomass) can also be provided. 
-#' @param shape \code{FLPar} or \code{numeric} the ratio of $b_{msy}$ to virgin biomass, by default is estimated from $b_{msy}$ and $v$ in \code{object} 
-#' @param ... other arguments
-#' 
-#' @export
-#' @docType methods
-#' @rdname pt
-#' 
-#' @aliases pt pt-method pt,FLPar-method
-#' 
-#' @seealso \code{\link{gompertz}}
-#' 
-#' @examples
-#' \dontrun{
-#' params=FLPar(a50=4,ato95=1,asym=1.0)
-#' age=FLQuant(1:10,dimnames=list(age=1:10))
-#' pt(age,params)
-#' }
-setGeneric("pt", function(object,...)  standardGeneric("pt"))
-
 #### Exploitable biomass #######################################################
 ebiomass<-function(object){
   sel=harvest(object)

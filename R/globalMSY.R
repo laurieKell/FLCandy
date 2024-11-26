@@ -1,19 +1,5 @@
-setGeneric("globalMsy", function(object, ...)
-  standardGeneric("globalMsy"))
-
-# globalMsy {{{
-
-#' @rdname globalMsy
-#' @description Calculates the global MSY, i.e. the largest catch that can be made with a knife edge selection pattern
-#' @examples
-#' data(ple4brp)
-#' globalMsy(ple4brp)
-#' 
-
 setMethod('globalMsy', signature(object='FLBRP'), function(object){
   globalMsyFn2(object)})
-
-# }}}
 
 
 globalMsyFn<-function(object){
