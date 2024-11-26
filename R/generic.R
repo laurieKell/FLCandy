@@ -536,7 +536,7 @@ setGeneric("benchmark", function(object, ...) {
 #' }
 #'
 #' @export
-setGeneric("stdz", function(x, na.rm=TRUE) standardGeneric("stdz"))
+setGeneric("stdz", function(object, na.rm=TRUE) standardGeneric("stdz"))
 
 ################################################################################
 ## awa                                                                        ##
@@ -880,7 +880,7 @@ setGeneric("TSS", function(TP, TN, FP, FN) standardGeneric("TSS"))
 #' }
 #'
 #' @export
-setGeneric("PN", function(x, y) standardGeneric("PN"))
+setGeneric("PN", function(object, y) standardGeneric("PN"))
 
 
 #' @title ROC Curve Coordinates
