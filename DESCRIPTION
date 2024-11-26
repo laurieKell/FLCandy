@@ -59,7 +59,6 @@ Collate:
   hcrICESV2.R
   icesdata-utils.R
   icesRefpts.R
-  icesUtil.R
   invALK2.R
   jabba-smry.R
   jabba-wrapper.R
