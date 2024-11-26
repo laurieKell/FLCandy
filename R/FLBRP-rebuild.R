@@ -1,17 +1,5 @@
-#' Rebuild a fish population
-#' 
-#' @description Projects rebuilding trajectories from different initial SSB levels
-#'
-#' @param object An object of class FLBRP representing the population at equilibrium
-#' @param targetF Target fishing mortality during rebuilding (default = 0)
-#' @param targetSSB Target spawning stock biomass (default = BMSY)
-#' @param nInitial Number of initial SSB levels (default = 100)
-#' @param growthRate Growth rate for depletion sequence (default = 0.25)
-#' @param minVal Minimum depletion value (default = 1e-6)
-#' @param maxVal Maximum depletion value (default = 1)
-#' @param burnin Number of years for burn-in period (default = 20)
-#' @param truncate Whether to remove burn-in period (default = TRUE)
-#' @return An FLStock object with rebuilding trajectories
+
+#' @rdname rebuild
 #' @export
 setMethod("rebuild", signature(object="FLBRP"),
           function(object, targetF=computeRefpts(object)["msy","harvest"] * 0,

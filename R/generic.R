@@ -981,4 +981,33 @@ setGeneric("priors", function(object, ...) {
 #'   priors(eql)
 #' }
 
+#' Rebuild a fish population
+#' 
+#' @description Projects rebuilding trajectories from different initial SSB levels
+#'
+#' @param object An object representing the population
+#' @param targetF Target fishing mortality during rebuilding
+#' @param targetSSB Target spawning stock biomass 
+#' @param nInitial Number of initial SSB levels
+#' @param growthRate Growth rate for depletion sequence
+#' @param minVal Minimum depletion value
+#' @param maxVal Maximum depletion value 
+#' @param burnin Number of years for burn-in period
+#' @param truncate Whether to remove burn-in period
+#' @return An object with rebuilding trajectories
+#' @export
+setGeneric("rebuild", function(object, targetF=NULL, targetSSB=NULL,
+                               nInitial=100, growthRate=0.25, minVal=1e-6, maxVal=1,
+                               burnin=20, truncate=TRUE) {
+  standardGeneric("rebuild")
+})
 
+#' Calculate rebuilding time
+#'
+#' @param object An object containing rebuilding trajectories
+#' @param nx Number of interpolation points
+#' @return A data frame with columns year and initial
+#' @export
+setGeneric("rebuildTime", function(object, nx=101) {
+  standardGeneric("rebuildTime")
+})
