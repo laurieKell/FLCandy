@@ -81,7 +81,6 @@ Collate:
   OMstats-pf.R
   OMstats-pt.R
   recoveryMetrics.R
-  refs.bib
   relMSY.R
   rlmvn.R
   roc.R
