@@ -25,6 +25,7 @@ LinkingTo:
   Rcpp,
   RcppEigen
 Collate:
+  generic.R
   abi.R
   addRefs.R
   adjust.R
@@ -55,7 +56,6 @@ Collate:
   FLStock-tseries.R
   fnLbi.R
   ftmb.R
-  generic.R
   geom_split_violin.R
   ggplotFL-plotLengths.R
   globalMSY.R
