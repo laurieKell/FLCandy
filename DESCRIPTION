@@ -94,7 +94,6 @@ Collate:
   spr0Cohort.R
   spr0Yr.R
   ss-diags.R
-  ss-m-profile.R
   ss-MVLN.R
   ss-smry.R
   themes.R
