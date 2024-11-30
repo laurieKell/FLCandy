@@ -74,7 +74,7 @@ ssRetrospective<-function(retros, name, plot = TRUE) {
   return(list(retroSummary = retroSummary, hccomps = hccomps))}
 
 # For basic diagnostics
-model=ssDiagnostics(path="P:/rfmo/ices/wkbseabass/ss3/north/base",name="test")
+#model=ssDiagnostics(path="P:/rfmo/ices/wkbseabass/ss3/north/base",name="test")
 
 # For retrospective analysis (if you have retro models)
-retro_results=ssRetrospective(retros=, name="test")
+#retro_results=ssRetrospective(retros=, name="test")
