@@ -31,9 +31,7 @@ Collate:
   annualise.R
   aopt.R
   aucTss.R
-  backUp/
   bhz.R
-  biodyn/
   blimV2.R
   brp2lh.R
   crosstest.R
@@ -41,7 +39,6 @@ Collate:
   effortBellWatson.R
   eqsim1.R
   eqsim2.R
-  FLBRP/
   FLBRP-blim.R
   FLBRP-leslie.R
   FLBRP-msyVirgin.R
@@ -52,7 +49,6 @@ Collate:
   FLBRP-rebuild.R
   FLBRP-tseries.R
   FLCompBind.R
-  FLCore/
   FLParPoint.R
   FLStock2FLStock.R
   FLStock-indicatorsBiol.R
