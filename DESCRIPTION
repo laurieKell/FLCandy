@@ -25,14 +25,15 @@ LinkingTo:
   Rcpp,
   RcppEigen
 Collate:
-  generic.R
   abi.R
   addRefs.R
   adjust.R
   annualise.R
   aopt.R
   aucTss.R
+  backUp/
   bhz.R
+  biodyn/
   blimV2.R
   brp2lh.R
   crosstest.R
@@ -40,6 +41,7 @@ Collate:
   effortBellWatson.R
   eqsim1.R
   eqsim2.R
+  FLBRP/
   FLBRP-blim.R
   FLBRP-leslie.R
   FLBRP-msyVirgin.R
@@ -50,13 +52,16 @@ Collate:
   FLBRP-rebuild.R
   FLBRP-tseries.R
   FLCompBind.R
+  FLCore/
   FLParPoint.R
   FLStock2FLStock.R
   FLStock-indicatorsBiol.R
   FLStock-tseries.R
   fnLbi.R
   ftmb.R
+  generic.R
   geom_split_violin.R
+  ggplotFL-plotLengths.R
   globalMSY.R
   haupt2.R
   hcrICESV2.R
@@ -80,6 +85,7 @@ Collate:
   OMstats-pf.R
   OMstats-pt.R
   recoveryMetrics.R
+  refs.bib
   relMSY.R
   rlmvn.R
   roc.R
@@ -92,7 +98,10 @@ Collate:
   spict.mp.R
   spr0Cohort.R
   spr0Yr.R
-  ss-sp.R
+  ss-diags.R
+  ss-m-profile.R
+  ss-MVLN.R
+  ss-smry.R
   themes.R
   traits.R
   trnd.R
