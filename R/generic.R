@@ -80,21 +80,6 @@ setGeneric("abiMsy", function(object, ref = "msy", p = 0.9) {
 })
 
 
-#' Calculate P(N) at FMSY for a FLBRP object.
-#'
-#' This function calculates P(N) at FMSY for a FLBRP object.
-#'
-#' @param y A FLBRP object.
-#' @param ref Reference point, e.g., "msy" (default) or "f0.1".
-#' @param p Probability threshold (default = 0.9).
-#'
-#' @return An FLQuant object containing P(N) at FMSY.
-#'
-#' @export
-setGeneric("abiMsy", function(object, ref = "msy", p = 0.9) {
-  standardGeneric("abiMsy")
-})
-
 setGeneric("crosstest", function(object,...)
   standardGeneric("crosstest"))
 
@@ -246,40 +231,6 @@ setGeneric("globalMsy", function(object, ...)
 #' 
 #' 
 setGeneric('hcrICES', function(object,eql,...) standardGeneric('hcrICES'))
-
-#' Extract Time Series Statistics from FLStock Objects
-#'
-#' @description
-#' Creates a data frame of time series statistics from FLStock objects, including
-#' catch, ebiomass, SSB, fishing mortality, harvest rate, and mean natural mortality.
-#'
-#' @param object An object of class FLStock or FLStocks
-#' @param ... Additional arguments (not currently used)
-#'
-#' @return A data frame containing time series of:
-#'   \itemize{
-#'     \item catch - Catch values
-#'     \item eb - Exploitable biomass
-#'     \item ssb - Spawning stock biomass
-#'     \item f - Fishing mortality (Fbar)
-#'     \item h - Harvest rate (catch/ebiomass)
-#'     \item m - Mean natural mortality
-#'   }
-#'
-#' @examples
-#' \dontrun{
-#' # For single stock
-#' data(ple4)
-#' ts1 <- tseries(ple4)
-#'
-#' # For multiple stocks
-#' stocks <- FLStocks(stock1=ple4, stock2=ple4)
-#' ts2 <- tseries(stocks)
-#' }
-#'
-#' @export
-setGeneric("tseries", function(object, ...) standardGeneric("tseries"))
-
 
 #' Standardize Values
 #'
