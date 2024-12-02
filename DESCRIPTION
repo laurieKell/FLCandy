@@ -93,6 +93,7 @@ Collate:
   spict.mp.R
   spr0Cohort.R
   spr0Yr.R
+  ss-eqPlot.R
   ss-diags.R
   ss-MVLN.R
   ss-smry.R

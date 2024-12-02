@@ -5,7 +5,6 @@
 #' @description Functions to model fish growth.
 #' @details This group of functions provides different growth models commonly used 
 #' in fisheries science.
-#' @cite{kell2007bft}
 #' 
 #' @examples
 #' data(ple4)
@@ -83,25 +82,3 @@ gompertz <- function(linf, a, k, age) {
 richards <- function(linf, k, b, m, age) {
   linf / exp(log(1 + exp(-k * age + b)) * m)
 }
-
-#' invALK
-#'
-#' @rdname invALK
-#' @description Calculate inverse Age-Length Key (ALK) matrix.
-#'
-#' @param params A list of parameters, including 'linf', 'k', and 't0'.
-#' @param model Growth model function.
-#' @param age Vector of ages.
-#' @param cv Coefficient of variation for length at age.
-#' @param lmax Maximum length for calculations.
-#' @param bin Length bin width.
-#' @param reflen Reference length for calculating standard deviation (optional).
-#'
-#' @return An FLQuant object representing the inverse ALK matrix.
-#'
-#' @examples
-#' ialk <- invALK(params = c(linf = 60, k = 2.2
-
-#' @references
-#'   - `refs.bib`
-

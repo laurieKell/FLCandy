@@ -2,13 +2,13 @@ rfs=c("ssb0",            "b0",               "b0.",              "r0",         "
       "ssbtar",          "sprtar",           "ftar",             "biomasstar", 
       "ssbsprtar",       "fsprtar",          "catchsprtar",      "ssbmsy", 
       "sprmsy",          "fmsy",             "msy",              "retainmsy",
-      "msy") 
+      "msy","fmsy2") 
 names(rfs)=tolower(
     c("SSB_Unfished",    "TotBio_Unfished",  "SmryBio_Unfished", "Recr_Unfished", "SSB_Initial","SSB_Virgin",
       "SSB_Btgt",        "SPR_Btgt",         "Fstd_Btgt",        "TotYield_Btgt", 
       "SSB_SPRtgt",      "Fstd_SPRtgt",      "TotYield_SPRtgt",  "SSB_MSY",  
       "SPR_MSY",         "Fstd_MSY",         "TotYield_MSY",     "RetYield_MSY",
-      "Dead_Catch_MSY")) 
+      "Dead_Catch_MSY","annF_MSY")) 
 
 # Convert nested list to list of data frames
 unnest <- function(x) {
@@ -29,8 +29,34 @@ unnest <- function(x) {
   
   return(result)}
 
+unnest<-function(nested_list) {
+  # Validation
+  if (!is.list(nested_list)) stop("Input must be a list")
+  
+  # Get unique inner names across all elements
+  inner_names=unique(unlist(lapply(nested_list, names)))
+  outer_names=names(nested_list)
+  
+  # Initialize result list
+  result=setNames(vector("list", length(inner_names)), inner_names)
+  
+  # Process each inner element
+  result=lapply(inner_names, function(inner_name) {
+    do.call(rbind, Map(function(outer_name, data) {
+      if (inner_name %in% names(data)) {
+        df=data[[inner_name]]
+        df$Scenario=outer_name
+        df
+      }
+    }, outer_names, nested_list))
+  })
+  
+  # Set names and return
+  names(result)=inner_names
+  result}
 
-getPath <- function(file) {
+
+getPath<-function(file) {
   if (!grepl(.Platform$file.sep,file))
     res <- getwd()
   else
@@ -69,11 +95,13 @@ getRf<-function(x){
   x$derived_quants$label=tolower(x$derived_quants$label)
   
   rf=subset(x$derived_quants,
-            label%in%tolower(c("SSB_Unfished","TotBio_Unfished","SSB_Initial","SSB_MSY","TotYield_MSY","Dead_Catch_MSY","Fstd_MSY")))[,1:5]
+            label%in%tolower(c("SSB_Unfished","TotBio_Unfished","SSB_Initial","SSB_MSY",
+                               "TotYield_MSY","Dead_Catch_MSY","Fstd_MSY","annF_MSY")))
   rf[,1]=rfs[rf[,1]]
   dimnames(rf)[[1]]=rf[,1]
   
-  cbind("quant"=c("hat","var"),as.data.frame(t(rf[,2:3])))}
+  cbind("quant"=c("hat","var"),as.data.frame(t(rf[,2:3])))
+  }
 
 getAic<-function(x){
 

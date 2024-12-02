@@ -1,3 +1,43 @@
+#' Calculate Virgin and MSY Reference Points from Production Curves
+#' 
+#' @description
+#' Calculates reference points by comparing unfished (virgin) state with Maximum 
+#' Sustainable Yield (MSY) state using production curves. Extracts metrics for fishing
+#' mortality, catch, and exploitable biomass at both states.
+#'
+#' @param object An FLBRP object containing stock-recruitment and yield calculations
+#'
+#' @details
+#' The method:
+#' - Sets F=0 for virgin state and F=FMSY for MSY state
+#' - Calculates key metrics (F, catch, exploitable biomass) at both states
+#' - Excludes SSB metrics from final output
+#'
+#' @return
+#' A named numeric vector containing:
+#' - virgin.f: Fishing mortality in virgin state (≈0)
+#' - virgin.catch: Catch in virgin state
+#' - virgin.ebiomass: Exploitable biomass in virgin state
+#' - msy.f: Fishing mortality at MSY
+#' - msy.catch: Catch at MSY
+#' - msy.ebiomass: Exploitable biomass at MSY
+#'
+#' @examples
+#' \dontrun{
+#' data(ple4)
+#' brp <- FLBRP(ple4)
+#' ref_pts <- msyVirgin(brp)
+#' }
+#'
+#' @importFrom FLCore fbar ssb catch metrics model.frame refpts
+#'
+#' @export
+#'
+#' @aliases msyVirgin,FLBRP-method
+#'
+#' @seealso
+#' \code{\link{FLBRP}} \code{\link{refpts}} \code{\link{metrics}}
+#' 
 setMethod("msyVirgin", signature(object="FLBRP"),
           function(object) {
             

@@ -1,115 +1,54 @@
-#' @title Leslie matrix
+#' Leslie Matrix Population Model
 #' 
-#' @description Creates a Leslie Matrix from a \code{FLBRP} object that represents a population at equilibrium
-#'  
-#' @param object \code{FLBRP}
-#' @param fbar \code{numeric} F at whicj survival calculated
-#' @param numbers \code{boolean} numbers or biomass, numbers bt default
-#' @param ... any other arguments
+#' @description 
+#' Creates a Leslie Matrix from population parameters to model age-structured population 
+#' dynamics at equilibrium. Calculates survival rates and fecundity to estimate 
+#' population growth rate (r).
+#'
+#' @param object An object of class FLBRP, numeric, FLQuant, FLPar, FLBiol, or FLStock
+#' @param fec Fecundity vector (optional)
+#' @param f Fishing mortality rate (default: crash F from reference points)
+#' @param numbers Logical; if TRUE returns numbers, if FALSE returns biomass (default: TRUE)
+#'
+#' @details
+#' The Leslie matrix (L) is constructed as:
+#' - First row contains fecundity values
+#' - Sub-diagonal contains survival probabilities
+#' - Plus group handled in last row
 #' 
-#' @aliases leslie leslie-method leslie,FLBRP-method
+#' Reference points derived as:
+#' - Fmsy = r/2 (general) or 0.87M (teleosts) or 0.41M (sharks)
+#' - Flim = 1.5Fmsy
+#' - Fcrash = 2Fmsy
+#'
+#' @return
+#' A matrix (for numeric inputs) or array (for FLR objects) containing the Leslie matrix
+#'
+#' @examples
+#' \dontrun{
+#' # Simple numeric example
+#' survivors <- cumprod(rep(0.5, 10))
+#' fec <- c(0, rep(1, 9))
+#' L <- leslie(survivors, fec)
 #' 
-#' @return \code{matrix}  
-#' 
+#' # FLR example
+#' eql <- lhEql(lhPar(FLPar(linf=100)))
+#' L <- leslie(eql)
+#' }
+#'
+#' @importFrom methods setMethod
+#' @importFrom FLCore fbar harvest m mat stock.n stock.wt harvest.spwn m.spwn
+#'
 #' @export
 #' @docType methods
 #' @rdname leslie
+#'
+#' @aliases leslie leslie-method leslie,FLBRP-method leslie,numeric-method 
+#' leslie,FLQuant-method leslie,FLPar-method leslie,FLBiol-method leslie,FLStock-method
+#'
+#' @seealso 
+#' \code{\link{lhRef}} \code{\link{lhPar}} \code{\link{lhEql}}
 #' 
-#' @seealso \code{\link{lhRef}}, \code{\link{lhPar}}, \code{\link{lhEql}}
-#'  
-#' 
-#' @examples
-#' \dontrun{
-#' eql=lhEql(lhPar(FLPar(linf=100)))
-#' leslie(eql)
-#' }
-#' 
-### Leslie Methods to estimate "r" #############################################
-### Should reuse same code, and be dispatched on "FLObjects", i.e.
-### FLPar
-### FLBiol
-### FLStock
-### FLBRP
-##  calculated as the log of the eigen value of L, and 
-## should be calculated for different levels of survival, i.e. Zs
-
-### Fishing mortality reference points can be derived as
-# Fmsy=r/2, or as 
-# Fmsy=0.87M for teleosts and 
-# Fmsy=0.41M for sharks. 
-
-### Limit reference points can be derived as 
-# Flim = 1.5Fmsy and 
-# Fcrash = 2Fmsy.  
-
-leslieFn<-function(object,fec){
-      if (length(object)!=length(fec)) stop("Vectors differ in length")
-      
-      L=matrix(0,length(object),length(object))
-      diag(L[-1,-length(object)])=object[-length(object)]
-      L[1,]=fec
-      
-      #plusgroup
-      L[length(object),length(object)]=L[length(object),length(object)-1]
-      L}
-
-if(FALSE){
-survivors=cumprod(rep(0.5,10))
-fec      =c(0,rep(1,9))
-L        =leslieFn(survivors,fec)
-L
-  with(subset(mvln$kb,year==2021),cov(log(stock),log(harvest)))
-with(subset(mvln$kb,year==2021),cov(log(stock),log(harvest)))
-demogR:::eigen.analysis(L)
-}
-
-setMethod("leslie", signature(object="numeric",fec="numeric"),  
-          function(object,fec) {
-                 leslieFn(object,fec)})
-
-if(FALSE){
-L=leslie(survivors,fec)
-eigen.analysis(L)
-}
-
-setMethod("leslie", signature(object="FLBRP",  fec="missing"),  
-          function(object,f=refpts(object)["crash","harvest"]) {
-            
-            # need to coerce to FLQuant and keep iters      
-            fbar(object)=as.FLQuant(f[drop=T])
-            
-            survivors=exp(-m(object)-harvest(object))
-            fec      =stock.n(object)%*%
-              exp(-(harvest(object)%*%(harvest.spwn(object))%+%
-                      m(      object)%*%(m.spwn(      object))))%*%
-              stock.wt(object)%*%mat(object)
-            
-            L=array(0,c(dim(fec)[1],dim(fec)[1],dim(fec)[6]))
-            for (i in seq(dims(object)$iter))
-              L[,,i]=leslieFn(iter(survivors,i)[drop=TRUE],iter(fec,i)[drop=TRUE])
-            
-            
-            return(L)})
-
-if(FALSE){
-L=leslie(ple4brp)
-eigen.analysis(L[,,1,drop=T])
-}
-
-setMethod("leslie", signature(object="FLQuant",fec="FLQuant"),  function(object,fec) {
-  })
-  
-setMethod("leslie", signature(object="FLPar",  fec="missing"),  function(object,f=function(x) refpts(object)["crash","harvest"]) {
-  res=lhEql(lhPar(object))
-  
-  leslie(res,f=f(res))
-  })
-
-setMethod("leslie", signature(object="FLBiol", fec="missing"),  function(object) {
- })
-setMethod("leslie", signature(object="FLStock",fec="missing"),  function(object) {
- })
-
 
 if(FALSE){
 require(FLCore)

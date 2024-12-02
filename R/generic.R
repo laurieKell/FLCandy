@@ -1,3 +1,39 @@
+#' Production Type (PT) Method
+#' 
+#' @title Production Type Method for Surplus Production Models
+#'
+#' @description
+#' Estimates parameters of surplus production models using the PT method by deriving
+#' parameters from reference points and biomass ratios
+#'
+#' @param object Input object (FLPar, numeric, or FLBRP)
+#' @param shape Ratio of BMSY to virgin biomass (default: object["bmsy"]/object["v"])
+#' @param what Function to calculate biomass metric (default: ssb)
+#' @param ... Additional arguments passed to methods
+#'
+#' @return
+#' An FLPar object containing:
+#' - r: intrinsic growth rate
+#' - k: carrying capacity
+#' - p: shape parameter
+#' - msy: maximum sustainable yield
+#' - bmsy: biomass at MSY
+#' - fmsy: fishing mortality at MSY
+#' - virgin: unfished biomass
+#'
+#' @examples
+#' \dontrun{
+#' params <- FLPar(c(bmsy=500, msy=125, v=1000))
+#' pt(params)
+#' }
+#'
+#' @aliases pt pt-method pt,FLPar-method pt,numeric-method pt,FLBRP-method
+#'
+#' @export
+setGeneric("pt", 
+           function(object, ...) 
+             standardGeneric("pt"))
+
 #' Calculate the reference age for a FLBRP object.
 #'
 #' This function calculates the reference age for a FLBRP object.
@@ -153,31 +189,6 @@ setGeneric("processError", function(object, ...) standardGeneric("processError")
 #'
 #' @export
 setGeneric("tseries", function(object, ...) standardGeneric("tseries"))
-
-#' pt
-#'
-#' pt function
-#' 
-#' @param object \code{FLPar} or \code{numeric} with values for $b_{msy}$, $f_{msy}$ as a minimum; $msy$ and $v$ (virgin biomass) can also be provided. 
-#' @param shape \code{FLPar} or \code{numeric} the ratio of $b_{msy}$ to virgin biomass, by default is estimated from $b_{msy}$ and $v$ in \code{object} 
-#' @param ... other arguments
-#' 
-#' @export
-#' @docType methods
-#' @rdname pt
-#' 
-#' @aliases pt pt-method pt,FLPar-method
-#' 
-#' @seealso \code{\link{gompertz}}
-#' 
-#' @examples
-#' \dontrun{
-#' params=FLPar(a50=4,ato95=1,asym=1.0)
-#' age=FLQuant(1:10,dimnames=list(age=1:10))
-#' pt(age,params)
-#' }
-setGeneric("pt", function(object,...)  standardGeneric("pt"))
-
 
 setGeneric("globalMsy", function(object, ...)
   standardGeneric("globalMsy"))
@@ -929,8 +940,8 @@ setGeneric("rocFn", function(labels, scores) standardGeneric("rocFn"))
 #'   }
 #' 
 #' @export
-setGeneric("roc", function(state, indicator, ...) {
-  standardGeneric("roc")
+setGeneric("roc2", function(state, indicator, ...) {
+  standardGeneric("roc2")
 })
 
 ################################################################################
@@ -1009,3 +1020,9 @@ setGeneric("rebuild", function(object, targetF=NULL, targetSSB=NULL,
 setGeneric("rebuildTime", function(object, nx=101) {
   standardGeneric("rebuildTime")
 })
+
+setGeneric("leslie", function(object, ...) standardGeneric("leslie"))
+setGeneric('plotLengths', function(x, ...) standardGeneric('plotLengths')) 
+setGeneric("curveSS", function(object) standardGeneric("curveSS"))
+
+

@@ -205,11 +205,6 @@ setMethod("FLifePar", signature(object="FLStocks"), function(object) {
   rtn
 })
 
-tryIt<-function(x){
-  rtn=try(x)
-  if ("try-error"%in%is(rtn)) return(NULL)
-  return(rtn)}
-
 kobeFn<-function(x){
   names(attributes(x)$eqsim)    =tolower(names(attributes(x)$eqsim))
   names(attributes(x)$benchmark)=tolower(names(attributes(x)$benchmark))

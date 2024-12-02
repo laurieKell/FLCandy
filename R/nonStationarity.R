@@ -92,7 +92,7 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
   transform(as.data.frame(rtn),year=as.numeric(dimnames(object)$year[iter]))[,-3]
   }
 
-processError<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel"),log=FALSE){
+processErrorFn<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel"),log=FALSE){
   
   eq=FLBRP(object)
   eq=propagate(eq,dim(object)[2])

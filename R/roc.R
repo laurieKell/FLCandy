@@ -1,4 +1,4 @@
-setMethod("roc",
+setMethod("roc2",
           signature(state = "numeric", indicator = "numeric"),
           function(state, indicator, ...) {
             order = order(indicator, decreasing = TRUE)
