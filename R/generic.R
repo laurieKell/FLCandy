@@ -476,21 +476,6 @@ setGeneric("FLifePar", function(object, ...) {
 })
 
 
-#' eqsim
-#'
-#' @description
-#' A generic function to extract EqSim reference points from FLStock objects
-#'
-#' @param object An FLStock or FLStocks object
-#' @param ... Additional arguments (not currently used)
-#'
-#' @return An FLPar object containing EqSim reference points
-#'
-#' @export
-setGeneric("eqsim", function(object, ...) {
-  standardGeneric("eqsim")
-})
-
 #' Extract FishLife Parameters
 #'
 #' @description

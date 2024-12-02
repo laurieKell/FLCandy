@@ -29,9 +29,10 @@
 #'
 #' @export
 
-tryIt <- function(x, silent = TRUE, default = NULL) {
+tryIt<-function(x, silent=TRUE, default=NULL) {
+  
   rtn=tryCatch(
-    expr = x,
+    expr=x,
     error<-function(e) {
       if (!silent) warning(e$message)
       default},
