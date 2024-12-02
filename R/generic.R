@@ -364,7 +364,7 @@ setGeneric("haupt", function(object, pars, lc, lmax, ...) {
 #' @export
 
 
-#' Extract Benchmark Reference Points
+#' benchmark
 #'
 #' @description
 #' A generic function to extract benchmark reference points from FLStock objects
@@ -420,7 +420,7 @@ setGeneric("FLifePar", function(object, ...) {
 })
 
 
-#' Extract EqSim Reference Points
+#' eqsim
 #'
 #' @description
 #' A generic function to extract EqSim reference points from FLStock objects
@@ -476,7 +476,7 @@ setGeneric("FLifePar", function(object, ...) {
 })
 
 
-#' Extract EqSim Reference Points
+#' eqsim
 #'
 #' @description
 #' A generic function to extract EqSim reference points from FLStock objects
@@ -506,7 +506,7 @@ setGeneric("fishlife", function(object, ...) {
   standardGeneric("fishlife")
 })
 
-#' Extract Benchmark Reference Points
+#' benchmark
 #'
 #' @description
 #' A generic function to extract benchmark reference points from FLStock objects
