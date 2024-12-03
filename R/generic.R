@@ -214,8 +214,6 @@ setGeneric("globalMsy", function(object, ...)
 #' @export hcrICES
 #' @docType methods
 #' 
-#' @rdname hcrICES
-#' 
 #' @return returns a \code{list} with \code{FLStock} and \code{FLPar} objects for the stock and HCR 
 #'
 #' @import FLCore 
@@ -227,7 +225,6 @@ setGeneric("globalMsy", function(object, ...)
 #' \dontrun{
 #' data(pl4)
 #' }
-#' 
 #' 
 setGeneric('hcrICES', function(object,eql,...) standardGeneric('hcrICES'))
 
@@ -518,6 +515,7 @@ setGeneric("fjuv", function(object, ...) standardGeneric("fjuv"))
 #' \dontrun{
 #' data(ple4)
 #' fjuv(ple4)}
+ 
 
 ################################################################################
 ## wmat                                                                       ##
@@ -546,6 +544,10 @@ setGeneric("wmat", function(object, ...) standardGeneric("wmat"))
 #' \dontrun{
 #' data(ple4)
 #' pos(ple4)}
+
+
+
+
 
 ################################################################################
 ## amat: age at a specific maturity                                           ##

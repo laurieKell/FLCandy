@@ -1,21 +1,5 @@
-setMethod("priors", signature(object="FLBRP"), function(object) {
-    if (!("priors" %in% names(attributes(object)))) {
-      warning("No priors attribute found for this FLBRP object.")
-    return(NULL)}
-    
-  attributes(object)$priors})
-
-setMethod("priors", signature(object="FLBRPs"), function(object) {
-  rtn=FLPars() 
-  for (i in objects){
-    if (!("priors" %in% names(attributes(object)))){
-       warning("No priors attribute found for this FLBRP object.")
-       rtn[[i]]=NULL}
-    else
-      rtn[[i]]=attributes(object)$priors}
-  
-  return(rtn)})  
-
+#' @title calculates priors for biomass dynamic models
+#' 
 #' @description Assign an FLPar object as an attribute to an FLBRP object
 #' using the '<-' operator.
 #'
@@ -39,6 +23,24 @@ setMethod("priors", signature(object="FLBRPs"), function(object) {
 #'     attributes(object,i)=value
 #' 
 #' return(object)})
+
+setMethod("priors", signature(object="FLBRP"), function(object) {
+  if (!("priors" %in% names(attributes(object)))) {
+    warning("No priors attribute found for this FLBRP object.")
+    return(NULL)}
+  
+  attributes(object)$priors})
+
+setMethod("priors", signature(object="FLBRPs"), function(object) {
+  rtn=FLPars() 
+  for (i in objects){
+    if (!("priors" %in% names(attributes(object)))){
+      warning("No priors attribute found for this FLBRP object.")
+      rtn[[i]]=NULL}
+    else
+      rtn[[i]]=attributes(object)$priors}
+  
+  return(rtn)})  
 
 setMethod("calcPriors", signature(object="FLBRP"), function(object) {
     # Extract reference points

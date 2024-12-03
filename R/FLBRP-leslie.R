@@ -1,4 +1,6 @@
-#' Leslie Matrix Population Model
+#' @title Leslie Matrix Population Model
+#' 
+#' @name leslie matrix
 #' 
 #' @description 
 #' Creates a Leslie Matrix from population parameters to model age-structured population 

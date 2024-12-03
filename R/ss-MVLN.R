@@ -1,3 +1,4 @@
+
 # sskobe.R - DESC
 # /home/mosqu003/sskobe.R
 
@@ -9,6 +10,9 @@
 # XX {{{
 # }}}
 
+#' @title sshat
+#' @name title
+#' 
 #' @examples
 #' library(ss3diags)
 #' 

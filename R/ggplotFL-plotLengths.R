@@ -1,3 +1,6 @@
+#' @title Length distributions
+#' @name plotLengths
+#' @rdname plotLengths
 #' @examples
 #' data(ple4)
 #' iak <- invALK(FLPar(linf=42, k=2.1, t0=0.1), age=1:10)

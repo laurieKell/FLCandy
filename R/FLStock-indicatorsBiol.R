@@ -1,3 +1,15 @@
+#' @title Age based indicators
+#' 
+
+#' @examples 
+#' \dontrun{
+#' library(FLCore)
+#' 
+#' data(ple4)
+#' 
+#' awa(ple4)
+#' }
+#' 
 setMethod("ssb", signature(object="FLStock"), function(object, ...) {
   
   for (i in names(list(...)))
@@ -125,15 +137,6 @@ setMethod("awa", signature(object="FLStock"),
           function(object){
             stock.wt(object)%*%quantMeans(stock.wt(object))})
 
-#' @examples 
-#' \dontrun{
-#' library(FLCore)
-#' 
-#' data(ple4)
-#' 
-#' awa(ple4)
-#' }
-#' 
 if (FALSE){
   plot(mcf(FLQuants(
     SSB   =ssb(ple4),
