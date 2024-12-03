@@ -4,10 +4,8 @@
 \alias{eqsim}
 \alias{eqsim,FLStock-method}
 \alias{eqsim,FLStocks-method}
-\title{Extract EqSim Reference Points}
+\title{eqsim}
 \usage{
-eqsim(object, ...)
-
 eqsim(object, ...)
 
 \S4method{eqsim}{FLStock}(object)
@@ -21,11 +19,7 @@ eqsim(object, ...)
 }
 \value{
 An FLPar object containing EqSim reference points
-
-An FLPar object containing EqSim reference points
 }
 \description{
-A generic function to extract EqSim reference points from FLStock objects
-
 A generic function to extract EqSim reference points from FLStock objects
 }

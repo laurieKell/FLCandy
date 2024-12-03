@@ -11,8 +11,6 @@
 \usage{
 tseries(object, ...)
 
-tseries(object, ...)
-
 \S4method{tseries}{FLBRP}(object)
 
 \S4method{tseries}{FLStock}(
@@ -53,38 +51,15 @@ A data frame containing time series of:
 \item m - Mean natural mortality
 }
 
-A data frame containing time series of:
-\itemize{
-\item catch - Catch values
-\item eb - Exploitable biomass
-\item ssb - Spawning stock biomass
-\item f - Fishing mortality (Fbar)
-\item h - Harvest rate (catch/ebiomass)
-\item m - Mean natural mortality
-}
-
 \code{FLQuants} object
 }
 \description{
 Creates a data frame of time series statistics from FLStock objects, including
 catch, ebiomass, SSB, fishing mortality, harvest rate, and mean natural mortality.
 
-Creates a data frame of time series statistics from FLStock objects, including
-catch, ebiomass, SSB, fishing mortality, harvest rate, and mean natural mortality.
-
 Calculates the surplus production and expected yield etc for the estinates of SSB and biomass
 }
 \examples{
-\dontrun{
-# For single stock
-data(ple4)
-ts1 <- tseries(ple4)
-
-# For multiple stocks
-stocks <- FLStocks(stock1=ple4, stock2=ple4)
-ts2 <- tseries(stocks)
-}
-
 \dontrun{
 # For single stock
 data(ple4)

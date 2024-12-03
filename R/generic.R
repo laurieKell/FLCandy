@@ -386,29 +386,6 @@ setGeneric("eqsim", function(object, ...) {
   standardGeneric("eqsim")
 })
 
-#' Calculate Exploitable Biomass
-#'
-#' @description
-#' Calculates the exploitable biomass from an FLStock object using selectivity-weighted
-#' catch weights and stock numbers.
-#'
-#' @param object An object of class FLStock
-#'
-#' @return An FLQuant object containing the exploitable biomass time series
-#'
-#' @details
-#' Exploitable biomass is based on weighting catch weights by selectivity normalised 
-#' by peak selectivity, then multiplying by stock numbers and summing across ages
-#'
-#' @examples
-#' \dontrun{
-#' data(ple4)
-#' eb <- ebiomass(ple4)
-#' }
-#'
-#' @export
-setGeneric("ebiomass", function(object) standardGeneric("ebiomass"))
-
 setGeneric('kobe',  function(path,method,...) standardGeneric('kobe'))
 
 #' Extract FLife Parameters

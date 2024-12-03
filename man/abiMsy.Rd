@@ -5,8 +5,6 @@
 \title{Calculate P(N) at FMSY for a FLBRP object.}
 \usage{
 abiMsy(object, ref = "msy", p = 0.9)
-
-abiMsy(object, ref = "msy", p = 0.9)
 }
 \arguments{
 \item{ref}{Reference point, e.g., "msy" (default) or "f0.1".}
@@ -17,11 +15,7 @@ abiMsy(object, ref = "msy", p = 0.9)
 }
 \value{
 An FLQuant object containing P(N) at FMSY.
-
-An FLQuant object containing P(N) at FMSY.
 }
 \description{
-This function calculates P(N) at FMSY for a FLBRP object.
-
 This function calculates P(N) at FMSY for a FLBRP object.
 }
