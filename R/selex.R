@@ -35,7 +35,7 @@ plotselage<- function(stk,nyears=5,year=NULL){
   Sa = as.data.frame(selage(stk,nyears=nyears,year=year))
   p = ggplot(data=(as.data.frame(catch.sel(stk[,ac(yr)]))),aes(x=age,y=data))+
     geom_line(aes(color = factor(year)))+ theme(legend.title=element_blank())+
-    ylab("Selectivity")+xlab("Age")+geom_line(data=Sa,aes(x=age,y=data),size=1)
+    ylab("Selectivity")+xlab("Age")+geom_line(data=Sa,aes(x=age,y=data),linewidth=1)
   return(p)  
 }
 # }}}
@@ -249,7 +249,7 @@ plotselex<- function(object,Sa=NULL,obs=NULL,compounds=FALSE){
   } else {
     p = p +scale_colour_discrete("S50")
   }
-  if(obs & length(pred)==1) p = p+geom_point(data=as.data.frame(Sa),aes(x=age,y=data), fill="white",shape=21,size=2)
+  if(obs & length(pred)==1) p = p+geom_point(data=as.data.frame(Sa),aes(x=age,y=data), fill="white",shape=21,linewidth=2)
   if(obs & length(pred)>1) p = p+geom_line(data=as.data.frame(Sa),aes(x=age,y=data),linetype="dashed")
   
   p = p +ylab("Selectivity")+xlab("Age")+

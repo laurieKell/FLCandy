@@ -9,7 +9,7 @@ lmax<-function(x){
 boot<-function(x,nits){
   
   rtn=adply(propagate(x,nits),c(2:6), function(x){  
-    reshape2::melt(table(sample(names(x), size=sum(x), replace=TRUE, prob=x)),
+    reshape2::melt(table(sample(names(x), linewidth=sum(x), replace=TRUE, prob=x)),
                    value.name="data")})    
   rtn=as.FLQuant(rtn)
   names(dimnames(rtn))[1]=names(x)[1]

@@ -1,3 +1,5 @@
+if(FALSE){
+  
 library(ggplot2)
 library(plyr)
 
@@ -54,7 +56,7 @@ ggplot(subset(F,Region!="Europe"))+
   geom_polygon(aes(x,y,fill=Zone),data=data.frame(x   =rep(c(1950,2012,2012,1950,1950),3),
                                              y   =c(0,0,1,1,0, 1,1,1.2,1.2,1, 1.2,1.2,2,2,1.2),
                                             Zone=rep(c("UnderFished","Sustainable","Overfished"),each=5)))+
-  geom_line( aes(year,F*2,col=Region),size=2)+
+  geom_line( aes(year,F*2,col=Region),linewidth=2)+
   geom_point(aes(year,F*2),data=merge(F,ref))+
   scale_fill_manual(values=c("red","green","blue"))+
   xlab("Year")+ylab(expression(F:F[MSY]))
@@ -64,7 +66,7 @@ sbh<-function(S,a,b,c) a/(1+(b/S)^c)
 
 ggplot(data.frame(ssb=seq(1,10,length.out=100),rec=sbh(seq(1,10,length.out=100),a=1,b=25,c=0.5)))+
   geom_line(aes(ssb,rec))
-
+}
 
 
 

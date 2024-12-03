@@ -61,11 +61,11 @@ setMethod("plotLengths", signature(x="FLQuant"),
                     axis.ticks.x = element_blank()) +
               # mean
               # geom_vline(aes(xintercept=mean), color=palette[1], linewidth=1, alpha=0.5) +
-              # geom_point(aes(x=mean, y=1), color=palette[1], size=2, alpha=0.5) + 
+              # geom_point(aes(x=mean, y=1), color=palette[1], linewidth=2, alpha=0.5) + 
               # median
               # geom_vline(aes(xintercept=median), color=palette[2], linewidth=1,
               #   alpha=0.5) +
-              # geom_point(aes(x=median, y=1), color=palette[2], size=2, alpha=0.5) +
+              # geom_point(aes(x=median, y=1), color=palette[2], linewidth=2, alpha=0.5) +
               xlim(c(0,NA)) +
               theme(legend.position="none")
             
