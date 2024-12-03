@@ -1,3 +1,4 @@
+
 lfm<-function(lc,linf) 0.75*lc+0.25*linf
 
 lmax<-function(x){

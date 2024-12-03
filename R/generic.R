@@ -179,7 +179,6 @@ setGeneric("globalMsy", function(object, ...)
   standardGeneric("globalMsy"))
 
 # globalMsy {{{
-
 #' @rdname globalMsy
 #' @description Calculates the global MSY, i.e. the largest catch that can be made with a knife edge selection pattern
 #' @examples

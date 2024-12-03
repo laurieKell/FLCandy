@@ -32,7 +32,8 @@
 #' blim_ref <- blim(brp, ratio=0.3)
 #' }
 #'
-#' @importFrom FLCore refpts computeRefpts FLPar
+#' @importFrom FLBRP refpts computeRefpts 
+#' @importFrom FLCore FLPar
 #'
 #' @export
 #'

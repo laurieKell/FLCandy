@@ -7,8 +7,6 @@
 \usage{
 ebiomass(object)
 
-ebiomass(object)
-
 \S4method{ebiomass}{FLStock}(object)
 }
 \arguments{
@@ -16,29 +14,16 @@ ebiomass(object)
 }
 \value{
 An FLQuant object containing the exploitable biomass time series
-
-An FLQuant object containing the exploitable biomass time series
 }
 \description{
-Calculates the exploitable biomass from an FLStock object using selectivity-weighted
-catch weights and stock numbers.
-
 Calculates the exploitable biomass from an FLStock object using selectivity-weighted
 catch weights and stock numbers.
 }
 \details{
 Exploitable biomass is based on weighting catch weights by selectivity normalised
 by peak selectivity, then multiplying by stock numbers and summing across ages
-
-Exploitable biomass is based on weighting catch weights by selectivity normalised
-by peak selectivity, then multiplying by stock numbers and summing across ages
 }
 \examples{
-\dontrun{
-data(ple4)
-eb <- ebiomass(ple4)
-}
-
 \dontrun{
 data(ple4)
 eb <- ebiomass(ple4)

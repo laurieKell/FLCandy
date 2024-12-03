@@ -1,10 +1,3 @@
-#### Exploitable biomass #######################################################
-ebiomass<-function(object){
-  sel=harvest(object)
-  wt =catch.wt(object)%*%sel%/%fapex(sel)
-  eb.wt =qmax(wt,0.000001)
-  apply(eb.wt%*%stock.n(object),2:6,sum)}
-
 #### Production functions ######################################################
 prdFn<-function (params, biomass=0, mdl="pellat") {
   if (!is.FLQuant(biomass)) 

@@ -9,10 +9,8 @@
 #' @examples
 #' data(ple4)
 #' vonbert(linf = 35, k = 0.352, t0 = -0.26, age = 1:14)
-
 #' vonbert
 #'
-#' @rdname growth-models
 #' @description Von Bertalanffy growth model.
 #'
 #' @param linf Asymptotic length.

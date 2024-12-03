@@ -1,4 +1,4 @@
-#' @title 
+#' @title annualise
 #' 
 #' @description Takes an `FLStock` with seasons and collapses into years
 #'
