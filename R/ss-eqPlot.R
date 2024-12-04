@@ -17,7 +17,7 @@ require(r4ss)
 setMethod("curveSS", signature(object="list"), function(object){
   eqlYield  =object[["equil_yield"]]
   timeseries=object[["timeseries"]]
-  dq        =object[["derived_quants"]][unique(tmp$derived_quants$Label)[210:226],]
+  dq        =object[["derived_quants"]][unique(object$derived_quants$Label)[210:226],]
   
   # Filter and prepare data for plotting
   ts=timeseries %>%
@@ -47,4 +47,4 @@ setMethod("curveSS", signature(object="list"), function(object){
   triangle=data.frame(x=c(rfs$bmsy, rfs$bmsy, rfs$bmsy*maxY/rfs$msy, rfs$bmsy),
                       y=c(rfs$msy,      maxY,                  maxY, rfs$msy))
   
-  return(list(ts=ts,eql=eql,rfs=rfs,trgl=triangle,dq=dq))})
+  return(list(tseries=ts,curve=eql,refpts=rfs,triangle=triangle,derived=dq))})
