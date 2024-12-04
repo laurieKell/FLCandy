@@ -592,10 +592,10 @@ equivalentarea <- function(z, w = 1){
 
 
 # Load the grDevices and rgeos packages
-library(grDevices)
-library(rgeomstats)
-library(sp)
-library(sf)
+require(grDevices)
+require(rgeomstats)
+require(sp)
+require(sf)
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>#
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>#

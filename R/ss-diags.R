@@ -1,6 +1,6 @@
 # Required packages
-library(ss3diags)
-library(r4ss)
+require(ss3diags)
+require(r4ss)
 
 # Function to run SS3 diagnostics
 ssDiagnostics<-function(path, name, plot = TRUE) {

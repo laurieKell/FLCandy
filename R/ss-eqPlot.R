@@ -12,8 +12,7 @@ require(r4ss)
 #' @return A list containing processed time series data, equilibrium yield,
 #'  reference points, and triangle data.
 #' @examples
-#' # Assuming 'ss_output' is an instance of StockSynthesisOutput
-#' # result <- curveSS(ss_output)
+#' # Assuming 'ss_output' is an instance of StockSynthesisOut#' # result <- curveSS(ss_output)
 #' @export
 setMethod("curveSS", signature(object="list"), function(object){
   eqlYield  =object[["equil_yield"]]
