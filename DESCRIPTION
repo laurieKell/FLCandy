@@ -1,7 +1,7 @@
 Package: FLCandy
 Type: Package
 Title: Candidate methods for FLR
-Version: 1.5.0
+Version: 1.5.1
 Author: Laurence Kell
 Maintainer: The package maintainer <laurie@kell.es>
 Description: Contains prototypes for FLR and methods under development.
