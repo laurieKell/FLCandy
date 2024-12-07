@@ -205,13 +205,11 @@ setMethod("FLifePar", signature(object="FLStocks"), function(object) {
   rtn
 })
 
-kobeFn<-function(x){
-  names(attributes(x)$eqsim)    =tolower(names(attributes(x)$eqsim))
-  names(attributes(x)$benchmark)=tolower(names(attributes(x)$benchmark))
-  
-  FLQuants(x, "stock"  =function(x) ssb(x)%/%eqsim(      x)["bmsy"],
-           "harvest"=function(x) fbar(x)%/%benchmark(x)["fmsy"])}
-
 setMethod( 'kobe',  signature(path='FLStock',method="missing"), 
-           function(path,method) {tryIt(kobeFn(path))})
-
+           function(path,method){ 
+               names(attributes(path)$eqsim)    =tolower(names(attributes(path)$eqsim))
+               names(attributes(path)$benchmark)=tolower(names(attributes(path)$benchmark))
+               
+               FLQuants(path, "stock"  =function(x) ssb(x)%/%eqsim(      x)["bmsy"],
+                              "harvest"=function(x) fbar(x)%/%benchmark(x)["fmsy"])})
+           

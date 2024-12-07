@@ -94,10 +94,10 @@ adjust<-function (object) {
   else
     landings.n(object)[flag] = catch.n(object)
                                 
-  units(catch.n(object)) = un
-  units(landings.n(object)) = un
-  units(discards.n(object)) = un
-  units(catch.wt(object)) = uwt
+  units(catch.n(object))     = un
+  units(landings.n(object))  = un
+  units(discards.n(object))  = un
+  units(catch.wt(object))    = uwt
   units(landings.wt(object)) = uwt
   units(discards.wt(object)) = uwt
   catch(object) = computeCatch(object,"all")
@@ -120,15 +120,15 @@ qp<-function(stk,eql){
     cbind(What="Catch.wt",merge( model.frame(FLQuants("FLStock"=catch.wt(stk)),drop=T),
                                   transform(model.frame(FLQuants("FLBRP"  =catch.wt(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
     cbind(What="Stock.n",merge( model.frame(FLQuants("FLStock"=stock.n(stk)),drop=T),
-                                 transform(model.frame(FLQuants("FLBRP"  =stock.n(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
+                                 transform(model.frame(FLQuants("FLBRP"  =stock.n(eql)),drop=T),  age=age%/%4,season=age-4*(age%/%4)+1))),
     cbind(What="Catch.n",merge( model.frame(FLQuants("FLStock"=catch.n(stk)),drop=T),
-                                 transform(model.frame(FLQuants("FLBRP"  =catch.n(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
+                                 transform(model.frame(FLQuants("FLBRP"  =catch.n(eql)),drop=T),  age=age%/%4,season=age-4*(age%/%4)+1))),
     cbind(What="M",      merge( model.frame(FLQuants("FLStock"=m(stk)),drop=T),
-                                 transform(model.frame(FLQuants("FLBRP"  =m(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
+                                 transform(model.frame(FLQuants("FLBRP"  =m(eql)),drop=T),        age=age%/%4,season=age-4*(age%/%4)+1))),
     cbind(What="Mat",    merge( model.frame(FLQuants("FLStock"=mat(stk)),drop=T),
-                                 transform(model.frame(FLQuants("FLBRP"  =mat(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))),
+                                 transform(model.frame(FLQuants("FLBRP"  =mat(eql)),drop=T),      age=age%/%4,season=age-4*(age%/%4)+1))),
     cbind(What="Harvest",merge( model.frame(FLQuants("FLStock"=harvest(stk)),drop=T),
-                                 transform(model.frame(FLQuants("FLBRP"  =harvest(eql)),drop=T),age=age%/%4,season=age-4*(age%/%4)+1))))
+                                 transform(model.frame(FLQuants("FLBRP"  =harvest(eql)),drop=T),  age=age%/%4,season=age-4*(age%/%4)+1))))
   
 }
 
