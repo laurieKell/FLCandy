@@ -10,26 +10,7 @@ names(rfs)=tolower(
       "SPR_MSY",         "Fstd_MSY",         "TotYield_MSY",     "RetYield_MSY",
       "Dead_Catch_MSY","annF_MSY")) 
 
-# Convert nested list to list of data frames
-unnest <- function(x) {
-  # Get names from inner lists
-  Inner = unique(unlist(lapply(x, names)))
-  Outer = names(x)
-  
-  # Create result list with one element per inner name
-  result = setNames(vector("list", length(Inner)), Inner)
-  
-  # Combine corresponding data frames and add outer list name
-  for (name in Inner) {
-    result[[name]] = do.call(rbind, lapply(seq_along(x), function(i) {
-      df= x[[i]][[name]]
-      df$Scenario = Outer[i]
-      return(df)}
-      ))}
-  
-  return(result)}
-
-unnest<-function(nested_list) {
+unnest<-function(nested_list,scenario="Scenario") {
   # Validation
   if (!is.list(nested_list)) stop("Input must be a list")
   
@@ -45,7 +26,7 @@ unnest<-function(nested_list) {
     do.call(rbind, Map(function(outer_name, data) {
       if (inner_name %in% names(data)) {
         df=data[[inner_name]]
-        df$Scenario=outer_name
+        df[,scenario]=outer_name
         df
       }
     }, outer_names, nested_list))
