@@ -19,6 +19,5 @@ Extracts yield and surplus production from Stock Synthesis output
 processes Stock Synthesis output to calculate yield and surplus production.
 }
 \examples{
-# Assuming 'ss_output' is an instance of StockSynthesisOutput
-# result <- curveSS(ss_output)
+# Assuming 'ss_output' is an instance of StockSynthesisOut#' # result <- curveSS(ss_output)
 }

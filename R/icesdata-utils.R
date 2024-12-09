@@ -205,6 +205,41 @@ setMethod("FLifePar", signature(object="FLStocks"), function(object) {
   rtn
 })
 
+#' Extracts Kobe Indicators  (SSB/BMSY and F/FMSY)
+#' 
+#' @description 
+#' Calculates SSB and fishing mortality ratios (SSB/BMSY and F/FMSY)
+#' for Kobe plot from an FLStock object.
+#' 
+#' @param path An object of class FLStock containing stock assessment results
+#' @param method Not used, included for method consistency
+#' 
+#' @return An FLQuants object containing:
+#' \itemize{
+#'   \item stock: Time series of SSB/BMSY ratios
+#'   \item harvest: Time series of F/FMSY ratios
+#' }
+#' 
+#' @details 
+#' The method requires that the FLStock object has:
+#' \itemize{
+#'   \item eqsim attribute containing BMSY reference point
+#'   \item benchmark attribute containing FMSY reference point
+#' }
+#' 
+#' @export
+#' @rdname kobe
+#' 
+#' @examples
+#' \dontrun{
+#' data(ple4)
+#' kobe_indicators <- kobe(ple4)
+#' }
+#' 
+#' @seealso 
+#' \code{\link[FLCore]{FLStock}}, \code{\link[FLCore]{FLQuants}}
+#' 
+#' @references 
 setMethod( 'kobe',  signature(path='FLStock',method="missing"), 
            function(path,method){ 
                names(attributes(path)$eqsim)    =tolower(names(attributes(path)$eqsim))

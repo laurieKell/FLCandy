@@ -1,3 +1,43 @@
+#' Calculate Pella-Thompson Production Model Parameters
+#' 
+#' @description 
+#' Methods to calculate parameters (r, K, p) for the Pella-Thompson production model
+#' from reference points (FMSY, BMSY, B0). Multiple methods are provided for different
+#' input object classes.
+#' 
+#' @param object Input object of class 'FLPar', 'FLBRP', or 'numeric'
+#' @param interval Numeric vector of length 2 specifying the interval for shape parameter optimization.
+#'                Default c(1.1, 10)
+#' 
+#' @return An FLPar object containing:
+#' \itemize{
+#'   \item r - Intrinsic rate of population growth
+#'   \item k - Carrying capacity
+#'   \item p - Shape parameter
+#' }
+#' 
+#' @details
+#' The methods estimate Pella-Thompson model parameters using different input types:
+#' \itemize{
+#'   \item FLPar: Requires fmsy, bmsy, and k parameters
+#'   \item FLBRP: Extracts reference points from FLBRP object
+#'   \item numeric: Requires named vector with fmsy, bmsy, and b0
+#' }
+#' 
+#' @export
+#' @rdname pellaTparams
+#' 
+#' @examples
+#' # Using numeric vector
+#' refs <- c(fmsy=0.2, bmsy=1000, b0=2000)
+#' pellaTparams(refs)
+#' 
+#' @references
+#' Pella, J.J. and Tomlinson, P.K. (1969) A generalized stock production model. 
+#' Inter-American Tropical Tuna Commission Bulletin 13: 419-496
+#' 
+#' @seealso 
+#' \code{\link[FLCore]{FLPar}}, \code{\link[FLCore]{FLBRP}}
 #' @rdname pellaTparams
 setMethod("pellaTparams", signature(object="FLPar"),
           function(object, interval=c(1.1,10)) {
