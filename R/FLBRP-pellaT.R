@@ -88,7 +88,7 @@ setMethod("pellaTparams", signature(object="FLBRP"),
             params=FLPar(
               fmsy=rfpts["msy","harvest"],
               bmsy=rfpts["msy","ssb"],
-              b0=rfpts["virgin","ssb"],
+              k   =rfpts["virgin","ssb"],
               iter=dim(rfpts)[3])
             
             pellaTparams(params, interval=interval)

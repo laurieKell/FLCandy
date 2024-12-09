@@ -248,3 +248,8 @@ setMethod( 'kobe',  signature(path='FLStock',method="missing"),
                FLQuants(path, "stock"  =function(x) ssb(x)%/%eqsim(      x)["bmsy"],
                               "harvest"=function(x) fbar(x)%/%benchmark(x)["fmsy"])})
            
+setMethod( 'kobe',  signature(path='FLBRP',method="missing"), 
+           function(path,method){ 
+             
+             FLQuants(path, "stock"  =function(x) ssb.obs( x)%/%refpts(x)["msy","ssb"],
+                            "harvest"=function(x) fbar.obs(x)%/%refpts(x)["msy","harvest"])})

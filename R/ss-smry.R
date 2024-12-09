@@ -10,81 +10,31 @@ names(rfs)=tolower(
       "SPR_MSY",         "Fstd_MSY",         "TotYield_MSY",     "RetYield_MSY",
       "Dead_Catch_MSY","annF_MSY")) 
 
-#' Unnest a Nested List Structure
-#' 
-#' @description 
-#' Converts a nested list structure into a list of data frames, combining inner elements
-#' across outer list levels while preserving structure information.
-#' 
-#' @param object A nested list structure to unnest
-#' @param scenario Character. Name of the column to store outer list names. Default "Scenario"
-#' 
-#' @return A list of data frames where:
-#' \itemize{
-#'   \item Each element corresponds to a unique inner list name
-#'   \item Data frames include a scenario column identifying the outer list source
-#'   \item Row-bound data from corresponding inner elements across all outer list elements
-#' }
-#' 
-#' @details
-#' The function handles nested list structures by:
-#' \itemize{
-#'   \item Identifying unique inner element names across all outer list elements
-#'   \item Combining corresponding inner elements from different outer list elements
-#'   \item Adding a scenario column to track the source of each row
-#'   \item Preserving the original data structure within each inner element
-#' }
-#' 
-#' @export
-#' @rdname unnest
-#' 
-#' @examples
-#' # Create nested list
-#' nested <- list(
-#'   ScenA = list(
-#'     data1 = data.frame(x = 1:2, y = letters[1:2]),
-#'     data2 = data.frame(z = 3:4)
-#'   ),
-#'   ScenB = list(
-#'     data1 = data.frame(x = 5:6, y = letters[5:6]),
-#'     data2 = data.frame(z = 7:8)
-#'   )
-#' )
-#' 
-#' # Unnest the structure
-#' result <- unnest(nested)
-setGeneric("unnest", function(object, scenario="Scenario") 
-  standardGeneric("unnest"))
-
-#' @rdname unnest
-setMethod("unnest", 
-          signature(object="list"),
-          function(object, scenario="Scenario") {
-            # Validation
-            if (!is.list(object)) stop("Input must be a list")
-            
-            # Get unique inner names across all elements
-            inner_names <- unique(unlist(lapply(object, names)))
-            outer_names <- names(object)
-            
-            # Initialize result list
-            result <- setNames(vector("list", length(inner_names)), inner_names)
-            
-            # Process each inner element
-            result <- lapply(inner_names, function(inner_name) {
-              do.call(rbind, Map(function(outer_name, data) {
-                if (inner_name %in% names(data)) {
-                  df <- data[[inner_name]]
-                  df[,scenario] <- outer_name
-                  df
-                }
-              }, outer_names, object))
-            })
-            
-            # Set names and return
-            names(result) <- inner_names
-            result
-          })
+unnest<-function(nested_list,scenario="Scenario") {
+  # Validation
+  if (!is.list(nested_list)) stop("Input must be a list")
+  
+  # Get unique inner names across all elements
+  inner_names=unique(unlist(lapply(nested_list, names)))
+  outer_names=names(nested_list)
+  
+  # Initialize result list
+  result=setNames(vector("list", length(inner_names)), inner_names)
+  
+  # Process each inner element
+  result=lapply(inner_names, function(inner_name) {
+    do.call(rbind, Map(function(outer_name, data) {
+      if (inner_name %in% names(data)) {
+        df=data[[inner_name]]
+        df[,scenario]=outer_name
+        df
+      }
+    }, outer_names, nested_list))
+  })
+  
+  # Set names and return
+  names(result)=inner_names
+  result}
 
 getPath<-function(file) {
   if (!grepl(.Platform$file.sep,file))

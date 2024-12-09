@@ -105,6 +105,8 @@ jabbaExtractFn<-function(x) {
     if (!is.null(x$fit)) x$fit$kbtrj else NULL
   }, error = function(e) NULL)
   
+  names(trajectory)[names(trajectory)=="yr"]
+  
   # Safely extract priors
   priors <- tryCatch({
     if (!is.null(x$fit$settings)) {
@@ -152,6 +154,8 @@ jabbaExtractList<-function(jabbaList) {
       rbindlist(lapply(results, function(x) x$priors), fill=TRUE) else NULL
   )
   
+  names(combined$trajectory)[names(combined$trajectory)=="yr"]
+  
   return(combined)
 }
 
@@ -159,9 +163,9 @@ jabbaExtractLists<-function(listOflists) {
   library(data.table)
   
   # Initialize empty lists for each component
-  allPosteriors <- list()
-  allTrajectory <- list()
-  allPriors <- list()
+  allPosteriors=list()
+  allTrajectory=list()
+  allPriors    =list()
   
   # Loop through the outer list
   for(.id in names(listOflists)) {
@@ -179,7 +183,7 @@ jabbaExtractLists<-function(listOflists) {
       if (!is.null(res$posteriors)) {
         res$posteriors <- cbind(
           .id=.id,
-          innerList=Scenario,
+          Scenario=Scenario,
           as.data.frame(res$posteriors))
         allPosteriors[[paste(.id, Scenario, sep="_")]] <- res$posteriors
       }
@@ -208,6 +212,9 @@ jabbaExtractLists<-function(listOflists) {
     trajectory = if (length(allTrajectory) > 0) rbindlist(allTrajectory, fill=TRUE) else NULL,
     priors = if (length(allPriors) > 0) rbindlist(allPriors, fill=TRUE) else NULL
   )
+  
+  
+  names(combined$trajectory)[names(combined$trajectory)=="yr"]
   
   return(combined)}
 

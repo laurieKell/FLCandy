@@ -1,45 +1,35 @@
-#' Safe Expression Evaluation with Error Handling
+#' Safely Evaluate an Expression
 #' 
-#' @description
-#' Safely evaluates an expression and provides flexible error handling with customizable
-#' default values and warning message control.
-#'
-#' @param x An R expression to be evaluated
-#' @param silent Logical; if FALSE, displays warning messages for errors and warnings (default: TRUE)
-#' @param default The value to return if evaluation fails (default: NULL)
-#'
-#' @return
-#' Returns the evaluated expression if successful, the default value on error,
-#' or the original expression on warning
-#'
-#' @examples
-#' \dontrun{
-#' # Silent error handling
-#' tryIt(stop("error"))
+#' @description 
+#' Evaluates an expression and returns NULL if it fails, instead of throwing an error.
 #' 
-#' # With warning messages
-#' tryIt(stop("error"), silent = FALSE)
+#' @param x An R expression to evaluate
+#' @param silent Logical; if TRUE suppresses error messages (default FALSE)
 #' 
-#' # Custom default value
-#' tryIt(stop("error"), default = NA)
+#' @return 
+#' Returns the result of evaluating the expression if successful, NULL if it fails
 #' 
-#' # Warning handling
-#' tryIt(warning("warning"), silent = FALSE)
-#' }
-#'
+#' @details 
+#' This function is useful for safely evaluating expressions that might fail,
+#' particularly in loops or apply functions where you want to continue execution
+#' even if some operations fail.
+#' 
 #' @export
-
-tryIt<-function(x, silent=TRUE, default=NULL) {
+#' 
+#' @examples
+#' # Successful evaluation
+#' tryIt(1 + 1)
+#' 
+#' # Failed evaluation returns NULL
+#' tryIt(log("a"))
+#' 
+#' # Suppress error messages
+#' tryIt(log("a"), silent=TRUE)
+tryIt<-function(x, silent=FALSE) {
+  rtn=try(x, silent=silent)
   
-  rtn=tryCatch(
-    expr=x,
-    error<-function(e) {
-      if (!silent) warning(e$message)
-      default},
-    warning<-function(w) {
-      if (!silent) warning(w$message)
-      x})
+  if ("try-error" %in% class(rtn)) 
+    return(NULL)
   
   return(rtn)}
-
 
