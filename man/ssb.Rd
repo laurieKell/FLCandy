@@ -19,7 +19,7 @@ Calculates the spawning stock biomass for an FLStock object,
 }
 \examples{
 data(ple4)
-ssb(ple4)
+FLCore:::ssb(ple4)
 \dontrun{
 library(FLCore)
 

@@ -473,16 +473,6 @@ setGeneric("forage", function(object, ...)
 setGeneric("predNeed", function(object, ...)
   standardGeneric("predNeed"))
 
-#' Calculate Pella-Tomlinson Parameters
-#' 
-#' @description Estimates r, k, and p parameters for Pella-Tomlinson model from 
-#' MSY reference points based on an age-based model with instantaneous fishing mortality
-#' 
-#' @param object containing fmsy, bmsy and b0 reference points
-#' @param interval Numeric vector of length 2 for shape parameter optimisation bounds
-#' @return FLPar object with r, k, and p parameters
-#' @export
-setGeneric("pellaTparams", function(object, ...) standardGeneric("pellaTparams"))
 
 #' Calculate priors for an `FLBRP` based on reference points and observations.
 #'

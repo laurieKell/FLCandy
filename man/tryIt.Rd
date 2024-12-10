@@ -2,38 +2,33 @@
 % Please edit documentation in R/tryIt.R
 \name{tryIt}
 \alias{tryIt}
-\title{Safe Expression Evaluation with Error Handling}
+\title{Safely Evaluate an Expression}
 \usage{
-tryIt(x, silent = TRUE, default = NULL)
+tryIt(x, silent = FALSE)
 }
 \arguments{
-\item{x}{An R expression to be evaluated}
+\item{x}{An R expression to evaluate}
 
-\item{silent}{Logical; if FALSE, displays warning messages for errors and warnings (default: TRUE)}
-
-\item{default}{The value to return if evaluation fails (default: NULL)}
+\item{silent}{Logical; if TRUE suppresses error messages (default FALSE)}
 }
 \value{
-Returns the evaluated expression if successful, the default value on error,
-or the original expression on warning
+Returns the result of evaluating the expression if successful, NULL if it fails
 }
 \description{
-Safely evaluates an expression and provides flexible error handling with customizable
-default values and warning message control.
+Evaluates an expression and returns NULL if it fails, instead of throwing an error.
+}
+\details{
+This function is useful for safely evaluating expressions that might fail,
+particularly in loops or apply functions where you want to continue execution
+even if some operations fail.
 }
 \examples{
-\dontrun{
-# Silent error handling
-tryIt(stop("error"))
+# Successful evaluation
+tryIt(1 + 1)
 
-# With warning messages
-tryIt(stop("error"), silent = FALSE)
+# Failed evaluation returns NULL
+tryIt(log("a"))
 
-# Custom default value
-tryIt(stop("error"), default = NA)
-
-# Warning handling
-tryIt(warning("warning"), silent = FALSE)
-}
-
+# Suppress error messages
+tryIt(log("a"), silent=TRUE)
 }
