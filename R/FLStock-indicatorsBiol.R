@@ -209,12 +209,12 @@ setGeneric("spawnOnce", function(object, ...) standardGeneric("spawnOnce"))
 ################################################################################
 ## SSB: Spawning Stock Biomass                                                ##
 ################################################################################
-setGeneric("ssb", function(object, ...) standardGeneric("ssb"))
-#' @title ssb
+setGeneric("ssb2", function(object, ...) standardGeneric("ssb2"))
+#' @title ssb2
 #' 
 #' @description  Calculates the spawning stock biomass for an FLStock object,
 #' 
-#' @rdname ssb
+#' @rdname ssb2
 #' @aliases 
 #' @seealso \code{\link{ssb.age}}
 #'
@@ -224,7 +224,7 @@ setGeneric("ssb", function(object, ...) standardGeneric("ssb"))
 #' @export
 #' @examples
 #' data(ple4)
-#' FLCore:::ssb(ple4)
+#' FLCore:::ssb2(ple4)
 #' @examples 
 #' \dontrun{
 #' library(FLCore)
@@ -234,9 +234,9 @@ setGeneric("ssb", function(object, ...) standardGeneric("ssb"))
 #' awa(ple4)
 #' }
 #' 
-setMethod("ssb", signature(object="FLStock"), function(object, ...) {
+setMethod("ssb2", signature(object="FLStock"), function(object, ...) {
   
-  for (i in names(list(...)))
+  for (i in names(list(...))[names(list(...))%in%slotNames(object)])
     slot(object,i)=list(...)[[i]]
   
   dis <- dims(object)
@@ -269,7 +269,6 @@ setMethod("ssb", signature(object="FLStock"), function(object, ...) {
     stop("Correct units (f or hr) not specified in the harvest slot")
   }
 })
-
 
 
 ################################################################################
@@ -329,11 +328,11 @@ setMethod("spawnOnce", signature(object="FLStock"),
             amat(mat(object))})
 setMethod("pos", signature(object="FLStock"), 
           function(object,ogive=spawnOnce(mat(object))) 
-            FLCore:::ssb(object,mat=ogive)%/%FLCore:::ssb(object))
+            ssb2(object,mat=ogive)%/%ssb2(object))
 
 setMethod("asa", signature(object="FLStock"),
           function(object){
-            quantSums(ages(mat(object))%*%ssb.age(object))%/%FLCore:::ssb(object)})
+            quantSums(ages(mat(object))%*%ssb.age(object))%/%ssb2(object)})
 
 setMethod("amat", signature(object="FLQuant"), 
           function(object,value=1,what=c("i","g")[1]){
@@ -419,11 +418,11 @@ setMethod("spawnOnce", signature(object="FLBRP"),
 
 setMethod("pos", signature(object="FLBRP"), 
           function(object,ogive=spawnOnce(mat(object))) 
-            FLCore:::ssb(object,mat=ogive)%/%FLCore:::ssb(object))
+            ssb2(object,mat=ogive)%/%ssb2(object))
 
 setMethod("asa", signature(object="FLBRP"),
           function(object){
-            quantSums(ages(mat(object))%*%ssb.age(object))%/%FLCore:::ssb(object)})
+            quantSums(ages(mat(object))%*%ssb.age(object))%/%ssb2(object)})
 
 setMethod("amat", signature(object="FLQuant"), 
           function(object,value=1,what=c("i","g")[1]){
@@ -481,13 +480,13 @@ setMethod("awa", signature(object="FLQuant"),
 
 if (FALSE){
   plot(mcf(FLQuants(
-    SSB   =FLCore:::ssb(ple4),
+    SSB   =ssb2(ple4),
     F     =fbar(ple4),
     FRatio=fjuv(ple4)%/%fapex(ple4),
     amat  =amat(mat(ple4),0.5,what="i"),
     wmat  =wmat(ple4),
     POS   =pos(ple4),
-    SPR   =FLCore:::ssb(ple4)/rec(ple4),
+    SPR   =ssb2(ple4)/rec(ple4),
     SPR0  =spr0Yr(ple4),
     ASA   =asa(ple4))))
 
