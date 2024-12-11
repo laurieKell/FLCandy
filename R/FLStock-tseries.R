@@ -2,6 +2,7 @@
 #' @export
 setMethod("tseries", signature(object="FLStock"),
           function(object,flqs=list(catch=function(object) catch(object),
+                                    ssb  =function(object) ssb(object),
                                     eb   =function(object) ebiomass(object),
                                     ssb  =function(object) FLCandy:::ssb(object),
                                     f    =function(object) fbar(object),
