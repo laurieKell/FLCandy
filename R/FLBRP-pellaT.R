@@ -111,6 +111,15 @@ setMethod("pellaTparams", signature(object="numeric"),
             return(pellaTparams(params, interval=interval))
           })
 
+
+pellaTparamFn<-function(fmsy,bmsy,b0,interval=c(1.1,10)){
+  # Calculate shape parameter m from Bmsy/K ratio
+  BmsyK=bmsy/b0
+  m    =optimize(function(x) abs(BmsyK - (1/x)^(1/(x-1))), interval=interval)$minimum
+  r   =fmsy*(m-1)/(1-1/m)
+  
+  return(c(r=r,m=m,k=b0))}
+
 BMSYFn<-function(M,B0,r) {
   
   prodFn <- function(B)

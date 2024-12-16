@@ -58,16 +58,10 @@ setMethod("calcPriors", signature(object="FLBRP"), function(object) {
     shape=bmsy / b0
     if (is.na(shape)) shape=0.4
     
-    # Optimize to find m and calculate r
-    optimize_func <- function(mi) {
-      (mi^(-1 / (mi - 1)) - shape)^2
-    }
-    
-    m=optimize(optimize_func, c(0.01, 2))$minimum
-    r=(1-exp(-fmsy))*(m-1)/(1-m^-1)
-    
+    pt=t(tryIt(pellaTparams(object)[drop=TRUE]))
+      
     # Compile results
-    rtn= c(r=r, mpar=m, fmsy=fmsy, bmsy=bmsy, b0=b0, shape=shape,
+    rtn= c(r=pt[,"r"], p=pt[,"p"], fmsy=fmsy, bmsy=bmsy, b0=pt[,"k"], shape=shape,
      ssb.minyr=ssb.minyr, ssb.maxyr=ssb.maxyr,
      f.minyr=f.minyr, f.maxyr=f.maxyr)
     
@@ -86,23 +80,18 @@ setMethod("calcPriors", signature(object="FLStock"), function(object,nmin=0:2,nm
     
     shape=bmsy/b0
     if (is.na(shape)) shape=0.4
-    m    =NA
-    r    =NA
     
-    mi   =seq(0.01,2,0.001) 
-    m    =(mi^(-1/(mi-1))-shape)^2
-    m    =mi[m==min(m)]
-    r    =(1-exp(-fmsy))*(m-1)/(1-m^-1)
- 
-    ssb.minyr=mean(ssb( object)[,1+nmin])
-    f.minyr=mean(fbar(object)[,1+nmin])
-    h.minyr=mean(hr(  object)[,1+nmin])
-    ssb.maxyr=mean(ssb( object)[,dim(ssb( object))[2]-nmax])
-    f.maxyr=mean(fbar(object)[,dim(fbar(object))[2]-nmax])
-    h.maxyr=mean(hr(  object)[,dim(fbar(object))[2]-nmax])
+    pt=pellaTparams(FLPar(c("fmsy","bmsy","k"=b0)))
+    
+    ssb.minyr=mean(ssb(object)[,1+nmin])
+    f.minyr=mean(fbar( object)[,1+nmin])
+    h.minyr=mean(hr(   object)[,1+nmin])
+    ssb.maxyr=mean(ssb(object)[,dim(ssb( object))[2]-nmax])
+    f.maxyr=mean(fbar( object)[,dim(fbar(object))[2]-nmax])
+    h.maxyr=mean(hr(   object)[,dim(fbar(object))[2]-nmax])
     
    
-    rtn=c(r=r,mpar=m,fmsy=fmsy,bmsy=bmsy,b0=b0,shape=shape,
+    rtn=c(r=pt[,"r"],p=pt[,"p"],fmsy=fmsy,bmsy=bmsy,k=pt[,"k"],shape=shape,
           ssb.minyr=ssb.minyr,ssb.maxyr=ssb.maxyr,
           f.minyr=  f.minyr,  f.maxyr=  f.maxyr,
           h.minyr=  h.minyr,  h.maxyr=  h.maxyr)

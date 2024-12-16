@@ -25,11 +25,10 @@
 #' 
 #' # Suppress error messages
 #' tryIt(log("a"), silent=TRUE)
-tryIt<-function(x, silent=FALSE) {
+tryIt<-function(x, silent=TRUE) {
   rtn=try(x, silent=silent)
   
   if ("try-error" %in% class(rtn)) 
     return(NULL)
   
   return(rtn)}
-
