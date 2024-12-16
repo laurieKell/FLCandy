@@ -31,9 +31,11 @@ Collate:
   abi.R
   addRefs.R
   adjust.R
+  aic.R
   annualise.R
   aopt.R
   aucTss.R
+  bevholtSVAR1.R
   bhz.R
   brp2lh.R
   crosstest.R
