@@ -4,7 +4,6 @@ auxFn<-function(lag=0,obsE=0.3,sigma=TRUE,type="",...){
   
   auxilary      =NULL
   
-  if (length(args)>0)
     if(any(names(args)%in%c("z", "f", "ffmsy","effort","bbmsy", "bk"))){
       type     =names(args)[names(args)%in%c("z", "f", "ffmsy","effort","bbmsy", "bk")][1]
       auxilary=args[[type]]}
@@ -24,7 +23,7 @@ mFn<-function(shape,fmsy){
   m    =mi[m==min(m)]
   r    =(1-exp(-fmsy))*(m-1)/(1-m^-1)
   c(m=m,r=r)}
-  
+
 jabbaWrapper<-function(catch,
                        pr,       
                        pr.sd     =pr/pr*0.3,
@@ -38,9 +37,9 @@ jabbaWrapper<-function(catch,
   r        =unlist(c(pr[c("r")]))
   r.prior  =c(r,  pr.sd["r"])
 
-  psi      =unlist(c(pr[c("ssb.minyr")]))
+  psi      =unlist(c(pr[c("psi")]))
   if (is.na(psi)) psi=0.9
-  psi.prior=c(psi,pr.sd["ssb.minyr"])
+  psi.prior=c(psi,pr.sd["psi"])
 
   shape    =unlist(c(pr[c("shape")]))
   shape.cv =pr.sd["shape"]
@@ -66,9 +65,9 @@ jabbaWrapper<-function(catch,
     verbose   =FALSE))
   
   if (substr(currentDepletion[1],1,1)=="b")  
-    args=c(args,list(b.prior=c(c(pr["ssb.maxyr"]), pr.sd["ssb.maxyr"], max(om$year), "bbmsy")))
+    args=c(args,list(b.prior=c(c(pr["current"]), pr.sd["current"], max(om$year), "bbmsy")))
   if (substr(currentDepletion[1],1,1)=="f")  
-    args=c(args,list(b.prior=c(c(pr["ssb.maxyr"]), pr.sd["f.maxyr"],   max(om$year), "ffmsy")))
+    args=c(args,list(b.prior=c(c(pr["current"]), pr.sd["current"],   max(om$year), "ffmsy")))
   
   aux =auxFn(...)
   

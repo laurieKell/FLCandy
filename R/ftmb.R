@@ -32,9 +32,9 @@
 #' sr=ftmb(object,s.est=T,s=0.7,s.logitsd=0.3,spr0)
 #' }
 
-ftmb<-function(object, spr0, s=NULL, s.est=TRUE,s.logitsd=1.3,inits=NULL, lower=NULL, upper=NULL,SDreport=TRUE) {
+ftmb<-function(object, spr0, s=NULL, s.est=TRUE, s.logitsd=1.3,inits=NULL, lower=NULL, upper=NULL,SDreport=TRUE) {
   if(is.null(s)& s.est){s=0.6} # central value
-  if(is.null(s)& !s.est){s=0.8}
+  if(is.null(s)&!s.est){s=0.8}
   
   # IDENTIFY model
   model=SRModelName(model(object))
@@ -50,11 +50,11 @@ ftmb<-function(object, spr0, s=NULL, s.est=TRUE,s.logitsd=1.3,inits=NULL, lower=
   
   # SET init and bounds
   if(is.null(inits))
-    inits=c(mean(log(rec)), log(0.4),to_logits(s))
+    inits=c(mean(log(rec)),                     log(0.40),  to_logits(s))
   if(is.null(lower))
-    lower=c(min(log(rec)), log(0.05),-20)
+    lower=c(quantile(c(log(rec)),probs=0.1),    log(0.05),          -20)
   if(is.null(upper))
-    upper=c(max(log(rec * 20)), log(1.5),20)
+    upper=c(quantile(c(log(rec)),probs=0.9),    log(1.50),           20)
   
   # SET TMB input
   inp=list(
@@ -62,13 +62,12 @@ ftmb<-function(object, spr0, s=NULL, s.est=TRUE,s.logitsd=1.3,inits=NULL, lower=
     Data = list(ssb=ssb, rec=rec,prior_s = c(to_logits(s),s.logitsd), spr0=spr0., nyears=length(ssb),
                 # model
                 Rmodel = which(model==c("bevholtSV","rickerSV","segreg"))-1),
-    # inits
-    Params = list(log_r0 = inits[1], log_sigR = inits[2],logit_s=inits[3]),
-    # bounds
-    lower=lower, upper=upper,
-    #
-    ReportSD = SDreport
-  )
+                # inits
+                Params = list(log_r0=inits[1], log_sigR=inits[2],logit_s=inits[3]),
+                # bounds
+                lower=lower, upper=upper,
+                #
+                ReportSD = SDreport)
   
   # Compile TMB inputs 
   Map=list()
