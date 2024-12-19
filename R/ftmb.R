@@ -32,7 +32,14 @@
 #' sr=ftmb(object,s.est=T,s=0.7,s.logitsd=0.3,spr0)
 #' }
 
-ftmb<-function(object, spr0, s=NULL, s.est=TRUE, s.logitsd=1.3,inits=NULL, lower=NULL, upper=NULL,SDreport=TRUE) {
+# SET init and bounds
+#init <-function(object,s) c(mean(      log(rec.obs(object))),            log(0.40),  to_logits(s))
+#lower<-function(object,s) c(quantile(c(log(rec.obs(object))),probs=0.1), log(0.05),           -20)
+#upper<-function(object,s) c(quantile(c(log(rec.obs(object))),probs=0.9), log(1.50),            20)
+
+ftmb<-function(object, spr0, s=NULL, s.est=TRUE, s.logitsd=1.3,
+               inits=NULL, lower=NULL, upper=NULL,
+               SDreport=TRUE) {
   if(is.null(s)& s.est){s=0.6} # central value
   if(is.null(s)&!s.est){s=0.8}
   
