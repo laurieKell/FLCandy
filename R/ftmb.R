@@ -33,15 +33,16 @@
 #' }
 
 # SET init and bounds
-#init <-function(object,s) c(mean(      log(rec.obs(object))),            log(0.40),  to_logits(s))
-#lower<-function(object,s) c(quantile(c(log(rec.obs(object))),probs=0.1), log(0.05),           -20)
-#upper<-function(object,s) c(quantile(c(log(rec.obs(object))),probs=0.9), log(1.50),            20)
-
-ftmb<-function(object, spr0, s=NULL, s.est=TRUE, s.logitsd=1.3,
-               inits=NULL, lower=NULL, upper=NULL,
+ftmb<-function(object, 
+               spr0=spr0, 
+               s=0.7, s.est=TRUE, s.logitsd=1.3,
+               inits=function(object=object,s=s)   c(median(  c(log(rec(object)))),           log(0.40),  to_logits(s)),
+               lower=function(object=object,s=-20) c(quantile(c(log(rec(object))),probs=0.1), log(0.05),           -20),
+               upper=function(object=object,s= 20) c(quantile(c(log(rec(object))),probs=0.9), log(1.50),            20),
                SDreport=TRUE) {
-  if(is.null(s)& s.est){s=0.6} # central value
-  if(is.null(s)&!s.est){s=0.8}
+  
+  if(is.null(s)& s.est) s=0.6 # central value
+  #if(is.null(s)&!s.est){s=0.8}
   
   # IDENTIFY model
   model=SRModelName(model(object))
@@ -56,12 +57,9 @@ ftmb<-function(object, spr0, s=NULL, s.est=TRUE, s.logitsd=1.3,
     spr0.=rep(spr0,length(rec))
   
   # SET init and bounds
-  if(is.null(inits))
-    inits=c(mean(log(rec)),                     log(0.40),  to_logits(s))
-  if(is.null(lower))
-    lower=c(quantile(c(log(rec)),probs=0.1),    log(0.05),          -20)
-  if(is.null(upper))
-    upper=c(quantile(c(log(rec)),probs=0.9),    log(1.50),           20)
+  inits.=inits(object,s)
+  lower.=lower(object)
+  upper.=upper(object)
   
   # SET TMB input
   inp=list(
@@ -70,9 +68,9 @@ ftmb<-function(object, spr0, s=NULL, s.est=TRUE, s.logitsd=1.3,
                 # model
                 Rmodel = which(model==c("bevholtSV","rickerSV","segreg"))-1),
                 # inits
-                Params = list(log_r0=inits[1], log_sigR=inits[2],logit_s=inits[3]),
+                Params = list(log_r0=inits.[1], log_sigR=inits.[2],logit_s=inits.[3]),
                 # bounds
-                lower=lower, upper=upper,
+                lower=lower., upper=upper.,
                 #
                 ReportSD = SDreport)
   

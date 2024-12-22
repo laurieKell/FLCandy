@@ -26,11 +26,15 @@ mFn<-function(shape,fmsy){
 
 jabbaWrapper<-function(catch,
                        pr,       
-                       pr.sd     =pr/pr*0.3,
-                       model     ="Pella_m",
-                       assessment="",  scenario="",
-                       index     =NULL,q_bounds=NULL,
-                       sigma.proc=TRUE,
+                       pr.sd      =pr/pr*0.3,
+                       model      ="Pella_m",
+                       assessment ="",scenario="",
+                       index      =NULL,q_bounds=NULL,
+                       sigma.proc =TRUE,
+                       sigma.est  =FALSE,
+                       fixed.obsE =0.2,
+                       igamma     =c(0.001, 0.001),
+                       q_bound    =c(1e-3,1e-3),
                        currentDepletion="",...){
   
   ## priors
@@ -44,11 +48,14 @@ jabbaWrapper<-function(catch,
   shape    =unlist(c(pr[c("shape")]))
   shape.cv =pr.sd["shape"]
   
+  k        =unlist(c(pr[c("k")]))
+  k.prior  =c(k,pr.sd["k"])
+  
   if (!is.null(q_bounds))
     args=list(q_bounds=q_bounds)
   else
     args=list()
-  
+                  
   args=c(args,list(
     scenario  =scenario,
     assessment=assessment,
@@ -59,9 +66,14 @@ jabbaWrapper<-function(catch,
     cpue      =index,
     
     r.prior   =r.prior,
+    K.prior   =k.prior,
     psi.prior =psi.prior,
     
-    sigma.proc=sigma.proc,
+    sigma.proc =sigma.proc,
+    sigma.est  =sigma.est,
+    fixed.obsE =fixed.obsE,
+    igamma     =igamma,
+    
     verbose   =FALSE))
   
   if (substr(currentDepletion[1],1,1)=="b")  

@@ -39,89 +39,88 @@
 #' @seealso 
 #' \code{\link[FLCore]{FLPar}}, \code{\link[FLCore]{FLBRP}}
 #' @rdname pellaTparams
-setGeneric("pellaTparams", function(object, ...) standardGeneric("pellaTparams"))
+setGeneric("pellaTparams", function(object,biomass,...) standardGeneric("pellaTparams"))
 
 setMethod("pellaTparams", signature(object="FLPar"),
-          function(object){ #, interval=c(1.1,10)) {
-            if(!all(c("fmsy","bmsy","k") %in% dimnames(object)$params))
-              stop("FLPar must contain fmsy, bmsy and k parameters")
+    function(object){ 
+      if(!all(c("fmsy","bmsy","k") %in% dimnames(object)$params))
+        stop("FLPar must contain fmsy, bmsy and k parameters")
             
-            # Get dimensions
-            dims=dim(object)[2]
+    # Get dimensions
+    dims=dim(object)[2]
             
-            # Initialize output FLPar
-            res=FLPar(array(NA, dim=c(3,dims),
-                               dimnames=list(params=c("r","k","p"),
+    # Initialize output FLPar
+    res=FLPar(array(NA, dim     =c(3,dims),
+                        dimnames=list(params=c("r","k","p"),
                                              iter=seq(dims))))
             
-            # Loop over iterations
-            for(i in seq(dims)) {
-              # Calculate shape parameter m from Bmsy/K ratio
-              BmsyK=c(object["bmsy",i])/c(object["k",i])
-              fmsy =1 - exp(-c(object["fmsy",i]))
+    # Loop over iterations
+    for(i in seq(dims)) {
+        # Calculate shape parameter m from Bmsy/K ratio
+        BmsyK=c(object["bmsy",i])/c(object["k",i])
+        fmsy =1 - exp(-c(object["fmsy",i]))
               
-              # Set interval based on BmsyK
-              #if(BmsyK < 0.37) 
-              #  int=c(0.01,0.99)
-              #else 
-              #  int=interval
+        m=getM(BmsyK)
+        
+        # Calculate r
+        r=fmsy*(m-1)/(1-1/m)
               
-              # Optimize for m
-              #m=optimize(function(x) abs(BmsyK - (1/x)^(1/(x-1))), 
-              #              interval=int)$minimum
-              
-              
-              m=getM(BmsyK)
-              # Calculate r
-              r=fmsy * (m-1)/(1-1/m)
-              
-              # Store results
-              res["r",i]=r
-              res["k",i]=c(object["k",i])
-              res["p",i]=m-1
-            }
+        # Store results
+        res["r",i]=r
+        res["k",i]=c(object["k",i])
+        res["p",i]=m-1}
             
-            return(res)
-          })
+    return(res)})
 
 #' @rdname pellaTparams
 setMethod("pellaTparams", signature(object="FLBRP"),
-          function(object) {
-            rfpts=refpts(object)
+    function(object) {
+      rfpts=refpts(object)
             
-            params=FLPar(
+       params=FLPar(
               fmsy=rfpts["msy","harvest"],
               bmsy=rfpts["msy","ssb"],
               k   =rfpts["virgin","ssb"],
               iter=dim(rfpts)[3])
             
-            pellaTparams(params)
-          })
+        pellaTparams(params)})
 
 #' @rdname pellaTparams
 setMethod("pellaTparams", signature(object="numeric"),
-          function(object, interval=c(1.1,10)) {
-            if(!all(c("fmsy","bmsy","b0") %in% names(object)))
-              stop("fmsy, bmsy and b0 not found")
+    function(object) {
+      if(!all(c("fmsy","bmsy","b0") %in% names(object)))
+        stop("fmsy, bmsy and b0 not found")
             
-            params=FLPar(array(object, dim=c(3,1),
-                                  dimnames=list(params=names(object),
+      params=FLPar(array(object, 
+                    dim     =c(3,1),
+                    dimnames=list(params=names(object),
                                                 iter=1)))
             
-            return(pellaTparams(params, interval=interval))
-          })
+          return(pellaTparams(params))})
 
+setMethod("pellaTparams", signature(object="FLBRP",biomass="function"),
+  function(object,biomass=ssb) {
+      
+    ctc=catch(  object)
+    eb =biomass(object)
+      
+    pars=FLPar(msy =max(ctc),                     
+               bmsy=eb[ctc==max(ctc)],
+               fmsy=max(ctc)/eb[ctc==max(ctc)],
+               k   =max(eb,na.rm=TRUE))
+            return(pars)
+      
+    return(pellaTparams(pars))})
 
-pellaTparamFn<-function(fmsy,bmsy,b0,interval=c(1.1,10)){
+pellaTparamFn<-function(fmsy,bmsy,b0){
   # Calculate shape parameter m from Bmsy/K ratio
   BmsyK=bmsy/b0
-  m    =optimize(function(x) abs(BmsyK - (1/x)^(1/(x-1))), interval=interval)$minimum
+  m    =optimize(function(x) abs(BmsyK - (1/x)^(1/(x-1))), interval=c(0.1,10))$minimum
   r   =fmsy*(m-1)/(1-1/m)
   
   return(c(r=r,m=m,k=b0))}
 
 BMSYFn<-function(M,B0,r) {
-  
   prodFn <- function(B)
     r*B*(1-(B/B0)^M)
   
@@ -132,6 +131,19 @@ MFn<-function(M) {
   BMSY  =BMSYFn(M, B0, r)
   ratio =BMSY/B0
   return(ratio-target)}
+
+getM<-function(bmsyK){
+    
+  # Function to solve for m
+  fn<-function(m, bmsyK) 
+    (m/(m+1))^(1/m)-bmsyK
+    
+  # Use uniroot to find the root of the equation
+  result=uniroot(fn, interval=c(1e-6, 1e6), bmsyK=bmsyK)
+    
+  # Extract the shape parameter m
+  result$root}
+
 
 if(FALSE){
   pellaTparams(Fmsy=0.1,Bmsy=600,B0=1000)
@@ -145,44 +157,4 @@ if(FALSE){
   BMSYFn(result$root,B0,r)
   
   result$root}
-
-msy2pellatFn=function(x,refs) {
-  r=x[1]
-  k=x[2]
-  p=x[3]
-  
-  msyFn  =function(r,k,p) r*k*(1/(1+p))^(1/p+1)
-  bmsyFn =function(r,k,p) k*(1/(1+p))^(1/p)
-  fmsyFn =function(r,  p) r*(1/(1+p))
-  ratioFn=function(    p) (1/(1+p))^(1/p)
-  
-  res=return(((refs["bmsy"] -bmsyFn(r,k,p))/refs["bmsy"])^2+
-               ((refs[ "msy"] -msyFn(r,k,p))/refs["msy"])^2+
-               ((refs["ratio"]-ratioFn(p))/refs["ratio"])^2)
-  
-  res}
-
-# setMethod('pellat',  signature(object="FLBRP"),  
-#    function(object,quantity="ssb"){
-#      
-#        par=c(c(FLBRP:::refpts(object)["msy","yield"]),
-#              c(FLBRP:::refpts(object)["msy",quantity]),
-#              c(FLBRP:::refpts(object)["msy",quantity]/FLBRP:::refpts(object)["virgin",quantity]))
-#       
-#        par=FLPar(array(par,dim=c(3,dim(FLBRP:::refpts(object))[3]),
-#                               dimnames=list(params=c("msy","bmsy","ratio"),
-#                                             iter=seq(dim(FLBRP:::refpts(object))[3]))))  
-#        pellat(par)})
-
-getM<-function(bmsyK){
-    
-    # Function to solve for m
-    fn<-function(m, bmsyK) 
-      (m/(m+1))^(1/m)-bmsyK
-    
-    # Use uniroot to find the root of the equation
-    result=uniroot(fn, interval=c(0.01, 10), bmsyK=bmsyK)
-    
-    # Extract the shape parameter m
-    result$root}
 

@@ -30,6 +30,63 @@ pe<-function(stk,eq,stock=FLCore:::ssb){
      catch(stk)%+%sp(stk,eq,stock))%/%stock(stk)}
 
 
+## calculates process error 
+spFn<-function(x){
+  rfs=FLPar(c(ssb.obs(x)),dimnames=list(refpts="ssb",
+                                        quant =dimnames(refpts(x))$quant,
+                                        iter  =seq(dim(ssb.obs(x))[2])))
+  rfs[,-4]=NA
+  refpts(x)=rfs
+  
+  rtn=data.frame(model.frame(FLQuants(x,ssb=ssb.obs,catch=catch.obs),drop=TRUE),
+                 sp=c(computeRefpts(x)[,"yield"]))
+  rtn$pe=(c(rtn$ssb[-1]-rtn$ssb[-dim(rtn)[1]]+rtn$catch[-dim(rtn)[1]]-
+              rtn$sp[-dim(rtn)[1]],NA))/rtn$ssb
+  
+  FLQuants(ssb  =transmute(rtn,data.frame(year=year,data=ssb)),
+           catch=transmute(rtn,data.frame(year=year,data=catch)),
+           sp   =transmute(rtn,data.frame(year=year,data=sp)),
+           pe   =transmute(rtn,data.frame(year=year,data=pe)))}
+
+
+getPriors<-function(x){
+  rfs       =as.data.frame(t(refpts(x)["msy",c("ssb","harvest","yield"),drop=TRUE]))
+  names(rfs)=c("bmsy","fmsy","msy")
+  
+  priors =cbind(as.data.frame(t(tryIt(pellaTparams(x)[drop=TRUE]))),
+                rfs,
+                data.frame(initial.ssb=ssb.obs( x)[,1,drop=TRUE],
+                           initial.f  =fbar.obs(x)[,1,drop=TRUE],
+                           current.ssb=ssb.obs( x)[,dim(ssb.obs(x))[2],drop=TRUE],
+                           current.f  =fbar.obs(x)[,dim(fbar.obs(x))[2],drop=TRUE]))
+  priors=transform(priors,shape    =bmsy/k,
+                   ssb.maxyr=current.ssb,
+                   ssb.minyr=initial.ssb/bmsy*k)
+  return(priors)}
+
+eqlFn<-function(object,model="bevholtSV"){
+  
+  spr0=FLCandy:::spr0Yr(object)
+  sr  =as.FLSR(object,model=model)
+  sr  =ftmb(sr,s.est    =T,
+            s        =0.7, #fishlife(object)["s"],
+            s.logitsd=0.4, #fishlife(object)["sd.logit.s"],
+            spr0     =spr0)
+  
+  rtn=brp(FLBRP(object,nyears=dim(object)[2],
+                sr=list(model =do.call(gsub("SV","", model),list())$model,
+                        params=FLPar(apply(params(sr),1,median)))))
+  
+  attributes(rtn)[["logLik"]] =logLik(sr)
+  #attributes(rtn)[["sr"]]     =sr
+  #attributes(rtn)[["prod"]]   =tryIt(spFn(      rtn))
+  #attributes(rtn)[["tseries"]]=tryIt(tseries(   object))
+  #attributes(rtn)[["priors"]] =tryIt(calcPriors(rtn))
+  #attributes(rtn)[["prior2"]] =tryIt(getPriors( rtn))
+  
+  return(rtn)}
+
+
 if(FALSE){
   
 ################################################################################

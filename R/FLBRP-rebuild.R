@@ -2,56 +2,54 @@
 #' @rdname rebuild
 #' @export
 setMethod("rebuild", signature(object="FLBRP"),
-          function(object, targetF=computeRefpts(object)["msy","harvest"] * 0,
+  function(object, targetF=computeRefpts(object)["msy","harvest"]*0,
                    targetSSB=computeRefpts(object)["msy","ssb"],
                    nInitial=100, growthRate=0.25, minVal=1e-6, maxVal=1,
                    burnin=20, truncate=TRUE) {
             
-            # Input validation
-            if (!is(object, "FLBRP"))
-              stop("object must be an FLBRP object")
+    # Input validation
+    if (!is(object, "FLBRP"))
+      stop("object must be an FLBRP object")
             
-            if (!all(sapply(list(nInitial, burnin), function(x) is.numeric(x) && x > 0)))
-              stop("nInitial and burnin must be positive integers")
+    if (!all(sapply(list(nInitial, burnin), function(x) is.numeric(x) && x > 0)))
+      stop("nInitial and burnin must be positive integers")
             
-            if (!all(sapply(list(growthRate, minVal, maxVal), is.numeric)))
-              stop("growthRate, minVal, and maxVal must be numeric")
+    if (!all(sapply(list(growthRate, minVal, maxVal), is.numeric)))
+      stop("growthRate, minVal, and maxVal must be numeric")
             
-            if (minVal >= maxVal)
-              stop("minVal must be less than maxVal")
+    if (minVal >= maxVal)
+      stop("minVal must be less than maxVal")
             
-            # Generate SSB sequence
-            targetSSB=c(targetSSB) * seq(minVal^growthRate, maxVal^growthRate, 
+    # Generate SSB sequence
+    targetSSB=c(targetSSB) * seq(minVal^growthRate, maxVal^growthRate, 
                                             length.out=nInitial)^(1/growthRate)
-            targetF=c(targetF)
+    targetF=c(targetF)
             
-            # Setup equilibrium
-            eql=object
-            fbar(eql)[]=0.2
+    # Setup equilibrium
+    eql=object
+    fbar(eql)[]=0.2
             
-            # Create target biomass array
-            btar=FLQuant(rep(targetSSB, each=dim(fbar(eql))[2]),
-                            dimnames=dimnames(propagate(ssb(eql), nInitial)))
+    # Create target biomass array
+    btar=FLQuant(rep(targetSSB, each=dim(fbar(eql))[2]),
+                dimnames=dimnames(propagate(ssb(eql), nInitial)))
+        
+    # Project stock
+    stk=propagate(as(eql, "FLStock"), nInitial)
+    stk=fwd(stk, ssb_end=btar[,-seq(dims(stk)[["min"]]+2)], sr=eql)
             
-            # Project stock
-            stk=propagate(as(eql, "FLStock"), nInitial)
-            stk=fwd(stk, ssb_end=btar[,-seq(dims(stk)[["min"]]+2)], sr=eql)
+    # Apply target F
+    ftar=fbar(stk) %=% targetF
+    stk=fwd(stk, f=ftar[,-seq(burnin)], sr=eql)
             
-            # Apply target F
-            ftar=fbar(stk) %=% targetF
-            stk=fwd(stk, f=ftar[,-seq(burnin)], sr=eql)
+    # Post-process
+    if (truncate) 
+        stk=stk[,-seq(burnin)]
             
-            # Post-process
-            if (truncate) 
-              stk=stk[,-seq(burnin)]
+    stk=qapply(stk, function(x) {
+        dimnames(x)$year=seq(length(dimnames(x)$year))
+        x})
             
-            stk=qapply(stk, function(x) {
-              dimnames(x)$year=seq(length(dimnames(x)$year))
-              x
-            })
-            
-            return(stk)
-          })
+    return(stk)})
 
 #' Calculate rebuilding time
 #'
