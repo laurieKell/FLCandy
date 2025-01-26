@@ -82,3 +82,28 @@ theme_my <- function(base_size = 12, legend_position = "none") {
       legend.text    = element_text(size = base_size - 4)
     )}
 
+
+themeFacet<-function(base_size = 12) {
+  theme_minimal(base_size = base_size) %+replace%
+    theme(
+      # Remove legends
+      legend.position="none",
+      legend.title  =element_blank(),
+    
+      # Remove facet labels
+      strip.text = element_blank(),
+      
+      # Remove axis elements
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      
+      # Grid customization
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_line(color = "grey90"),
+      
+      # Title and subtitle formatting
+      plot.title    =element_text(face="bold", size =14,       hjust=0),
+      plot.subtitle =element_text(size=12,     color="grey30", hjust=0),
+      
+      # Panel spacing
+      panel.spacing = unit(0, "lines"))}

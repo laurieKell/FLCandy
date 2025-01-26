@@ -24,18 +24,77 @@ mFn<-function(shape,fmsy){
   r    =(1-exp(-fmsy))*(m-1)/(1-m^-1)
   c(m=m,r=r)}
 
+jabbaPriors<-function(icesdata){
+  
+  eqsm   =eqsim(    icesdata)
+  benchm =benchmark(icesdata)
+  initial=ldply(    icesdata, function(x) {rtn=tseries(x);rtn[rtn$year==min(rtn$year),]})
+  current=ldply(    icesdata, function(x) {rtn=tseries(x);rtn[rtn$year==max(rtn$year),]})
+  fl     =fishlife( icesdata)
+  
+  priors=merge(benchm[,-8],eqsm[,c(".id","bmsy","b0")],       by=".id")
+  priors=merge(priors,transmute(fl,.id=.id,r      =r),        by=".id")
+  priors=merge(priors,transmute(initial, .id=.id,initial=ssb),by=".id")
+  priors=merge(priors,transmute(current, .id=.id,current=ssb),by=".id")
+  priors=transform(priors,shape=bmsy/b0,ssb.maxyear=current/bmsy,ssb.minyear=initial/b0,psi=initial/b0)
+  
+  priors}
+
+jabbaData<-function(id,icesdata,ctc1903=NULL,indices=NULL){
+  
+  ts=model.frame(tseries(icesdata[[id]]),drop=TRUE) 
+  
+  catch=ts[, c("year", "catch")]
+  names(catch)[2]="catch"
+  small=mean(ts$catch,na.rm=TRUE)*1e-6
+  catch$catch[is.na(catch$catch)]=small
+  
+  eb    =transmute(ts, year=year, index=eb)
+  eb[is.na(eb)]=NA
+  
+  fmsy=benchmark(icesdata[[id]])["fmsy"]
+  ffmsy=transmute(ts, year=year, ffmsy=(1-exp(-f))/(1-exp(-c(fmsy))))
+  
+  if (is.null(ctc1903))
+    return(merge(merge(catch,eb,by="year"),ffmsy,by="year"))
+      
+  c1903=try(subset(ctc1903,.id==id)[, c("year", "catch")])
+  c1903$catch[is.na(c1903$catch)|c1903$catch<=0]=small
+  maxYear=dims(icesdata[[id]])$maxyear
+
+  c1903=subset(c1903,year<=maxYear)
+  
+  eb1903=merge(eb, c1903,by="year",all.y=TRUE)[,seq(dim(eb )[2])]
+  eb1903[is.na(eb1903)]=NA
+  
+  ffmsy1903   =merge(ffmsy,c1903,all.y=TRUE)[,-3]
+  
+  if (is.null(indices))
+    return(merge(merge(c1903,eb1903,by="year"),ffmsy1903,by="year"))
+  
+  idx   =try(cast(subset(indices,.id==id),year~survey,value="data",fun="mean"))
+  idx   =merge(idx,catch,by="year",all.y=TRUE)[,seq(dim(idx)[2])]
+  idx[is.na(idx)]=NA
+  
+  id1903=try(merge(idx,c1903,by="year",all.y=TRUE)[,seq(dim(idx)[2])])
+  id1903[is.na(id1903)]=NA
+ 
+  return(merge(merge(merge(c1903,eb1903,by="year"),ffmsy1903,by="year"),id1903,by="year"))}
+
 jabbaWrapper<-function(catch,
                        pr,       
                        pr.sd      =pr/pr*0.3,
                        model      ="Pella_m",
                        assessment ="",scenario="",
                        index      =NULL,q_bounds=NULL,
+                       sigma.est  =TRUE,
+                       fixed.obsE =0.1,
                        sigma.proc =TRUE,
-                       sigma.est  =FALSE,
-                       fixed.obsE =0.2,
+                       fixed.procE=0.1,
                        igamma     =c(0.001, 0.001),
                        q_bound    =c(1e-3,1e-3),
-                       currentDepletion="",...){
+                       currentDepletion="",
+                       initialDepletion=NA,...){
   
   ## priors
   r        =unlist(c(pr[c("r")]))
@@ -48,8 +107,8 @@ jabbaWrapper<-function(catch,
   shape    =unlist(c(pr[c("shape")]))
   shape.cv =pr.sd["shape"]
   
-  k        =unlist(c(pr[c("k")]))
-  k.prior  =c(k,pr.sd["k"])
+  #k        =unlist(c(pr[c("k")]))
+  #k.prior  =c(k,pr.sd["k"])
   
   if (!is.null(q_bounds))
     args=list(q_bounds=q_bounds)
@@ -66,7 +125,7 @@ jabbaWrapper<-function(catch,
     cpue      =index,
     
     r.prior   =r.prior,
-    K.prior   =k.prior,
+    #K.prior   =k.prior,
     psi.prior =psi.prior,
     
     sigma.proc =sigma.proc,
@@ -77,11 +136,18 @@ jabbaWrapper<-function(catch,
     verbose   =FALSE))
   
   if (substr(currentDepletion[1],1,1)=="b")  
-    args=c(args,list(b.prior=c(c(pr["current"]), pr.sd["current"], max(om$year), "bbmsy")))
+    args=c(args,list(b.prior=c(c(pr["ssb.maxyear"]), pr.sd["ssb.maxyear"], max(catch$year), "bbmsy")))
   if (substr(currentDepletion[1],1,1)=="f")  
-    args=c(args,list(b.prior=c(c(pr["current"]), pr.sd["current"],   max(om$year), "ffmsy")))
-  
-  aux =auxFn(...)
+    args=c(args,list(b.prior=c(c(pr["ssb.maxyear"]), pr.sd["ssb.maxyear"], max(vatch$year), "ffmsy")))
+
+  if (!is.na(initialDepletion)){
+  #    aux=list(auxiliary.se  =NULL,
+  #             auxiliary.type="ffmsy",
+  #             auxiliary     =cbind(year=catch$year,index=NA))
+  #    aux$auxiliary[1,"index"]=initialDepletion
+      }
+  else
+    aux=auxFn(...)
   
   args=c(args,aux)
   

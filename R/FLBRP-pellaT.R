@@ -108,7 +108,6 @@ setMethod("pellaTparams", signature(object="FLBRP",biomass="function"),
                bmsy=eb[ctc==max(ctc)],
                fmsy=max(ctc)/eb[ctc==max(ctc)],
                k   =max(eb,na.rm=TRUE))
-            return(pars)
       
     return(pellaTparams(pars))})
 
