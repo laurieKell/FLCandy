@@ -1,5 +1,3 @@
-object=ple4
-
 # Define the generic function
 setGeneric("compareOgives", function(ogive1, ogive2, ...) {
   standardGeneric("compareOgives")})
