@@ -27,7 +27,7 @@ setMethod("compareOgives", signature(ogive1="FLQuant", ogive2="FLQuant"),
         return(res)})
 
 
-
+if (FALSE){
 oCtc=apply(catch.sel(object),2:6,cumsum)%/%apply(catch.sel(object),2:6,cumsum)[dim(m(object))[1]]
 oMat=apply(mat(object),2:6,cumsum)%/%apply(mat(object),2:6,cumsum)[dim(m(object))[1]]
 
@@ -68,3 +68,4 @@ ggplot(plot_data, aes(x = age, y = proportion, color = type)) +
   ) +
   theme_minimal(base_size = 14) +
   scale_color_manual(values = c("Catch Selectivity" = "blue", "Maturity Ogive" = "red"))
+}
