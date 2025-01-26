@@ -79,6 +79,7 @@ Collate:
   mEmpirical.R
   mglim.R
   nonStationarity.R
+  ogiveComp.R
   OMstats.R
   OMstats-aopt.R
   OMstats-perm.R
