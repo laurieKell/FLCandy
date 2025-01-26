@@ -55,31 +55,18 @@ jabbaData<-function(id,icesdata,ctc1903=NULL,indices=NULL){
   fmsy=benchmark(icesdata[[id]])["fmsy"]
   ffmsy=transmute(ts, year=year, ffmsy=(1-exp(-f))/(1-exp(-c(fmsy))))
   
-  if (is.null(ctc1903))
-    return(merge(merge(catch,eb,by="year"),ffmsy,by="year"))
-      
-  c1903=try(subset(ctc1903,.id==id)[, c("year", "catch")])
-  c1903$catch[is.na(c1903$catch)|c1903$catch<=0]=small
-  maxYear=dims(icesdata[[id]])$maxyear
+  rtn=merge(merge(catch,eb,by="year"),ffmsy,by="year")
+  
+  if (is.null(indices)){
+    idx   =try(cast(subset(indices,.id==id),year~survey,value="data",fun="mean"))
+    idx   =merge(idx,catch,by="year",all.y=TRUE)[,seq(dim(idx)[2])]
+    idx[is.na(idx)]=NA
 
-  c1903=subset(c1903,year<=maxYear)
+    rtn=merge(rtn,idx,by="year")}
   
-  eb1903=merge(eb, c1903,by="year",all.y=TRUE)[,seq(dim(eb )[2])]
-  eb1903[is.na(eb1903)]=NA
-  
-  ffmsy1903   =merge(ffmsy,c1903,all.y=TRUE)[,-3]
-  
-  if (is.null(indices))
-    return(merge(merge(c1903,eb1903,by="year"),ffmsy1903,by="year"))
-  
-  idx   =try(cast(subset(indices,.id==id),year~survey,value="data",fun="mean"))
-  idx   =merge(idx,catch,by="year",all.y=TRUE)[,seq(dim(idx)[2])]
-  idx[is.na(idx)]=NA
-  
-  id1903=try(merge(idx,c1903,by="year",all.y=TRUE)[,seq(dim(idx)[2])])
-  id1903[is.na(id1903)]=NA
- 
-  return(merge(merge(merge(c1903,eb1903,by="year"),ffmsy1903,by="year"),id1903,by="year"))}
+  if (is.null(ctc1903)) return(rtn)
+
+  return(merge(rtn[,-2],ctc1903,by="year",all.y=TRUE))}
 
 jabbaWrapper<-function(catch,
                        pr,       
