@@ -47,7 +47,7 @@ jabbaData<-function(id,icesdata,ctc1903=NULL,indices=NULL){
   catch=ts[, c("year", "catch")]
   names(catch)[2]="catch"
   small=mean(ts$catch,na.rm=TRUE)*1e-6
-  catch$catch[is.na(catch$catch)]=small
+  catch$catch[is.na(catch$catch)|catch$catch<=0]=small
   
   eb    =transmute(ts, year=year, index=eb)
   eb[is.na(eb)]=NA
@@ -59,8 +59,10 @@ jabbaData<-function(id,icesdata,ctc1903=NULL,indices=NULL){
   
   if (!is.null(ctc1903)){
     ctc1903=subset(ctc1903,.id==id&year<=dims(icesdata[[id]])$maxyear)[,2:3]
-    if (dim(ctc1903)[1]>0)
-      rtn=merge(rtn[,-2],ctc1903,by="year",all.y=TRUE)}
+    if (dim(ctc1903)[1]>0){
+      rtn=merge(rtn[,-2],ctc1903,by="year",all.y=TRUE)
+      rtn$catch[is.na(rtn$catch)|rtn$catch<=0]=small
+      }}
   
   if (is.null(indices)) return(rtn)
   
