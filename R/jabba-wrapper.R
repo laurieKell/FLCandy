@@ -57,20 +57,23 @@ jabbaData<-function(id,icesdata,ctc1903=NULL,indices=NULL){
   
   rtn=merge(merge(catch,eb,by="year"),ffmsy,by="year")
   
-  if (!is.null(indices)){
-    idx   =subset(indices,.id==id)
+  if (!is.null(ctc1903)){
+    ctc1903=subset(ctc1903,.id==id&year<=dims(icesdata[[id]])$maxyear)[,2:3]
+    if (dim(ctc1903)[1]>0)
+      rtn=merge(rtn[,-2],ctc1903,by="year",all.y=TRUE)}
+  
+  if (is.null(indices)) return(rtn)
+  
+  idx =subset(indices,.id==id)
     
-    if (dim(idx)[1]>0){
-      idx   =try(cast(subset(idx,.id==id),year~survey,value="data",fun="mean"))
-      idx   =merge(idx,catch,by="year",all.y=TRUE)[,seq(dim(idx)[2])]
-      idx[is.na(idx)]=NA
+  if (dim(idx)[1]>0){
+    idx   =try(cast(subset(idx,.id==id&year<=dims(icesdata[[id]])$maxyear),year~survey,value="data",fun="mean"))
+    idx   =merge(idx,catch,by="year",all.y=TRUE)[,seq(dim(idx)[2])]
+    idx[is.na(idx)]=NA
     
-      rtn=merge(rtn,idx,by="year",all.x=TRUE)}
-    }
-
-  if (is.null(ctc1903)) return(rtn)
-
-  return(merge(rtn[,-2],ctc1903,by="year",all.y=TRUE))}
+    return(merge(rtn,idx,by="year",all.x=TRUE))}
+  
+  return(rtn)}
 
 jabbaWrapper<-function(catch,
                        pr,       
