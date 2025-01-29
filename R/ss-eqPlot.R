@@ -42,7 +42,7 @@ setMethod("curveSS", signature(object="list"), function(object){
   
   ts$sp   =c(NA, ts$biomass[-1] - ts$biomass[-nyears] + ts$yield[-nyears])
   eql     =transmute(eqlYield, yield=Tot_Catch,ssb=SSB)
-  rfs     =transmute(subset(eqlYield, Tot_Catch==max(Tot_Catch)), msy=Tot_Catch,bmsy=SSB)
+  rfs     =transmute(subset(eqlYield, Tot_Catch==max(Tot_Catch)), msy=Tot_Catch,bmsy=SSB)[1,]
   maxY    =signif(max(c(ts$yield,eql$yield))*1.5,1)
   triangle=data.frame(x=c(rfs$bmsy, rfs$bmsy, rfs$bmsy*maxY/rfs$msy, rfs$bmsy),
                       y=c(rfs$msy,      maxY,                  maxY, rfs$msy))

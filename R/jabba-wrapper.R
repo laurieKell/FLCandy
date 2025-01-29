@@ -69,7 +69,7 @@ jabbaData<-function(id,icesdata,ctc1903=NULL,indices=NULL){
   idx =subset(indices,.id==id)
     
   if (dim(idx)[1]>0){
-    idx   =try(cast(subset(idx,.id==id&year<=dims(icesdata[[id]])$maxyear),year~survey,value="data",fun="mean"))
+    idx   =try(cast(subset(idx,year<=dims(icesdata[[id]])$maxyear),year~survey,value="data",fun="mean"))
     idx   =merge(idx,catch,by="year",all.y=TRUE)[,seq(dim(idx)[2])]
     idx[is.na(idx)]=NA
     
@@ -307,3 +307,5 @@ setMethod("jabbaExtract", signature(object="ANY"),definition=function(object, ..
       return(jabbaExtractLists(object))}
   
   return(NULL)})
+
+jbplot<-function(x) {dt=llply(jb, function(x) tryIt(x[[2]]));jbplot_summary(dt[!laply(dt,is.null)])}
