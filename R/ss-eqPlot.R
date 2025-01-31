@@ -14,7 +14,7 @@ require(r4ss)
 #' @examples
 #' # Assuming 'ss_output' is an instance of StockSynthesisOut#' # result <- curveSS(ss_output)
 #' @export
-setMethod("curveSS", signature(object="list"), function(object){
+setMethod("curveSS", signature(object="list"), function(object,maxY=1.5){
   eqlYield  =object[["equil_yield"]]
   timeseries=object[["timeseries"]]
   dq        =object[["derived_quants"]][unique(object$derived_quants$Label)[210:226],]
@@ -43,7 +43,7 @@ setMethod("curveSS", signature(object="list"), function(object){
   ts$sp   =c(NA, ts$biomass[-1] - ts$biomass[-nyears] + ts$yield[-nyears])
   eql     =transmute(eqlYield, yield=Tot_Catch,ssb=SSB)
   rfs     =transmute(subset(eqlYield, Tot_Catch==max(Tot_Catch)), msy=Tot_Catch,bmsy=SSB)[1,]
-  maxY    =signif(max(c(ts$yield,eql$yield))*1.5,1)
+  maxY    =signif(max(c(ts$yield,eql$yield))*maxY,1)
   triangle=data.frame(x=c(rfs$bmsy, rfs$bmsy, rfs$bmsy*maxY/rfs$msy, rfs$bmsy),
                       y=c(rfs$msy,      maxY,                  maxY, rfs$msy))
   

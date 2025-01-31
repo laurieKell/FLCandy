@@ -682,6 +682,6 @@ setGeneric("rebuildTime", function(object, nx=101) {
 
 setGeneric("leslie", function(object, ...) standardGeneric("leslie"))
 setGeneric('plotLengths', function(x, ...) standardGeneric('plotLengths')) 
-setGeneric("curveSS", function(object) standardGeneric("curveSS"))
+setGeneric("curveSS", function(object,...) standardGeneric("curveSS"))
 
 
