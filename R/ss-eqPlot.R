@@ -19,18 +19,21 @@ setMethod("curveSS", signature(object="list"), function(object,maxY=1.5){
   timeseries=object[["timeseries"]]
   dq        =object[["derived_quants"]][unique(object$derived_quants$Label)[210:226],]
   
+  if (tolower(names(timeseries))%in%"yr")
+    names(timeseries)[tolower(names(timeseries))=="yr"]="year"
+
   # Filter and prepare data for plotting
   ts=timeseries %>%
     filter(!Era %in% c("VIRG", "FORE")) %>%
     mutate(catch_total = rowSums(select(., starts_with("dead(B)")), na.rm = TRUE)) %>%
-    group_by(Yr, Seas) %>%
+    group_by(year, Seas) %>%
     summarise(
       sum_bio_all = sum(Bio_all, na.rm = TRUE),
       sum_spawn_bio = sum(SpawnBio, na.rm = TRUE),
       sum_catch_total = sum(catch_total, na.rm = TRUE)
     ) %>%
     ungroup() %>%
-    group_by(Yr) %>%
+    group_by(year) %>%
     summarise(
       mean_bio_all = mean(sum_bio_all),
       mean_spawn_bio = mean(sum_spawn_bio),
