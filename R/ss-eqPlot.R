@@ -19,7 +19,7 @@ setMethod("curveSS", signature(object="list"), function(object,maxY=1.5){
   timeseries=object[["timeseries"]]
   dq        =object[["derived_quants"]][unique(object$derived_quants$Label)[210:226],]
   
-  if (tolower(names(timeseries))%in%"yr")
+  if (any(tolower(names(timeseries))%in%"yr"))
     names(timeseries)[tolower(names(timeseries))=="yr"]="year"
 
   # Filter and prepare data for plotting
