@@ -43,8 +43,15 @@ setGeneric("pellaTparams", function(object,biomass,...) standardGeneric("pellaTp
 
 setMethod("pellaTparams", signature(object="FLPar"),
     function(object){ 
-      if(!all(c("fmsy","bmsy","k") %in% dimnames(object)$params))
-        stop("FLPar must contain fmsy, bmsy and k parameters")
+
+    if ("b0"%in%dimnames(object)$params)
+      dimnames(object)$params["b0"==dimnames(object)$params]="k"
+      
+    if ("fmsyMedianC"%in%dimnames(object)$params)
+      dimnames(object)$params["fmsyMedianC"==dimnames(object)$params]="fmsy"
+      
+    if(!all(c("fmsy","bmsy","k") %in% dimnames(object)$params))
+      stop("FLPar must contain fmsy, bmsy and k parameters")
             
     # Get dimensions
     dims=dim(object)[2]

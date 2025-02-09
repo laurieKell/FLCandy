@@ -44,4 +44,8 @@ setMethod("tseries", signature(object="FLBRP"), function(object){
   
   rtn})
 
-surplusProduction<-tseries
+setMethod("tseries", signature(object="FLBRPs"), function(object){
+      ldply(object, function(x) model.frame(FLCandy:::tseries(x)))})
+   
+
+
