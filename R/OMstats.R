@@ -77,7 +77,8 @@ eqlFn<-function(object,model="bevholtSV"){
                 sr=list(model =do.call(gsub("SV","", model),list())$model,
                         params=FLPar(apply(params(sr),1,median)))))
   
-  attributes(rtn)[["logLik"]] =logLik(sr)
+  attributes(rtn)[["logLik"]]       =logLik(sr)
+  attributes(rtn)[["rec.residuals"]]=residuals(sr)
   #attributes(rtn)[["sr"]]     =sr
   #attributes(rtn)[["prod"]]   =tryIt(spFn(      rtn))
   #attributes(rtn)[["tseries"]]=tryIt(tseries(   object))

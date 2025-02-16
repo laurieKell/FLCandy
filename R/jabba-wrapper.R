@@ -88,7 +88,7 @@ jabbaWrapper<-function(catch,
                        sigma.proc =TRUE,
                        fixed.procE=0.1,
                        igamma     =c(0.001, 0.001),
-                       q_bound    =c(1e-3,1e-3),
+                       q_bound    =c(1e-3,1e+3),
                        currentDepletion="",
                        initialDepletion=NA,...){
   

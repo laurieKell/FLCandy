@@ -88,6 +88,7 @@ iALK2<-function(object, model, age=ages(object), cv=0.1, lmax=1.2, bin=1,
   alk =FLPar(alk,units=units(object))
   
   return(alk)}
+
 lenSamp2<-function(object,invALK,n=300){
     rtn=FLQuant(0,dimnames=c(list(len=dimnames(invALK)$len),dimnames(object)[-1]))
     for (i in dimnames(object)$year)

@@ -19,6 +19,9 @@ setMethod("curveSS", signature(object="list"), function(object,maxY=1.5){
   timeseries=object[["timeseries"]]
   dq        =object[["derived_quants"]][unique(object$derived_quants$Label)[210:226],]
   
+  if (!("Tot_Catch"%in%names(eqlYield))&("Catch"%in%names(eqlYield)))
+    names(eqlYield)[names(eqlYield)=="Catch"]="Tot_Catch"
+
   if (any(tolower(names(timeseries))%in%"yr"))
     names(timeseries)[tolower(names(timeseries))=="yr"]="year"
 

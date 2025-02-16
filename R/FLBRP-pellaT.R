@@ -164,3 +164,4 @@ if(FALSE){
   
   result$root}
 
+p2shape<-function(p) (1/(1+p))^(1/p)

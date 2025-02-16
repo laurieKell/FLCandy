@@ -54,7 +54,6 @@ taxa<-function(Taxa,
           partial_match = partial_match))}}
   return(Pred)}
 
-
 priors<-function(Genus  =NULL,
                  Species=NULL,
                  Family =NULL,
