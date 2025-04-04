@@ -77,8 +77,7 @@ jabbaData<-function(id,icesdata,ctc1903=NULL,indices=NULL){
   
   return(rtn)}
 
-jabbaWrapper<-function(catch,
-                       pr,       
+jabba<-function(catch, pr,       
                        pr.sd      =pr/pr*0.3,
                        model      ="Pella_m",
                        assessment ="",scenario="",
@@ -86,8 +85,9 @@ jabbaWrapper<-function(catch,
                        sigma.est  =TRUE,
                        fixed.obsE =0.1,
                        sigma.proc =TRUE,
-                       fixed.procE=0.1,
-                       igamma     =c(0.001, 0.001),
+                       fixed.procE=0.3,
+                       #igamma     =c(0.001, 0.001),
+                       igamma     =c(3.0, 0.1),
                        q_bound    =c(1e-3,1e+3),
                        currentDepletion="",
                        initialDepletion=NA,...){
@@ -103,8 +103,10 @@ jabbaWrapper<-function(catch,
   shape    =unlist(c(pr[c("shape")]))
   shape.cv =pr.sd["shape"]
   
-  #k        =unlist(c(pr[c("k")]))
-  #k.prior  =c(k,pr.sd["k"])
+  k.prior=NA
+  if ("k"%in%dimnames(pr)$params){
+    k        =unlist(c(pr["k"]))
+    k.prior  =c(k,pr.sd["k"])}
   
   if (!is.null(q_bounds))
     args=list(q_bounds=q_bounds)
@@ -121,7 +123,7 @@ jabbaWrapper<-function(catch,
     cpue      =index,
     
     r.prior   =r.prior,
-    #K.prior   =k.prior,
+    K.prior   =k.prior,
     psi.prior =psi.prior,
     
     sigma.proc =sigma.proc,
@@ -130,11 +132,13 @@ jabbaWrapper<-function(catch,
     igamma     =igamma,
     
     verbose   =FALSE))
+  args=args[!is.na(args)]
+
   
   if (substr(currentDepletion[1],1,1)=="b")  
-    args=c(args,list(b.prior=c(c(pr["ssb.maxyear"]), pr.sd["ssb.maxyear"], max(catch$year), "bbmsy")))
+    args=c(args,list(b.prior=c(c(pr["current.b"]), pr.sd["current.b"], max(catch$year), "bbmsy")))
   if (substr(currentDepletion[1],1,1)=="f")  
-    args=c(args,list(b.prior=c(c(pr["ssb.maxyear"]), pr.sd["ssb.maxyear"], max(vatch$year), "ffmsy")))
+    args=c(args,list(b.prior=c(c(pr["current.f"]), pr.sd["current.f"], max(catch$year), "ffmsy")))
 
   if (!is.na(initialDepletion)){
   #    aux=list(auxiliary.se  =NULL,
@@ -159,6 +163,91 @@ jabbaWrapper<-function(catch,
   list(input=input,fit=fit)}
 
 
+jabba<-function(catch,
+                       pr,       
+                       pr.sd      =pr/pr*0.3,
+                       model      ="Pella_m",
+                       assessment ="",scenario="",
+                       index      =NULL,q_bounds=NULL,
+                       sigma.est  =TRUE,
+                       fixed.obsE =0.1,
+                       sigma.proc =TRUE,
+                       fixed.procE=0.3,
+                       #igamma     =c(0.001, 0.001),
+                       igamma     =c(3.0, 0.1),
+                       q_bound    =c(1e-3,1e+3),
+                       currentDepletion="",
+                       initialDepletion=NA,...){
+  
+  ## priors
+  r        =unlist(c(pr[c("r")]))
+  r.prior  =c(r,  pr.sd["r"])
+
+  psi      =unlist(c(pr[c("psi")]))
+  if (is.na(psi)) psi=0.9
+  psi.prior=c(psi,pr.sd["psi"])
+
+  shape    =unlist(c(pr[c("shape")]))
+  shape.cv =pr.sd["shape"]
+  
+  k.prior=NA
+  if ("k"%in%dimnames(pr)$params){
+    k        =unlist(c(pr["k"]))
+    k.prior  =c(k,pr.sd["k"])}
+  
+  if (!is.null(q_bounds))
+    args=list(q_bounds=q_bounds)
+  else
+    args=list()
+                  
+  args=c(args,list(
+    scenario  =scenario,
+    assessment=assessment,
+    model.type=model,
+    BmsyK     =shape,
+    shape.CV = shape.cv,
+    catch     =catch,
+    cpue      =index,
+    
+    r.prior   =r.prior,
+    K.prior   =k.prior,
+    psi.prior =psi.prior,
+    
+    sigma.proc =sigma.proc,
+    sigma.est  =sigma.est,
+    fixed.obsE =fixed.obsE,
+    igamma     =igamma,
+    
+    verbose   =FALSE))
+  args=args[!is.na(args)]
+
+  
+  if (substr(currentDepletion[1],1,1)=="b")  
+    args=c(args,list(b.prior=c(c(pr["current.b"]), pr.sd["current.b"], max(catch$year), "bbmsy")))
+  if (substr(currentDepletion[1],1,1)=="f")  
+    args=c(args,list(b.prior=c(c(pr["current.f"]), pr.sd["current.f"], max(catch$year), "ffmsy")))
+
+  if (!is.na(initialDepletion)){
+  #    aux=list(auxiliary.se  =NULL,
+  #             auxiliary.type="ffmsy",
+  #             auxiliary     =cbind(year=catch$year,index=NA))
+  #    aux$auxiliary[1,"index"]=initialDepletion
+      }
+  else
+    aux=auxFn(...)
+  
+  args=c(args,aux)
+  
+  ## Fit with Catch + Index: Simple Fox with r = Fmsy
+  input=try(do.call("build_jabba", args))
+  
+  if ("try-error"%in%is(input)) return(NULL)
+  
+  fit=try(fit_jabba(input,quickmcmc=T,verbose=F))
+  
+  if ("try-error"%in%is(fit)) list(input=input)
+  
+  list(input=input,fit=fit)}
 
 jabbaExtractFn<-function(x) {
   # Return NULL if x is NULL

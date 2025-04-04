@@ -53,7 +53,7 @@ getPriors<-function(x){
   rfs       =as.data.frame(t(refpts(x)["msy",c("ssb","harvest","yield"),drop=TRUE]))
   names(rfs)=c("bmsy","fmsy","msy")
   
-  priors =cbind(as.data.frame(t(tryIt(pellaTparams(x)[drop=TRUE]))),
+  priors =cbind(as.data.frame(t(tryIt(pellatParams(x)[drop=TRUE]))),
                 rfs,
                 data.frame(initial.ssb=ssb.obs( x)[,1,drop=TRUE],
                            initial.f  =fbar.obs(x)[,1,drop=TRUE],

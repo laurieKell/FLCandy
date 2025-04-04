@@ -145,3 +145,4 @@ if(FALSE){
   res   =future_lapply(BalticSea, FUN=eqSim)
   eqsims=ldply(res,model.frame)
 }
+

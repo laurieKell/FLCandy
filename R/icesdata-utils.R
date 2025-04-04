@@ -245,11 +245,33 @@ setMethod( 'kobe',  signature(path='FLStock',method="missing"),
                names(attributes(path)$eqsim)    =tolower(names(attributes(path)$eqsim))
                names(attributes(path)$benchmark)=tolower(names(attributes(path)$benchmark))
                
-               FLQuants(path, "stock"  =function(x) ssb(x)%/%eqsim(      x)["bmsy"],
-                              "harvest"=function(x) fbar(x)%/%benchmark(x)["fmsy"])})
+               FLQuants(path, "stock"   =function(x) ssb(x)%/%eqsim(     x)["bmsy"],
+                              "harvest" =function(x) fbar(x)%/%benchmark(x)["fmsy"],
+                              "blim"    =function(x) ssb(x)%/%benchmark( x)["blim"],
+                              "flim"    =function(x) ssb(x)%/%benchmark( x)["flim"])})
            
 setMethod( 'kobe',  signature(path='FLBRP',method="missing"), 
            function(path,method){ 
              
-             FLQuants(path, "stock"  =function(x) ssb.obs( x)%/%refpts(x)["msy","ssb"],
-                            "harvest"=function(x) fbar.obs(x)%/%refpts(x)["msy","harvest"])})
+             FLQuants(path, 
+                      "stock"  =function(x) ssb.obs( x)%/%refpts(x)["msy","ssb"],
+                      "harvest"=function(x) fbar.obs(x)%/%refpts(x)["msy","harvest"],
+                      "blim"   =function(x) ssb.obs( x)%/%blim(x)["blim","ssb"],
+                      "flim"   =function(x) fbar.obs(x)%/%blim(x)["blim","harvest"])})
+
+setMethod( 'kobe',signature(path='FLBRP',method="logical"), 
+           function(path,method){ 
+             
+    kb =kobe(path)
+    rtn=FLQuants(green      =as.FLQuant(kb$stock>=1&kb$harvest<=1),
+                 yellow     =as.FLQuant(kb$stock< 1&kb$harvest<=1),
+                 orange     =as.FLQuant(kb$stock>=1&kb$harvest> 1),
+                 red        =as.FLQuant(kb$stock< 1&kb$harvest> 1),
+                 overfished =as.FLQuant(kb$stock< 1),
+                 overfishing=as.FLQuant(kb$harvest<=1))
+    rtn=model.frame(rtn)
+    rtn=subset(melt(rtn[,1:10],names(rtn)[1:6]),value==1)[,-8]
+    
+    return(rtn)})
+    
+    

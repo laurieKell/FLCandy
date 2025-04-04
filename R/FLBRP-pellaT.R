@@ -25,12 +25,12 @@
 #' }
 #' 
 #' @export
-#' @rdname pellaTparams
+#' @rdname pellatParams
 #' 
 #' @examples
 #' # Using numeric vector
 #' refs <- c(fmsy=0.2, bmsy=1000, b0=2000)
-#' pellaTparams(refs)
+#' pellatParams(refs)
 #' 
 #' @references
 #' Pella, J.J. and Tomlinson, P.K. (1969) A generalized stock production model. 
@@ -38,10 +38,10 @@
 #' 
 #' @seealso 
 #' \code{\link[FLCore]{FLPar}}, \code{\link[FLCore]{FLBRP}}
-#' @rdname pellaTparams
-setGeneric("pellaTparams", function(object,biomass,...) standardGeneric("pellaTparams"))
+#' @rdname pellatParams
+setGeneric("pellatParams", function(object,biomass,...) standardGeneric("pellatParams"))
 
-setMethod("pellaTparams", signature(object="FLPar"),
+setMethod("pellatParams", signature(object="FLPar"),
     function(object){ 
 
     if ("b0"%in%dimnames(object)$params)
@@ -79,8 +79,8 @@ setMethod("pellaTparams", signature(object="FLPar"),
             
     return(res)})
 
-#' @rdname pellaTparams
-setMethod("pellaTparams", signature(object="FLBRP"),
+#' @rdname pellatParams
+setMethod("pellatParams", signature(object="FLBRP"),
     function(object) {
       rfpts=refpts(object)
             
@@ -90,10 +90,10 @@ setMethod("pellaTparams", signature(object="FLBRP"),
               k   =rfpts["virgin","ssb"],
               iter=dim(rfpts)[3])
             
-        pellaTparams(params)})
+        pellatParams(params)})
 
-#' @rdname pellaTparams
-setMethod("pellaTparams", signature(object="numeric"),
+#' @rdname pellatParams
+setMethod("pellatParams", signature(object="numeric"),
     function(object) {
       if(!all(c("fmsy","bmsy","b0") %in% names(object)))
         stop("fmsy, bmsy and b0 not found")
@@ -103,9 +103,9 @@ setMethod("pellaTparams", signature(object="numeric"),
                     dimnames=list(params=names(object),
                                                 iter=1)))
             
-          return(pellaTparams(params))})
+          return(pellatParams(params))})
 
-setMethod("pellaTparams", signature(object="FLBRP",biomass="function"),
+setMethod("pellatParams", signature(object="FLBRP",biomass="function"),
   function(object,biomass=ssb) {
       
     ctc=catch(  object)
@@ -116,9 +116,29 @@ setMethod("pellaTparams", signature(object="FLBRP",biomass="function"),
                fmsy=max(ctc)/eb[ctc==max(ctc)],
                k   =max(eb,na.rm=TRUE))
       
-    return(pellaTparams(pars))})
+    return(pellatParams(pars))})
 
-pellaTparamFn<-function(fmsy,bmsy,b0){
+#' @rdname pellatParams
+#' @export
+setMethod("pellatParams", signature(object="missing", biomass="missing"),
+          function(object, biomass, fmsy, bmsy, k=NULL, b0=NULL, virgin=NULL, ...) {
+            # Determine which carrying capacity parameter to use
+            if(is.null(k)) k=virgin
+            if(is.null(k)) k=b0
+            
+            if(is.null(k))
+              stop("One of k, virgin, or b0 must be provided")
+            
+            # Create numeric vector with named elements
+            refs=FLPar(fmsy = fmsy,
+                       bmsy = bmsy,
+                       b0   = k)
+            
+            # Call the numeric method
+            model.frame(pellatParams(refs))[,-4]})
+
+
+pellatParamFn<-function(fmsy,bmsy,b0){
   # Calculate shape parameter m from Bmsy/K ratio
   BmsyK=bmsy/b0
   m    =optimize(function(x) abs(BmsyK - (1/x)^(1/(x-1))), interval=c(0.1,10))$minimum
@@ -152,7 +172,7 @@ getM<-function(bmsyK){
 
 
 if(FALSE){
-  pellaTparams(Fmsy=0.1,Bmsy=600,B0=1000)
+  pellatParams(Fmsy=0.1,Bmsy=600,B0=1000)
   
   target=0.4
   

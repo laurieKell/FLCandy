@@ -58,7 +58,7 @@ setMethod("calcPriors", signature(object="FLBRP"), function(object) {
     shape=bmsy / b0
     if (is.na(shape)) shape=0.4
     
-    pt=t(tryIt(pellaTparams(object)[drop=TRUE]))
+    pt=t(tryIt(pellatParams(object)[drop=TRUE]))
       
     # Compile results
     rtn= c(r=pt[,"r"], p=pt[,"p"], fmsy=fmsy, bmsy=bmsy, b0=pt[,"k"], shape=shape,
@@ -81,7 +81,7 @@ setMethod("calcPriors", signature(object="FLStock"), function(object,nmin=0:2,nm
     shape=bmsy/b0
     if (is.na(shape)) shape=0.4
     
-    pt=pellaTparams(FLPar(c("fmsy","bmsy","k"=b0)))
+    pt=pellatParams(FLPar(c("fmsy","bmsy","k"=b0)))
     
     ssb.minyr=mean(ssb(object)[,1+nmin])
     f.minyr=mean(fbar( object)[,1+nmin])
