@@ -119,7 +119,7 @@ theme_facet<-function(base_size =12) {
       # Panel spacing
       panel.spacing =unit(0, "lines"))}
 
-theme_no_y=base_theme +
+theme_no_y=theme_base +
   theme(
     axis.title.y =element_blank(),
     axis.text.y =element_blank(),
@@ -132,7 +132,7 @@ theme_no_title=theme(
   strip.background =element_blank())
 
 # AUC theme
-theme_auc=base_theme +
+theme_auc=theme_base +
   theme(
     axis.title.y =element_blank(),
     axis.text.y  =element_blank(),
