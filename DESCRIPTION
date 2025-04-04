@@ -110,4 +110,12 @@ Collate:
   violin.R
   windowRange.R
   xoy.R
+   createPlots.R
+  fishlife.R
+  ggpairs.R
+  hcrFig.R
+  matSel.R
+  pellaTrefpts.R
+  sex-indicators.R
+  stdz.R
 LazyLoad: true
