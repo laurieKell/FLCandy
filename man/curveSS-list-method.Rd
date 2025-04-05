@@ -5,7 +5,7 @@
 \title{Extracts yield and surplus production from Stock Synthesis output
 processes Stock Synthesis output to calculate yield and surplus production.}
 \usage{
-\S4method{curveSS}{list}(object)
+\S4method{curveSS}{list}(object, maxY = 1.5)
 }
 \arguments{
 \item{object}{An output from SS_outputs}

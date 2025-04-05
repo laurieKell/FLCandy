@@ -4,7 +4,7 @@
 \alias{priors}
 \title{priors}
 \usage{
-priors(object, ...)
+priors(object)
 }
 \arguments{
 \item{object}{An \code{FLBRP} from which to extract priors}

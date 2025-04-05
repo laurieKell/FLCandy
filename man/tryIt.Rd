@@ -4,7 +4,7 @@
 \alias{tryIt}
 \title{Safely Evaluate an Expression}
 \usage{
-tryIt(x, silent = FALSE)
+tryIt(x, silent = TRUE)
 }
 \arguments{
 \item{x}{An R expression to evaluate}

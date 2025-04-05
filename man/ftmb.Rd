@@ -6,13 +6,16 @@
 \usage{
 ftmb(
   object,
-  spr0,
-  s = NULL,
+  spr0 = spr0,
+  s = 0.7,
   s.est = TRUE,
   s.logitsd = 1.3,
-  inits = NULL,
-  lower = NULL,
-  upper = NULL,
+  inits = function(object = object, s = s) c(median(c(log(rec(object)))), log(0.4),
+    to_logits(s)),
+  lower = function(object = object, s = -20) c(quantile(c(log(rec(object))), probs =
+    0.1), log(0.05), -20),
+  upper = function(object = object, s = 20) c(quantile(c(log(rec(object))), probs = 0.9),
+    log(1.5), 20),
   SDreport = TRUE
 )
 }

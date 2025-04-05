@@ -1,3 +1,8 @@
+
+
+setGeneric("priors", function(object) {
+  standardGeneric("priors")})
+
 #' @title calculates priors for biomass dynamic models
 #' 
 #' @description Assign an FLPar object as an attribute to an FLBRP object

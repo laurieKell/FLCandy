@@ -38,11 +38,13 @@ Collate:
   bevholtar1.R
   bhz.R
   brp2lh.R
+  createPlots.R
   crosstest.R
   deSeason.R
   effortBellWatson.R
   eqsim1.R
   eqsim2.R
+  fishlife.R
   FLBRP-blim.R
   FLBRP-leslie.R
   FLBRP-msyVirgin.R
@@ -61,9 +63,11 @@ Collate:
   fnLbi.R
   ftmb.R
   geom_split_violin.R
+  ggpairs.R
   ggplotFL-plotLengths.R
   globalMSY.R
   haupt2.R
+  hcrFig.R
   hcrICESV2.R
   icesdata-utils.R
   icesRefpts.R
@@ -76,6 +80,7 @@ Collate:
   lime.R
   lorenzenM.R
   m12.R
+  matSel.R
   mEmpirical.R
   mglim.R
   nonStationarity.R
@@ -85,15 +90,16 @@ Collate:
   OMstats-perm.R
   OMstats-pf.R
   OMstats-pt.R
+  pellaTrefpts.R
   recoveryMetrics.R
   relMSY.R
   rlmvn.R
   roc.R
   rocFLQ.R
-  saveTmp.R
   seasonalise.R
   seasonUnit.R
   selex.R
+  sex-indicators.R
   spatial_funs.R
   spict.mp.R
   spr0Cohort.R
@@ -102,6 +108,7 @@ Collate:
   ss-diags.R
   ss-MVLN.R
   ss-smry.R
+  stdz.R
   themes.R
   traits.R
   trnd.R
@@ -110,12 +117,4 @@ Collate:
   violin.R
   windowRange.R
   xoy.R
-   createPlots.R
-  fishlife.R
-  ggpairs.R
-  hcrFig.R
-  matSel.R
-  pellaTrefpts.R
-  sex-indicators.R
-  stdz.R
 LazyLoad: true

@@ -47,7 +47,8 @@ setMethod("osr", signature(object="FLStock"),
 #' ggplot(index) + 
 #'   geom_line(aes(x = year, y = data)) +
 #'   ylab("Operational Sex Ratio (Female Proportion)")
-
+#'   
+#'  }
 #' Calculate Sex Ratio-at-Length for an FLStock object
 #' 
 #' $ Sex ratio-at-length = \frac{N_{1,f}}{N_{1,f} + N_{1,m}} \$

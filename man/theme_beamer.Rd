@@ -38,7 +38,7 @@ ggplot(mtcars, aes(wt, mpg)) +
 # With larger text
 ggplot(mtcars, aes(wt, mpg)) +
   geom_point() +
-  theme_beamer(scale = 1.2)
+  theme_beamer(scale =1.2)
 }
 
 }
