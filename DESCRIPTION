@@ -101,6 +101,7 @@ Collate:
   seasonUnit.R
   selex.R
   sex-indicators.R
+  skill.R
   spatial_funs.R
   spict.mp.R
   spr0Cohort.R
