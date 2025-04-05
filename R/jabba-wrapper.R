@@ -221,11 +221,10 @@ jabba<-function(catch,
     verbose   =FALSE))
   args=args[!is.na(args)]
 
-  
   if (substr(currentDepletion[1],1,1)=="b")  
-    args=c(args,list(b.prior=c(c(pr["current.b"]), pr.sd["current.b"], max(catch$year), "bbmsy")))
+    args=c(args,list(b.prior=c(c(pr["current"]), pr.sd["current"], max(catch$year), "bbmsy")))
   if (substr(currentDepletion[1],1,1)=="f")  
-    args=c(args,list(b.prior=c(c(pr["current.f"]), pr.sd["current.f"], max(catch$year), "ffmsy")))
+    args=c(args,list(b.prior=c(c(pr["current"]), pr.sd["current"], max(catch$year), "ffmsy")))
 
   if (!is.na(initialDepletion)){
   #    aux=list(auxiliary.se  =NULL,
