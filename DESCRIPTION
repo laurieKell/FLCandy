@@ -96,6 +96,7 @@ Collate:
   rlmvn.R
   roc.R
   rocFLQ.R
+  saveTmp.R
   seasonalise.R
   seasonUnit.R
   selex.R
