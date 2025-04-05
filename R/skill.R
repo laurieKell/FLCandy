@@ -409,3 +409,4 @@ taylor_diagram_gg=function(min_R = 0.25, max_R = 1.75, contours = 7,
   }
   
   return(p)}
+
