@@ -11,7 +11,7 @@ rebuild(
   targetSSB = NULL,
   nInitial = 100,
   growthRate = 0.25,
-  minVal = 1e-06,
+  minVal = 0.000001,
   maxVal = 1,
   burnin = 20,
   truncate = TRUE
@@ -23,7 +23,7 @@ rebuild(
   targetSSB = computeRefpts(object)["msy", "ssb"],
   nInitial = 100,
   growthRate = 0.25,
-  minVal = 1e-06,
+  minVal = 0.000001,
   maxVal = 1,
   burnin = 20,
   truncate = TRUE
