@@ -116,6 +116,7 @@ Collate:
   trnd.R
   tryIt.R
   utils.R
+  utility-funcs.R
   violin.R
   windowRange.R
   xoy.R
