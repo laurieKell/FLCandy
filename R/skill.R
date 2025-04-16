@@ -22,13 +22,13 @@ aucCat=data.frame(
 aucCol=c("Fail"="#ffcccc", "Fair"     ="#ffe6cc", 
          "Good"="#e6ffcc", "Excellent"="#ccffe6")
 
-fnTss <- function(x) {
+fnTss<-function(x) {
   chk = unique(c(tssCat$ymin, tssCat$ymax))
   sapply(x, function(val) {
     tssCol[max(seq(length(chk))[val > chk])]
   })}
 
-fnAuc <- function(x) {
+fnAuc<-function(x) {
   chk = unique(c(aucCat$ymin, aucCat$ymax))
   sapply(x, function(val) {
     aucCol[max(seq(length(chk))[val > chk])]
@@ -61,8 +61,8 @@ auc<-function(TPR, FPR) {
 #'   \item direction: Proportion of matching inter-annual change directions
 #' }
 #' @examples
-#' obs_trend <- cumsum(rnorm(20))
-#' pred_trend <- obs_trend + rnorm(20, sd=0.5)
+#' obs_trend=cumsum(rnorm(20))
+#' pred_trend=obs_trend + rnorm(20, sd=0.5)
 #' trend(obs_trend, pred_trend)
 #' @export
 trend<-function(obs,hat){ 
@@ -84,8 +84,8 @@ trend<-function(obs,hat){
 #' }
 #' @note Status determined using threshold at 1 (B/BMSY). Check variable names in function code.
 #' @examples
-#' obs_status <- runif(100, 0.5, 1.5)
-#' pred_status <- obs_status * exp(rnorm(100, sd=0.2))
+#' obs_status=runif(100, 0.5, 1.5)
+#' pred_status=obs_status * exp(rnorm(100, sd=0.2))
 #' state(obs_status, pred_status)
 #' @export
 state<-function(obs,hat){
@@ -110,8 +110,8 @@ state<-function(obs,hat){
 #'   \item cv: Coefficient of variation ratio
 #' }
 #' @examples 
-#' obs <- rlnorm(100, meanlog=log(1), sdlog=0.4)
-#' hat <- obs * exp(rnorm(100, sd=0.1))
+#' obs=rlnorm(100, meanlog=log(1), sdlog=0.4)
+#' hat=obs * exp(rnorm(100, sd=0.1))
 #' variability(obs, hat)
 #' @export
 variability<-function(obs,hat){
@@ -128,18 +128,12 @@ variability<-function(obs,hat){
 #' @return Data.frame containing 10 diagnostic metrics. Final classification currently non-functional.
 #' @note Requires helper functions: stdz(), permutation_entropy(), ordinal_pattern_distribution()
 #' @examples
-#' obs <- runif(100, 0.8, 1.2)
-#' hat <- obs * exp(rnorm(100, sd=0.15))
+#' obs=runif(100, 0.8, 1.2)
+#' hat=obs * exp(rnorm(100, sd=0.15))
 #' diagnostics(obs, hat)
 #' @export
 diagnostics<-function(obs,hat,ndemb=5){
-  rocFn<-function(labels, scores){
-    labels=labels[order(scores, decreasing=TRUE)]
-    data.frame(TPR=cumsum(labels)/sum(labels),
-               FPR=cumsum(!labels)/sum(!labels),
-               labels,
-               reference=sort(scores))}
-  
+
   roc=rocFn(stdz(obs)>1,stdz(hat))
   tss=skillScore(stdz(hat),stdz(obs)-1)
   
@@ -172,35 +166,8 @@ diagnostics<-function(obs,hat,ndemb=5){
 #' @examples
 #' TSS(TP=45, TN=30, FP=10, FN=15) # Good skill (0.5)
 #' @export
-TSS <- function(TP,TN,FP,FN) TP/(FN+TP) - TN/(FP+TN)
+TSS<-function(TP,TN,FP,FN) TP/(FN+TP) - TN/(FP+TN)
 
-  
-#' @title Receiver Operating Characteristic (ROC) Curve Generator
-#' @description Creates ROC curve data for stock status classification performance.
-#' @param labels Logical vector of true stock statuses (TRUE=overfished)
-#' @param scores Numeric vector of model predictions (e.g., B/BMSY ratios)
-#' @return Data.frame with columns:
-#' \itemize{
-#'   \item TPR: True Positive Rate (sensitivity)
-#'   \item FPR: False Positive Rate (1 - specificity)
-#'   \item labels: Ordered true labels
-#'   \item reference: Threshold values
-#' }
-#' @examples
-#' obs <- runif(100, 0.5, 1.5) < 1
-#' pred <- obs + rnorm(100, sd=0.3)
-#' roc_data <- rocFn(obs, pred)
-#' @export
-rocFn<-function(labels, ind) {
-  ord           =order(ind, decreasing = TRUE)  # Descending order
-  labels_ordered=labels[ord]
-  ind_sorted    =ind[ord]  # Keep original scores in threshold order
-  
-  data.frame(
-    TPR   =cumsum(labels_ordered) /sum(labels_ordered),
-    FPR   =cumsum(!labels_ordered)/sum(!labels_ordered),
-    labels=labels_ordered,
-    ind   =ind_sorted)}
 
 #' @title Confusion Matrix Calculator
 #' @description Computes confusion matrix components for stock status classification.
@@ -214,8 +181,8 @@ rocFn<-function(labels, ind) {
 #'   \item FN: False negatives (observed >=1 but predicted <1)
 #' }
 #' @examples
-#' obs <- runif(100, 0.5, 1.5)
-#' pred <- obs * exp(rnorm(100, sd=0.2))
+#' obs=runif(100, 0.5, 1.5)
+#' pred=obs * exp(rnorm(100, sd=0.2))
 #' PN(obs < 1, pred < 1)
 #' @export
 PN<-function(x,y) {
@@ -266,8 +233,8 @@ plotSkill<-function(object, state, ind, threshold=1, reference=1, xLabel="", lim
                       TSS=((TPR-FPR)[flag])[1],
                       BSS=((TPR-FPR)[flg2])[1],
                       ref=ref[flg2][1],
-                      TPR=TPR[flag][1],
-                      FPR=FPR[flag][1],
+                      TPR=TP/(TP+FN),
+                      FPR=FP/(FP+TN),
                       TPR2=TPR[flg2][1],
                       FPR2=FPR[flg2][1])
       rtn})
@@ -383,11 +350,11 @@ plotSkill<-function(object, state, ind, threshold=1, reference=1, xLabel="", lim
 #'   \item sd: Standard deviation of residuals
 #' }
 #' @examples
-#' obs <- cumsum(rnorm(20))
-#' pred <- obs + rnorm(20, sd=0.5)
+#' obs=cumsum(rnorm(20))
+#' pred=obs + rnorm(20, sd=0.5)
 #' compareTS(obs, pred)
 #' @export
-compareTS <- function(ts1, ts2) {
+compareTS<-function(ts1, ts2) {
 
     # Ensure same length
     min_length=min(length(ts1), length(ts2))
@@ -412,11 +379,11 @@ compareTS <- function(ts1, ts2) {
 #' @param lag.max Maximum lag to consider (default=5)
 #' @return Data.frame with optimal lag and corresponding ACF value
 #' @examples
-#' obs <- sin(seq(0, 2*pi, length=50)) + rnorm(50)
-#' hat <- lag(obs, 2) + rnorm(50, sd=0.2)
+#' obs=sin(seq(0, 2*pi, length=50)) + rnorm(50)
+#' hat=lag(obs, 2) + rnorm(50, sd=0.2)
 #' ccfFn(obs, hat)
 #' @export
-ccfFn <- function(obs, hat, lag.max=5){
+ccfFn<-function(obs, hat, lag.max=5){
     rtn=ccf(obs,hat,plot=FALSE,lag.max=lag.max)
     subset(data.frame(lag=rtn$lag,
                       acf=rtn$acf),acf==max(acf))}
@@ -491,6 +458,31 @@ cmKobe<-function(stock.om,harvest.om,stock.mp,harvest.mp,what=c("red","green","y
   cm(dt[,"om"],dt[,"mp"])}
 
 
+#' @title Receiver Operating Characteristic (ROC) Curve Generator
+#' @description Creates ROC curve data for stock status classification performance.
+#' @param labels Logical vector of true stock statuses (TRUE=overfished)
+#' @param scores Numeric vector of model predictions (e.g., B/BMSY ratios)
+#' @return Data.frame with columns:
+#' \itemize{
+#'   \item TPR: True Positive Rate (sensitivity)
+#'   \item FPR: False Positive Rate (1 - specificity)
+#'   \item labels: Ordered true labels
+#'   \item reference: Threshold values
+#' }
+#' @examples
+#' obs=runif(100, 0.5, 1.5) < 1
+#' pred=obs + rnorm(100, sd=0.3)
+#' roc_data=rocFn(obs, pred)
+#' @export
+rocFn<-function(labels, ind) {
+  ord           =order(ind, decreasing=TRUE)  
+  labels_ordered=labels[ord]
+  data.frame(
+    TPR   =cumsum( labels_ordered)/sum( labels_ordered),
+    FPR   =cumsum(!labels_ordered)/sum(!labels_ordered),
+    labels=labels_ordered,
+    ind   =ind[ord])}
+
 #' @title Calculate Prediction Skill Scores
 #' @description Computes threshold-based skill scores including TSS (True Skill Statistic) and AUC (Area Under the Curve) for fishery stock assessment models.
 #' @param x Numeric vector of model predictions (e.g., estimated stock biomass)
@@ -516,31 +508,28 @@ cmKobe<-function(stock.om,harvest.om,stock.mp,harvest.mp,what=c("red","green","y
 #' skillScore(predStatus, obsStatus > 1, reference=1)
 #' @importFrom FLCore auc
 #' @export
-skillScore<-function(state, ind, reference=NULL, threshold=1) {
-  rocs=rocFn(state>threshold,ind)
+skillScore<-function(state, ind, reference = NULL, threshold = 1) {
+  rocs=rocFn(state > threshold, ind)
   
-  if (is.null(reference)){
-    flag=(rocs$TPR-rocs$FPR==max(rocs$TPR-rocs$FPR))
-    reference=rocs$ind[flag][1]}
-  else{   
-    flag=((reference-rocs$ind)>=0)}
+  if (is.null(reference)) {
+    flag=which.max(rocs$TPR - rocs$FPR)
+    reference=rocs$ind[flag]
+  } else {
+    flag=which.min(abs(rocs$ind - reference))  # Find closest threshold
+  }
   
-  TP=sum(state >=threshold & ind >=reference)
-  TN=sum(state < threshold & ind < reference)
-  FP=sum(state >=threshold & ind < reference)
-  FN=sum(state < threshold & ind >=reference)
-
-  # Return results at optimal reference
+  TP=sum(state > threshold & ind > rocs$ind[flag])
+  TN=sum(state <= threshold & ind <= rocs$ind[flag])
+  FP=sum(state > threshold & ind <= rocs$ind[flag])
+  FN=sum(state <= threshold & ind > rocs$ind[flag])
+  
   data.frame(
-    AUC=auc(rocs$TPR,rocs$FPR),
-    TSS=rev(rocs$TPR-rocs$FPR[!flag])[1],
-    ref=reference,
-    TPR=rev(rocs$TPR[!flag])[1],
-    FPR=rev(rocs$FPR[!flag])[1],
-    TP=TP,
-    TN=TN,
-    FP=FP,
-    FN=FN)}
+    AUC = auc(rocs$TPR, rocs$FPR),
+    TSS = rocs$TPR[flag] - rocs$FPR[flag],
+    ref = rocs$ind[flag],
+    TPR = rocs$TPR[flag],
+    FPR = rocs$FPR[flag],
+    TP = TP, TN = TN, FP = FP, FN = FN)}
 
 #' @title Stock Assessment Model Summary
 #' @description Computes comprehensive performance metrics for fishery management procedures.
@@ -556,30 +545,27 @@ skillScore<-function(state, ind, reference=NULL, threshold=1) {
 #'   \item TPR2/FPR2: Rates at optimal threshold
 #' }
 #' @examples
-#' state <- runif(100, 0.5, 1.5)
-#' ind <- state * exp(rnorm(100, sd=0.2))
+#' state=runif(100, 0.5, 1.5)
+#' ind=state * exp(rnorm(100, sd=0.2))
 #' skillSummary(state>1, ind)
 #' @export
-skillSummary<-function(label,ind,reference=NULL){
+skillSummary<-function(label, ind, reference = NULL) {
+  rocs=rocFn(label, ind)
   
-  rocs=rocFn(label,ind)
-  AUC=with(rocs,auc(TPR=TPR,FPR=FPR))
-  TPR=rocs$TPR
-  FPR=rocs$FPR
+  if (is.null(reference)) {
+    flag=which.max(rocs$TPR - rocs$FPR)
+  } else {
+    flag=which.min(abs(rocs$ind - reference))
+  }
   
-  if (is.null(reference))
-    flag=(TPR-FPR)==max(TPR-FPR)
-  else  
-    flag=((reference-rocs$ind)>=0)
-    
-  ref=rev(rocs$ind[!flag])[1]
-  
-  rtn=data.frame(AUC=AUC,
-                 TSS=rev((TPR-FPR)[!flag])[1],
-                 ref=ref,
-                 TPR=rev(TPR[!flag])[1],
-                 FPR=rev(FPR[!flag])[1])
-  rtn}
+  data.frame(
+    AUC = auc(rocs$TPR, rocs$FPR),
+    TSS = rocs$TPR[flag] - rocs$FPR[flag],
+    ref = rocs$ind[flag],
+    TPR = rocs$TPR[flag],
+    FPR = rocs$FPR[flag]
+  )}
+
 
 skillSummaryOld<-function(om,mp) {
   roc1 = rocFn(om, mp)
@@ -594,9 +580,10 @@ skillSummaryOld<-function(om,mp) {
                    FPR = FPR[flag][1], TPR2 = TPR[flg2][1], FPR2 = FPR[flg2][1])
   rtn}
 
+
 cm<-function(hat,obs){
-  if (is.logical(hat)) hat=factor(hat,levels=c("TRUE","FALSE"))
-  if (is.logical(obs)) obs=factor(obs,levels=c("TRUE","FALSE"))
+  if (is.logical(hat)) hat=factor(hat,levels=c("FALSE","TRUE"))
+  if (is.logical(obs)) obs=factor(obs,levels=c("FALSE","TRUE"))
   
   # ------------------------------------------------------------------------------
   # Step 2: Compute the confusion matrix with evaluation metrics
@@ -619,17 +606,35 @@ cm<-function(hat,obs){
   
   transform(data.frame("class"=class,CM$byClass),TSS=unlist(Sensitivity+Specificity-1))}
 
+cm<-function(hat, obs) {
+  # Force "TRUE" as positive class
+  hat=factor(hat, levels = c("FALSE", "TRUE"))
+  obs=factor(obs, levels = c("FALSE", "TRUE"))
+  
+  CM=confusionMatrix(hat, obs, positive = "TRUE")
+  
+  data.frame(
+    Sensitivity = CM$byClass["Sensitivity"],
+    Specificity = CM$byClass["Specificity"],
+    TSS = CM$byClass["Sensitivity"] + CM$byClass["Specificity"] - 1
+  )}
+
 if (FALSE){
+  library(MASS)
+  library(caret)
+  
   om=as.data.frame(mvrnorm(100,c(1,1),matrix(c(0.6,0.3,0.3,0.6),2,2)))
   names(om)=c("stock.om","harvest.om")
   ommp=transform(om,stock.mp=stock.om*rlnorm(100),harvest.mp=harvest.om*rlnorm(100))
   
   with(ommp,skillScore(  stock.om,  stock.mp, reference=1))
   with(ommp,skillSummary(stock.om>1,stock.mp, reference=1))
-  
+  with(ommp,cm(          stock.om>1,stock.mp>1))
+
+  with(ommp,rocFn(stock.om>1,stock.mp))[47:48,]
+
   with(ommp,table(stock.om>1,stock.mp>1))
   with(ommp,confusionMatrix(factor(stock.om>1),factor(stock.mp>1), mode="everything"))[[2]]
-  with(ommp,cm(          stock.om>1,stock.mp>1))
   
   with(ommp,skillScore(  harvest.om,  harvest.mp, reference=1))
   with(ommp,skillSummary(harvest.om>1,harvest.mp))
