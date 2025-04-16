@@ -107,3 +107,15 @@ myDensity<-function(data,mapping,...) {
     geom_density(alpha=0.7,linewidth=0.8,...) +
     theme_minimal()}
 
+myViolinDiag <- function(data, mapping, ...) {
+  ggplot(data = data, mapping = mapping) +
+    geom_violin(alpha = 0.7, scale = "width", ...) + # Add violin plot
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank()
+    )
+}
+
+
