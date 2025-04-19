@@ -186,10 +186,10 @@ TSS<-function(TP,TN,FP,FN) TP/(FN+TP) - TN/(FP+TN)
 #' PN(obs < 1, pred < 1)
 #' @export
 PN<-function(x,y) {
-  data.frame(TP=sum(x >=0 & y >=0),
-             TN=sum(x < 0 & y < 0),
-             FP=sum(x >=0 & y < 0),
-             FN=sum(x < 0 & y >=0))}
+  data.frame(TP=sum(x > 0 & y > 0),
+             TN=sum(x <=0 & y <=0),
+             FP=sum(x > 0 & y <=0),
+             FN=sum(x <=0 & y > 0))}
 
 #' @title Stock Assessment Skill Visualizer
 #' @description Generates diagnostic plots for management procedure evaluation.
@@ -214,8 +214,8 @@ PN<-function(x,y) {
 plotSkill<-function(object, state, ind, threshold=1, reference=1, xLabel="", limits=c(0,5)) {
   
     dat=transform(object,
-                  state   =eval(sym(state)),
-                  ind=eval(sym(ind)))
+                  state=eval(sym(state)),
+                  ind  =eval(sym(ind)))
     
     dat=subset(   dat, !is.na(state)&!is.na(ind))
     dat=transform(dat, ratio=(ind-state)/state)
@@ -233,8 +233,8 @@ plotSkill<-function(object, state, ind, threshold=1, reference=1, xLabel="", lim
                       TSS=((TPR-FPR)[flag])[1],
                       BSS=((TPR-FPR)[flg2])[1],
                       ref=ref[flg2][1],
-                      TPR=TP/(TP+FN),
-                      FPR=FP/(FP+TN),
+                      TPR=((TPR)[flag])[1],
+                      FPR=((TPR)[flag])[1],
                       TPR2=TPR[flg2][1],
                       FPR2=FPR[flg2][1])
       rtn})
@@ -515,12 +515,12 @@ skillScore<-function(state, ind, reference = NULL, threshold = 1) {
     flag=which.max(rocs$TPR - rocs$FPR)
     reference=rocs$ind[flag]
   } else {
-    flag=which.min(abs(rocs$ind - reference))  # Find closest threshold
+    flag=which.min(abs(rocs$ind-reference))  # Find closest threshold
   }
   
-  TP=sum(state > threshold & ind > rocs$ind[flag])
-  TN=sum(state <= threshold & ind <= rocs$ind[flag])
-  FP=sum(state > threshold & ind <= rocs$ind[flag])
+  TP=sum(state > threshold  & ind > rocs$ind[flag])
+  TN=sum(state <= threshold & ind <=rocs$ind[flag])
+  FP=sum(state > threshold  & ind <=rocs$ind[flag])
   FN=sum(state <= threshold & ind > rocs$ind[flag])
   
   data.frame(
@@ -555,7 +555,7 @@ skillSummary<-function(label, ind, reference = NULL) {
   if (is.null(reference)) {
     flag=which.max(rocs$TPR - rocs$FPR)
   } else {
-    flag=which.min(abs(rocs$ind - reference))
+    flag=which.min(abs(rocs$ind-reference))
   }
   
   data.frame(
@@ -605,19 +605,6 @@ cm<-function(hat,obs){
   class=gsub("Class: ","",dimnames(CM$byClass)[[1]])
   
   transform(data.frame("class"=class,CM$byClass),TSS=unlist(Sensitivity+Specificity-1))}
-
-cm<-function(hat, obs) {
-  # Force "TRUE" as positive class
-  hat=factor(hat, levels = c("FALSE", "TRUE"))
-  obs=factor(obs, levels = c("FALSE", "TRUE"))
-  
-  CM=confusionMatrix(hat, obs, positive = "TRUE")
-  
-  data.frame(
-    Sensitivity = CM$byClass["Sensitivity"],
-    Specificity = CM$byClass["Specificity"],
-    TSS = CM$byClass["Sensitivity"] + CM$byClass["Specificity"] - 1
-  )}
 
 if (FALSE){
   library(MASS)
