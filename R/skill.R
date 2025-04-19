@@ -622,7 +622,7 @@ skillProb<-function(stock,harvest) {
   overFishing=1-f  
   orange     =as.numeric(!overFished&overFishing)
   
-  data.frame(red=red,green=green,yellow=yellow,orange=orange,
+  data.frame(red=red,green=green,yellow=yellow-orange,orange=orange,
              overFished =overFished,overFishing=overFishing)}
 
 
