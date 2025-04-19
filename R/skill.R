@@ -207,11 +207,11 @@ PN<-function(x,y) {
 #' @examples
 #' \dontrun{
 #' data(assessment_data)
-#' plotSkill(assessment_data, "true_status", "predicted_status")
+#' skillPlot(assessment_data, "true_status", "predicted_status")
 #' }
 #' @import ggplot2
 #' @export
-plotSkill<-function(object, state, ind, threshold=1, reference=1, xLabel="", limits=c(0,5)) {
+skillPlot<-function(object, state, ind, threshold=1, reference=1, xLabel="", limits=c(0,5)) {
   
     dat=transform(object,
                   state=eval(sym(state)),
@@ -605,6 +605,26 @@ cm<-function(hat,obs){
   class=gsub("Class: ","",dimnames(CM$byClass)[[1]])
   
   transform(data.frame("class"=class,CM$byClass),TSS=unlist(Sensitivity+Specificity-1))}
+
+
+skillProb<-function(stock,harvest) {
+  
+  b =  pmax(pmin(as.integer(stock),  1),0)
+  f =1-pmax(pmin(as.integer(harvest),1),0)
+  p =f*b
+  collapsed=(1-b)*(1-f)
+  
+  red   =collapsed
+  green =p
+  yellow=1-p-collapsed
+  
+  overFished =1-b
+  overFishing=1-f  
+  orange     =as.numeric(!overFished&overFishing)
+  
+  data.frame(red=red,green=green,yellow=yellow,orange=orange,
+             overFished =overFished,overFishing=overFishing)}
+
 
 if (FALSE){
   library(MASS)
