@@ -596,7 +596,7 @@ setGeneric("PN", function(object, y) standardGeneric("PN"))
 #' }
 #'
 #' @export
-setGeneric("rocFn", function(labels, scores) standardGeneric("rocFn"))
+setGeneric("rocFn", function(labels, ind) standardGeneric("rocFn"))
 
 #' Calculate ROC (Receiver Operating Characteristic) statistics for two numeric vectors.
 #'
