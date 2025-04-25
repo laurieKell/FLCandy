@@ -1,57 +1,57 @@
-myRegEquation<-function(data,mapping,...) {
+myRegEquation <- function(data,mapping,...) {
   # Extract x and y variables
-  x<-eval_data_col(data,mapping$x)
-  y<-eval_data_col(data,mapping$y)
+  x <- eval_data_col(data,mapping$x)
+  y <- eval_data_col(data,mapping$y)
   
   # Get variable names for the equation
-  x_name<-gsub("~","",deparse(mapping$x))
-  y_name<-gsub("~","",deparse(mapping$y))
+  x_name <- gsub("~","",deparse(mapping$x))
+  y_name <- gsub("~","",deparse(mapping$y))
   
   x_name="x"
   y_name="y"
   
   # Get grouping variable (SRR in your case)
-  group_var<-eval_data_col(data,mapping$colour)
+  group_var <- eval_data_col(data,mapping$colour)
   
   # Initialize equation text
-  equation_text<-""
+  equation_text <- ""
   
   # Create a dataframe for model fitting
-  df<-data.frame(x=x,y=y,group=group_var)
+  df <- data.frame(x=x,y=y,group=group_var)
   
   # For each level of the grouping variable
   for(level in levels(group_var)) {
     # Subset data for this group
-    group_data<-subset(df,group ==level)
+    group_data <- subset(df,group == level)
     
     # Fit linear model if enough data
-    if(nrow(group_data) >=3) {
+    if(nrow(group_data) >= 3) {
       tryCatch({
-        model<-lm(y ~ x,data=group_data)
+        model <- lm(y ~ x,data=group_data)
         
         # Extract coefficients
-        intercept<-round(coef(model)[1],2)
-        slope<-round(coef(model)[2],2)
+        intercept <- round(coef(model)[1],2)
+        slope <- round(coef(model)[2],2)
         
         # Format with proper sign
-        sign<-ifelse(slope >=0,"+","")
+        sign <- ifelse(slope >= 0,"+","")
         
         # Create equation string
-        eq<-paste0(level,"\n ",y_name,"=",
-                   intercept,sign,slope,"*",x_name)
+        eq <- paste0(level,"\n ",y_name,"=",
+                     intercept,sign,slope,"*",x_name)
         
         # Add equation to text
-        if(equation_text !="") equation_text<-paste0(equation_text,"\n\n")
-        equation_text<-paste0(equation_text,eq)
+        if(equation_text != "") equation_text <- paste0(equation_text,"\n\n")
+        equation_text <- paste0(equation_text,eq)
       },error=function(e) {
         # Handle errors gracefully
-        if(equation_text !="") equation_text<-paste0(equation_text,"\n\n")
+        if(equation_text != "") equation_text <- paste0(equation_text,"\n\n")
         equation_text <<- paste0(equation_text,level,": Error fitting model")
       })}}
   
   # Return an empty plot if no equations generated
-  if(equation_text =="") {
-    equation_text<-"Insufficient data"}
+  if(equation_text == "") {
+    equation_text <- "Insufficient data"}
   
   # Create and return the plot with equations
   ggplot(data=data,mapping=mapping) + 
@@ -107,6 +107,7 @@ myDensity<-function(data,mapping,...) {
     geom_density(alpha=0.7,linewidth=0.8,...) +
     theme_minimal()}
 
+
 myViolinDiag <- function(data, mapping, ...) {
   ggplot(data = data, mapping = mapping) +
     geom_violin(alpha = 0.7, scale = "width", ...) + # Add violin plot
@@ -117,5 +118,3 @@ myViolinDiag <- function(data, mapping, ...) {
       axis.title.y = element_blank()
     )
 }
-
-
