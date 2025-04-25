@@ -17,7 +17,10 @@ require(r4ss)
 setMethod("curveSS", signature(object="list"), function(object,maxY=1.5){
   eqlYield  =object[["equil_yield"]]
   timeseries=object[["timeseries"]]
-  dq        =object[["derived_quants"]][unique(object$derived_quants$Label)[210:226],]
+  rfs=c("SSB_unfished","Totbio_unfished","SmryBio_unfished","Recr_unfished","SSB_Btgt","SPR_Btgt","annF_Btgt",  
+        "Dead_Catch_Btgt","SSB_SPR", "annF_SPR","Dead_Catch_SPR","SSB_MSY","SPR_MSY","annF_MSY",   
+        "Dead_Catch_MSY", "Ret_Catch_MSY","B_MSY/SSB_unfished")
+  dq=object[["derived_quants"]][unique(object$derived_quants$Label)[rfs],]
   
   if (!("Tot_Catch"%in%names(eqlYield))&("Catch"%in%names(eqlYield)))
     names(eqlYield)[names(eqlYield)=="Catch"]="Tot_Catch"
@@ -52,5 +55,40 @@ setMethod("curveSS", signature(object="list"), function(object,maxY=1.5){
   maxY    =signif(max(c(ts$yield,eql$yield))*maxY,1)
   triangle=data.frame(x=c(rfs$bmsy, rfs$bmsy, rfs$bmsy*maxY/rfs$msy, rfs$bmsy),
                       y=c(rfs$msy,      maxY,                  maxY, rfs$msy))
+  vBiomass=vBio(object)
   
-  return(list(tseries=ts,curve=eql,refpts=rfs,triangle=triangle,derived=dq))})
+  return(list(tseries=merge(ts,vBiomass),curve=eql,refpts=rfs,triangle=triangle,derived=dq))})
+
+
+
+logistic <- plogis  # maps to standard logistic function
+logit <- qlogis     # maps to inverse logistic function
+
+vBio<-function(rep) {
+  # Get selectivity parameters
+  sel_F_peak  =unlist(c(subset(rep$parameters, Label=="SzSel_Fem_Peak_Fishery_2(2)","Value")))
+  sel_F_ascend=unlist(c(subset(rep$parameters, Label=="SzSel_Fem_Ascend_Fishery_2(2)","Value")))
+  sel_M_peak  =unlist(c(subset(rep$parameters, Label=="SzSel_Male_Peak_Fishery_3(3)","Value")))
+  sel_M_ascend=unlist(c(subset(rep$parameters, Label=="SzSel_Male_Ascend_Fishery_3(3)","Value")))
+  
+  # Calculate selectivity using logistic transform
+  calc_sel<-function(len, peak, ascend) 
+    logistic((len - peak)/exp(ascend))
+  
+  # Get length bins from data
+  len_bins=as.numeric(gsub("\\D", "", names(rep$sizeselex)[-(1:4)]))
+  len_bins[is.na(len_bins)]=0
+  
+  # Calculate sex-specific selectivity
+  sel_F=calc_sel(len_bins, sel_F_peak, sel_F_ascend)
+  sel_M=calc_sel(len_bins, sel_M_peak, sel_M_ascend)
+  
+  # Extract and scale biomass (assuming SmryBio is in log space)
+  bio_F=rep$timeseries$`SmryBio_SX:1_GP:1`
+  bio_M=rep$timeseries$`SmryBio_SX:2_GP:1`
+  
+  # Calculate vulnerable biomass
+  data.frame(
+    year   = rep$timeseries$Yr,
+    female = bio_F * sum(sel_F),
+    male  = bio_M * sum(sel_M))}
