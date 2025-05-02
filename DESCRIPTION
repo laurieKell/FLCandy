@@ -62,6 +62,7 @@ Collate:
   fnLbi.R
   ftmb.R
   geom_split_violin.R
+  getTraits.R
   ggpairs.R
   ggplotFL-plotLengths.R
   globalMSY.R
