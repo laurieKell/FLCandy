@@ -38,7 +38,6 @@ Collate:
   bevholtar1.R
   bhz.R
   brp2lh.R
-  createPlots.R
   crosstest.R
   deSeason.R
   effortBellWatson.R
@@ -94,14 +93,11 @@ Collate:
   recoveryMetrics.R
   relMSY.R
   rlmvn.R
-  roc.R
-  rocFLQ.R
   saveTmp.R
   seasonalise.R
   seasonUnit.R
   selex.R
   sex-indicators.R
-  skill.R
   spatial_funs.R
   spict.mp.R
   spr0Cohort.R
@@ -112,7 +108,6 @@ Collate:
   ss-smry.R
   stdz.R
   themes.R
-  traits.R
   trnd.R
   tryIt.R
   utils.R
