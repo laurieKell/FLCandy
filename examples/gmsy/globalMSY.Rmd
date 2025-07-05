@@ -1,0 +1,176 @@
+---
+title: "Performance Statistics"
+subtitle: "Global MSY"
+author: "L Kell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+mathjax: TRUE
+fig_width: 6 
+fig_height: 4 
+tags: FLR FLCore introduction
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+bibliography: ../refs.bib
+editor_options: 
+  markdown: 
+    wrap: 72
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../output/html") })
+---
+
+When conducting Management Strategy Evaluation  objective need to be agreed and then quantified in the form of
+statistics known as **Performance Statistics**.
+
+An objective in many fisheries management frameworks is to achieve the maximum sustainable yield ($MSY$), therefore  the target biomass is $B_{MSY}$ and the target fishing mortality $F_{MSY}$. Where, $F_{MSY}$ is commonly defined as the fishing mortality with a given fishing pattern and current environmental conditions that gives the long-term maximum yield. 
+
+If an objective is to achieve MSY, then $F_{MSY}$ and $B_{MSY}$ can be considered as target levels around which  fishing mortality and biomass should fluctuate around randomly, e.g. achieve the target levels with a 50% probability. 
+However, the allocation of effort among fishing gears and between fleets is as important as the levl of fishing effort [@beddington1973356]. Differences in age-specific vulnerability to the fishing method can modify MSY, and so is rarely, if ever, attainable simultaneously for all species  [@maunder2002relationship]. An alternative is to use the
+Global $MSY$, which is the yield that can be achieved for the optimal selection pattern. For example, by finding the knifed edged selction pattern that maximises yield.
+
+
+
+```{r, knitr, eval=TRUE, echo=FALSE, warning=FALSE, cache=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(knitr)
+opts_chunk$set(cache     =TRUE, 
+               comment   =NA, 
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =FALSE, 
+               eval      =TRUE,
+               cache     =TRUE,
+               cache.path= "../cache/Brebuild/",
+               fig.path  ="../output/tex/gmsy/",
+               fig.width =8,
+               fig.height=4,
+               dev       ="png")
+iFig=0
+iTab=0
+```
+
+```{r, libs}
+library( ggplot2); theme_set(theme_bw())
+
+library(FLCore)
+library(FLBRP)
+library(ggplotFL)
+
+require(FLasher)
+
+library(plyr)
+library(dplyr) 
+library(reshape) 
+
+library(interp)
+```
+
+```{r, eval=FALSE}
+setwd("/home/laurie/Desktop/flr/FLCandy/examples/blim")
+```
+
+## Example using 'FLBRP' 
+
+For a stock the 'FLBRP' object can be derived, this holds the expected values for the mortality, selectivity, mass, marurity-at-age, and the stock recruitment relationship, and can be used to calculate the expected, i.e. equilibrium values of biomass for any given level of fishing mortality. 
+
+
+```{r, func}
+setGeneric("globalMsy", function(object, ...)
+  standardGeneric("globalMsy"))
+
+# globalMsy {{{
+
+#' @rdname globalMsy
+#' @description Calculates the global MSY, i.e. the largest catch that can be made with a knife edge selection pattern
+#' @examples
+#' data(ple4brp)
+#' globalMsy(ple4brp)
+#' 
+
+setMethod('globalMsy', signature(object='FLBRP'), function(object){
+  globalMsyFn2(object)})
+
+# }}}
+
+
+globalMsyFn<-function(object){
+    
+  res=qapply(object,function(x) apply(x,c(1:5),median))
+  res=propagate(res, dim(m(res))[1])
+  
+  range(res)[c("minfbar","maxfbar")]=range(res)["max"]
+
+  mat=array(1,c(dim(m(object))[1],dim(m(object))[1]))
+  mat[upper.tri(mat)]=0
+  
+  discards.sel(res)[]=0
+  
+  landings.sel(res)=FLQuant(c(mat),dimnames=dimnames(landings.sel(res)))
+  
+  refpts(res)=refpts(res)["msy",]
+  refpts(res)[,"harvest"]=1
+  msy=computeRefpts(res)["msy","yield",drop=T]
+  msy[is.na(msy)]=0
+  
+  msy=seq(dim(m(res))[1])[msy==max(msy)][1]
+  
+  FLPar(c(age=an(dimnames(m(res))$age[msy]),computeRefpts(res)[,,msy,drop=T]))}
+
+
+globalMsyFn2<-function(object){
+  
+  range(object)[c("minfbar","maxfbar")]=range(object)["max"]
+  
+  mat=array(1,c(dim(m(object))[1],dim(m(object))[1]))
+  mat[upper.tri(mat)]   =0
+  discards.sel(object)[]=0
+  
+  lsel=FLQuant(c(mat),dimnames=dimnames(propagate(iter(landings.sel(object),1),dim(m(object))[1])))
+  
+  refpts(object)=refpts(object)["msy",]
+  
+  rtn=NULL
+  for (i in seq(dim(m(object))[1])){
+    
+    landings.sel(object)=iter(lsel,i)
+    msy=computeRefpts(object)["msy","yield",drop=T]
+    msy[is.na(msy)]=0
+  
+    msy=seq(dim(m(object))[1])[msy==max(msy)][1]
+  
+    res=cbind(age=an(dimnames(m(object))$age[i]),t(computeRefpts(object)[drop=T]))
+    res=cbind(iter=an(dimnames(object)[[6]]),res)
+    
+    rtn=rbind(rtn,res)}
+
+  rtn=as.data.frame(rtn)
+
+  order=do.call("order",as.data.frame(rtn[,c("iter","harvest","age")]))
+  rtn=rtn[rev(order),]
+  rtn=rtn[!duplicated(rtn[,"iter"]),]
+
+  order=do.call("order",as.data.frame(rtn[,"iter"]))
+  rtn=rtn[order,]
+  
+  as(as.data.frame(rtn[,-1]),"FLPar")}
+```
+
+
+```{r, eq, fig.height=6,fig.width=8, eval=TRUE}
+load("~/Desktop/inPrep/pew/github/erp/data/om/reference.RData")    
+
+eq=brp(eq) 
+
+gMSY=globalMsy(eq)["yield"]
+
+gMSY
+
+refpts(eq)["msy","yield"]
+```
+
+
+
+
+
+
+# References 

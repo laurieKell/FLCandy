@@ -241,7 +241,7 @@ smrySS<-function(x,covar=TRUE,forecast=TRUE,ncols=320){
   #      getSS(run,covar=covar,forecast=forecast,ncols=ncols)  
   #else
   
-  if ("list"%in%is(x)&"Data_File"%in%names(x)) ss=list(x) else 
+  if ("list"%in%is(x)&"Data_File"%in%names(x))      ss=list(x) else 
   if ("list"%in%is(x)&"Data_File"%in%names(x[[1]])) ss=x else
        if (is.null((names(x)))) {
          names(x)=seq(length(x))
@@ -264,6 +264,7 @@ smrySS<-function(x,covar=TRUE,forecast=TRUE,ncols=320){
     u=ss[[x]]$cpue[,c("Fleet_name","Yr","Seas","Obs","Exp","Dev")]
     names(u)=c("name","year","season","obs","hat","residual")
     u})
+  pr=mdply(seq(length(ss)), function(x) getPar(ss[[x]]))
   
   if (!is.null(attributes(x)$split_labels)){
     ts=cbind(attributes(x)$split_labels[ts$.id,],ts)
@@ -274,8 +275,9 @@ smrySS<-function(x,covar=TRUE,forecast=TRUE,ncols=320){
     pt=cbind(attributes(x)$split_labels[pt$.id,],pt)
     kb=cbind(attributes(x)$split_labels[kb$.id,],kb)
     dg=cbind(attributes(x)$split_labels[dg$.id,],dg)
+    pr=cbind(attributes(x)$split_labels[pr$.id,],pr)
   }
-    
+
   return(list(ts    =cbind(run=ts$X1,ts)[,-2],
               refpts=cbind(run=rf$X1,rf)[,-2],
               pfunc =cbind(run=pf$X1,pf,m=1+pf$p)[,-2],
@@ -283,7 +285,9 @@ smrySS<-function(x,covar=TRUE,forecast=TRUE,ncols=320){
               sp    =cbind(run=sp$X1,sp)[,-2],
               pt    =cbind(run=pt$X1,pt)[,-2],
               kb    =cbind(run=kb$X1,kb)[,-2],
-              dg    =cbind(run=dg$X1,dg)[,-2]))}
+              dg    =cbind(run=dg$X1,dg)[,-2]
+              #pr    =cbind(run=pr$X1,pr)[,-2]
+              ))}
 
 parSS<-function(x,trace=FALSE){
   
@@ -384,6 +388,15 @@ dtime<-function(r,p){
 isLeft<-function(a,b,c){
   return(((b[1] - a[1])*(c[2] - a[2]) - (b[2] - a[2])*(c[1] - a[1]))<0) }
 
+getPar<-function(x){
+    drQ=x$derived_quants[,c("Label","Value","StdDev")]
+    names(drQ)=c("label","hat","sdev")
+    par=x$parameters[,    c("Label","Value","Parm_StDev")]
+    names(par)=c("label","hat","sdev")
+    
+    rbind(cbind(what="estimate",par),
+          cbind(what="derived", drQ))}
+    
 getCom<-function(x){
   rf =getRf(x)
   sp =spFunc(x)[-1,]

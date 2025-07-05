@@ -79,6 +79,8 @@ eqlFn<-function(object,model="bevholtSV"){
   
   attributes(rtn)[["logLik"]]       =logLik(sr)
   attributes(rtn)[["rec.residuals"]]=residuals(sr)
+  attributes(rtn)[["eb.obs"]]       =ebiomass(object)
+  
   #attributes(rtn)[["sr"]]     =sr
   #attributes(rtn)[["prod"]]   =tryIt(spFn(      rtn))
   #attributes(rtn)[["tseries"]]=tryIt(tseries(   object))
@@ -93,15 +95,13 @@ if(FALSE){
 ################################################################################
 #### OM descriptive statistics & SPM priors ####################################
 ################################################################################
-require(FLCore)
-require(FLBRP)
-require(mpb)
-require(ggplotFL)
+# Note: Dependencies should be managed via NAMESPACE and DESCRIPTION
+# This file contains examples and should not use require() calls
 
 pars=lhPar(FLPar(linf=100))
 
 ### Entropy ##################################################
-require(statcomp)
+# Note: statcomp package should be added to Suggests in DESCRIPTION if needed
 
 data(ple4)
 data(ple4brp)

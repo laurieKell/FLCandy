@@ -96,6 +96,8 @@ jabba<-function(catch, pr,
   r        =unlist(c(pr[c("r")]))
   r.prior  =c(r,  pr.sd["r"])
 
+  print(r.prior)
+  
   psi      =unlist(c(pr[c("psi")]))
   if (is.na(psi)) psi=0.9
   psi.prior=c(psi,pr.sd["psi"])
@@ -178,11 +180,11 @@ jabba<-function(catch,
                        q_bound    =c(1e-3,1e+3),
                        currentDepletion="",
                        initialDepletion=NA,...){
-  
+
   ## priors
   r        =unlist(c(pr[c("r")]))
   r.prior  =c(r,  pr.sd["r"])
-
+  
   psi      =unlist(c(pr[c("psi")]))
   if (is.na(psi)) psi=0.9
   psi.prior=c(psi,pr.sd["psi"])
@@ -239,7 +241,7 @@ jabba<-function(catch,
   
   ## Fit with Catch + Index: Simple Fox with r = Fmsy
   input=try(do.call("build_jabba", args))
-  
+
   if ("try-error"%in%is(input)) return(NULL)
   
   fit=try(fit_jabba(input,quickmcmc=T,verbose=F))

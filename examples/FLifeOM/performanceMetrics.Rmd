@@ -1,0 +1,149 @@
+---
+title: "FLCore"
+subtitle: "Performance Statistics"
+author: "L Kell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+mathjax: TRUE
+fig_width: 6 
+fig_height: 4 
+tags: FLR FLCore introduction
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+editor_options: 
+  markdown: 
+    wrap: 72
+bibliography: refs.bib
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../outputs/html") })
+---
+
+```{r, knitr, eval=TRUE, echo=FALSE, warning=FALSE, cache=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(knitr)
+opts_chunk$set(cache     =TRUE, 
+               comment   =NA, 
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =FALSE, 
+               eval      =TRUE,
+               cache     =TRUE,
+               cache.path= "cache/pStats/",
+               fig.path  ="../tex/figs/pStats/",
+               fig.width =8,
+               fig.height=4,
+               dev       ="png")
+iFig=0
+iTab=0
+```
+
+```{r, libs}
+library(ggplot2); theme_set(theme_bw())
+
+library(FLCore)
+library(FLBRP)
+library(ggplotFL)
+
+library(FLasher)
+
+library(FLife)
+library(mydas)
+library(FLCandy)
+
+library(plyr)
+```
+
+# Performance statistics
+
+A set of statistics used to evaluate the performance of
+Candidate MPs (CMPs) against specified management
+objectives, and the robustness of these MPs to
+important uncertainties in resource and fishery
+dynamics.
+
++ Status
++ Safety
++ Yield
++ Variability
+
+
+To choose between candidate Management Procedures, it is necessary to evaluate trade-offs between multiple potentially conflicting objectives using performance statistics derived from OM properties. It is essential to distinguish between the roles of OM performance statistics used for setting fishery conservation objectives (e.g. SSB relative to BMSY) and the operational control points (e.g. MSYBtrigger) used to define harvest control rules (Cox et al., 2013). 
+
+The main objectives of the advice framework applied to stocks in the North East Atlantic is to  minimise the risk of depleting a resource to a level where productivity is compromised and maximise surplus production. Therefore, performance is normally evaluated using statistics based on SSB, fishing mortality and catch. In addition, we develop a novel indicator based on the ration available to predators (i.e. Predator Ration), to use this as a performance statistic a reference level, e.g. for Predator Needs has to be defined.    
+Performance statistics should be few and informative and based on management objectives, which in many fishery frameworks are to avoid stock collapse with high probability, and to secure high and stable long-term yields. The principle metrics for use as summary statistics are therefore safety, status, yield and stability. Safety is the probability of avoiding a biomass limit where productivity is impaired, with a high probability, status relates to the probability of achieving targets such as maintaining the stock at or around BMSY to achieve yields close to MSY, while keeping  inter-annual variability in catches and effort within reasonable bounds A 5% probability level is normally used for the evaluation of limits, and the median for targets, which should be achieved on average without any discernible trend.
+
+Limits
+Ensuring sustainability requires preventing a stock from becoming overfished, so there is a low probability of compromising productivity. Biomass limits integrate dynamic processes such as growth, fecundity, recruitment, mortality and connectivity into indices for exploitation level and spawning reproductive potential. They should be based exclusively on the biology of the stock and its resilience to fishing pressure and should not consider economic factors, as the objective is to reduce risks from a biological perspective. 
+A consistent way to estimate resilience across stocks data sources, underlying model assumptions and parameterisation methods is to calculate the rebuilding time, relative to generation time, for a depleted stock to a target level, e.g. to the biomass that will support the maximum sustainable yield (BMSY). For example, the IUCN Red List of Threatened Species uses generation time as a measure of population decline, as it allows the same criteria to be used for species with extremely different life spans. Therefore, as a performance statistic, we use the biomass (Brebuild) from which a stock can recover to BMSY  within a given timescale and level of fishing mortality. For example, if the management objective is that a depleted stock should recover within a generation time with zero fishing, the corresponding depletion level provides the limit reference point. Choices of F during rebuilding, timescale, rebuilding target and associated probabilities determine the level of risk and so are management decisions.
+National and intergovernmental decision-makers may prioritise a variety of commitments and objectives, such as making headway towards achieving Good Environmental Status (GES; European Commission, 2008). For example, in Europe, the Marine Framework Strategy Directive  has placed a legal requirement on Member States to not only consider the fishing pressure and the likely response in the system state to that pressure but also the impact of fishing on population demography. Griffiths et al, (2023) proposed an age-based indicator (ABIMSY) that monitors age structure relative to the equilibrium age structure at FMSY. Taking a belt and braces approach  we also include this as a performance statistic for safety, since it is not only the biomass that ensures resilience but demographic aspects such as maternal effects (Kell et al. 2016).
+Targets
+To summarise catch and exploitation rate,  Catch (C) and fishing mortality (F) were scaled relative to their MSY reference levels. Large variation in catches or effort can limit the ability of the fishing industry to plan for the future, therefore The inter-annual variability (ICV) in catch and fishing mortality was used as a summary statistic based on the absolute difference between years
+Cy/MSY-Cy-1/MSY,Fy/FMSY-Fy-1/FMSY
+Equation 6
+
+Ecological Reference Point
+For forage fish that play a key role as prey for other species and wider ecosystem resilience, an objective could also be to maintain a stock at above the level where ecosystem productivity is impaired. As an example of an Ecological Reference Point (ERP), we use “Predator Ration” (R) based on the biomass lost to the stock due to M2. This is equivalent to how yield to the fishery is calculated, i.e. as
+R=i=0nWiNiM2i/Zi(1-exp(-Zi)
+Equation 7
+
+where W is the mass-at-age, N is the numbers-at-age, M2 is predation mortality, and Z is this total mortality. 
+Using this performance statistic, it is possible to set a reference level for ‘forage’, which provides an ERP to measure the performance of management strategies against objectives which prioritise Predator Needs (Figure 2). There is no agreed corresponding value, however, for Predator Ration, or even whether it should be treated as a limit, a target, or as strategic reference to convey wider ecosystem impact. Therefore, as a basis for discussion in our example, we compare this statistic  to the available ration at FMSY. It could also be compared to that at virgin biomass but in fisheries that have been exploited for a long-time virgin biomass is a difficult concept.    
+
+
+An aim of reference points is to prevent growth, recruitment, economic and target overfishing. Growth and recruitment overfishing are generally associated with limit reference points, while economic overfishing may be expressed in terms of either targets or limits. The difference between targets and limits is that indicators may fluctuate around targets but in general, limits should not be crossed. Target overfishing occurs when a target is overshot, while variations around a target are not necessarily considered serious unless a consistent over or under shoot becomes apparent. In contrast, even a single violation of a limit reference point (LRP) may indicate the need for immediate action. $F_{MSY}$ is often regarded as a limit, and thresholds or triggers may also be implemented to launch management action. %For example, $MSY_{Btrigger}$ the lower bound of spawning–stock biomass fluctuation when fished at $F_{MSY}$ and is used in International Council for the Exploration of the Sea (ICES) advice rule to trigger a cautious response. The cautious response, in cases where the spawning–stock falls below $MSY_{Btrigger}$, is to reduce fishing mortality to allow a stock to rebuild to levels capable of producing $MSY$. %The reduction in fishing mortality is proportional to the ratio between the current size of the spawning–stock and $MSY_{Btrigger}$.
+ 
+To help provide consistency of advice across the Tuna Regional Fisheries Management Organisations, a common management advice framework \citep[i.e. the Kobe Framework ][]{de2012precautionary} has been agreed upon. This requires stock assessment results to be reported regarding the probabilities of maintaining the stock above $B_{MSY}$ and fishing mortality below $F_{MSY}$. Advice on stock status is given relative to $MSY$ reference points using the Kobe phase plot (Figure \ref{fig3}), where the objective is to maintain the stock in a target region, where the stock is neither overfished ($B \geq B_{MSY}$) nor subject to overfishing ($F \leq F_{MSY}$). Management advice depends upon which quadrant a stock falls into. If the stock is in the green quadrant, the objective is to maintain the stock in this state with high probability. While if the stock is in the red quadrant then management measures should be adopted immediately considering the biology of the stock and scientific advice to result in a high probability of ending overfishing in as short a period as possible. %This depends on a systems’ intrinsic predictability and Forecast performance is measured by realized predictability \citep{pennekamp2019intrinsic}. %For example, can we predict the results of management actions based on a production function, as used to estimate reference points \citep{sissenwine1987alternative}, or do the consequences depend on process error? i.e. processes not included in the assessment model.
+
+\subsubsection*{Advice Framework}
+
+An aim of reference points is to prevent growth, recruitment, economic and target overfishing. Growth and recruitment overfishing are generally associated with limit reference points, while economic overfishing may be expressed in terms of either targets or limits. The difference between targets and limits is that indicators may fluctuate around targets but in general, limits should not be crossed. Target overfishing occurs when a target is overshot, while variations around a target are not necessarily considered serious unless a consistent over or under shoot becomes apparent. In contrast, even a single violation of a limit reference point (LRP) may indicate the need for immediate action. $F_{MSY}$ is often regarded as a limit, and thresholds or triggers may also be implemented to launch management action. %For example, $MSY_{Btrigger}$ the lower bound of spawning–stock biomass fluctuation when fished at $F_{MSY}$ and is used in International Council for the Exploration of the Sea (ICES) advice rule to trigger a cautious response. The cautious response, in cases where the spawning–stock falls below $MSY_{Btrigger}$, is to reduce fishing mortality to allow a stock to rebuild to levels capable of producing $MSY$. %The reduction in fishing mortality is proportional to the ratio between the current size of the spawning–stock and $MSY_{Btrigger}$.
+ 
+To help provide consistency of advice across the Tuna Regional Fisheries Management Organisations, a common management advice framework \citep[i.e. the Kobe Framework ][]{de2012precautionary} has been agreed upon. This requires stock assessment results to be reported regarding the probabilities of maintaining the stock above $B_{MSY}$ and fishing mortality below $F_{MSY}$. Advice on stock status is given relative to $MSY$ reference points using the Kobe phase plot (Figure \ref{fig3}), where the objective is to maintain the stock in a target region, where the stock is neither overfished ($B \geq B_{MSY}$) nor subject to overfishing ($F \leq F_{MSY}$). Management advice depends upon which quadrant a stock falls into. If the stock is in the green quadrant, the objective is to maintain the stock in this state with high probability. While if the stock is in the red quadrant then management measures should be adopted immediately considering the biology of the stock and scientific advice to result in a high probability of ending overfishing in as short a period as possible. %This depends on a systems’ intrinsic predictability and Forecast performance is measured by realized predictability \citep{pennekamp2019intrinsic}. %For example, can we predict the results of management actions based on a production function, as used to estimate reference points \citep{sissenwine1987alternative}, or do the consequences depend on process error? i.e. processes not included in the assessment model.
+
+%Permutation entropy is a measure of the complexity of a time series [@bandt2002permutation] that is negatively correlated with a system's predictability [@garland2018anomaly].
+
+%Reference points are commonly derived from production functions, which combine recruitment, growth and natural mortality into an equilibrium  population model.  These may be age \citep[e.g.][]{sissenwine1987alternative} or biomass \citep[e.g.][]{pella1969generalized} based.
+
+### Redundancy
+
+t is recognized the importance of knowing the descriptive properties of a dataset when tackling a data science problem. Having information about the redundancy, complexity and density of a problem allows us to make decisions as to which data preprocessing and machine learning techniques are most suitable. In classification problems, there are multiple metrics to describe the overlapping of the features between classes, class imbalances or separability, among others. However, these metrics may not scale up well when dealing with big datasets, or may not simply be sufficiently informative in this context. In this paper, we provide a package of metrics for big data classification problems. In particular, we propose two new big data metrics: Neighborhood Density and Decision Tree Progression, which study density and accuracy progression by discarding half of the samples. In addition, we enable a number of basic metrics to handle big data. The experimental study carried out in standard big data classification problems shows that our metrics can quickly characterize big datasets. We identified a clear redundancy of information in most datasets, so that, discarding randomly 75% of the samples does not drastically affect the accuracy of the classifiers used. Thus, the proposed big data metrics, which are available as a Spark-Package, provide a fast assessment of the shape of a classification dataset prior to applying big data preprocessing, toward smart data @maillo2020redundancy
+## Targets
+
+# Limits
+
+### Predator Ration
+
+
+
+## Software Versions
+
+-   `r version$version.string`
+
+-   FLCore: `r packageVersion('FLCore')`
+
+-   FLPKG: `r # packageVersion('FLPKG')`
+
+-   FLBRP: `r packageVersion('FLBRP')`
+
+-   FLasher: `r packageVersion('FLasher')`
+
+-   ggplotFL: `r packageVersion('ggplotFL')`
+
+-   FLife: `r packageVersion('FLife')`
+
+-   mydas: `r packageVersion('mydas')`
+
+-   FLCandy: `r packageVersion('FLCandy')`
+
+-   **Compiled**: `r date()`
+
+-   **Git Hash**:
+    `r system("git log --pretty=format:'%h' -n 1", intern=TRUE)`
+
+## Author information
+
+**Laurence KELL**.
+[laurie\@seaplusplus.co.uk](mailto:laurie@seaplusplus.co.uk){.email}
+
+# References

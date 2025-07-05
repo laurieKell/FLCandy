@@ -2,7 +2,7 @@
 #' 
 #' @description 
 #' Methods to calculate parameters (r, K, p) for the Pella-Thompson production model
-#' from reference points (FMSY, BMSY, B0). Multiple methods are provided for different
+#' from reference points (FMSY, BMSY, Virgin). Multiple methods are provided for different
 #' input object classes.
 #' 
 #' @param object Input object of class 'FLPar', 'FLBRP', or 'numeric'
@@ -21,7 +21,7 @@
 #' \itemize{
 #'   \item FLPar: Requires fmsy, bmsy, and k parameters
 #'   \item FLBRP: Extracts reference points from FLBRP object
-#'   \item numeric: Requires named vector with fmsy, bmsy, and b0
+#'   \item numeric: Requires named vector with fmsy, bmsy, and virgin
 #' }
 #' 
 #' @export
@@ -29,7 +29,7 @@
 #' 
 #' @examples
 #' # Using numeric vector
-#' refs <- c(fmsy=0.2, bmsy=1000, b0=2000)
+#' refs <- c(fmsy=0.2, bmsy=1000, virgin=2000)
 #' pellatParams(refs)
 #' 
 #' @references
@@ -44,8 +44,8 @@ setGeneric("pellatParams", function(object,biomass,...) standardGeneric("pellatP
 setMethod("pellatParams", signature(object="FLPar"),
     function(object){ 
 
-    if ("b0"%in%dimnames(object)$params)
-      dimnames(object)$params["b0"==dimnames(object)$params]="k"
+    if ("virgin"%in%dimnames(object)$params)
+      dimnames(object)$params["virgin"==dimnames(object)$params]="k"
       
     if ("fmsyMedianC"%in%dimnames(object)$params)
       dimnames(object)$params["fmsyMedianC"==dimnames(object)$params]="fmsy"
@@ -95,8 +95,8 @@ setMethod("pellatParams", signature(object="FLBRP"),
 #' @rdname pellatParams
 setMethod("pellatParams", signature(object="numeric"),
     function(object) {
-      if(!all(c("fmsy","bmsy","b0") %in% names(object)))
-        stop("fmsy, bmsy and b0 not found")
+      if(!all(c("fmsy","bmsy","virgin") %in% names(object)))
+        stop("fmsy, bmsy and virgin not found")
             
       params=FLPar(array(object, 
                     dim     =c(3,1),
@@ -121,41 +121,40 @@ setMethod("pellatParams", signature(object="FLBRP",biomass="function"),
 #' @rdname pellatParams
 #' @export
 setMethod("pellatParams", signature(object="missing", biomass="missing"),
-          function(object, biomass, fmsy, bmsy, k=NULL, b0=NULL, virgin=NULL, ...) {
+          function(object, biomass, fmsy, bmsy, k=NULL, virgin=NULL, ...) {
             # Determine which carrying capacity parameter to use
             if(is.null(k)) k=virgin
-            if(is.null(k)) k=b0
             
             if(is.null(k))
-              stop("One of k, virgin, or b0 must be provided")
+              stop("One of k or virgin must be provided")
             
             # Create numeric vector with named elements
-            refs=FLPar(fmsy = fmsy,
-                       bmsy = bmsy,
-                       b0   = k)
+            refs=FLPar(fmsy  = fmsy,
+                       bmsy  = bmsy,
+                       virgin= k)
             
             # Call the numeric method
             model.frame(pellatParams(refs))[,-4]})
 
 
-pellatParamFn<-function(fmsy,bmsy,b0){
+pellatParamFn<-function(fmsy,bmsy,virgin){
   # Calculate shape parameter m from Bmsy/K ratio
-  BmsyK=bmsy/b0
+  BmsyK=bmsy/virgin
   m    =optimize(function(x) abs(BmsyK - (1/x)^(1/(x-1))), interval=c(0.1,10))$minimum
   r   =fmsy*(m-1)/(1-1/m)
   
-  return(c(r=r,m=m,k=b0))}
+  return(c(r=r,m=m,k=virgin))}
 
-BMSYFn<-function(M,B0,r) {
+BMSYFn<-function(M,Virgin,r) {
   prodFn <- function(B)
-    r*B*(1-(B/B0)^M)
+    r*B*(1-(B/Virgin)^M)
   
-  BMSY=optimize(prodFn, interval = c(0, B0), maximum = TRUE)$maximum
+  BMSY=optimize(prodFn, interval = c(0, Virgin), maximum = TRUE)$maximum
   return(BMSY)}
 
 MFn<-function(M) {
-  BMSY  =BMSYFn(M, B0, r)
-  ratio =BMSY/B0
+  BMSY  =BMSYFn(M, Virgin, r)
+  ratio =BMSY/Virgin
   return(ratio-target)}
 
 getM<-function(bmsyK){
@@ -172,15 +171,15 @@ getM<-function(bmsyK){
 
 
 if(FALSE){
-  pellatParams(Fmsy=0.1,Bmsy=600,B0=1000)
+  pellatParams(Fmsy=0.1,Bmsy=600,Virgin=1000)
   
   target=0.4
   
-  B0=1000  
+  Virgin=1000  
   r =0.4    
   
   result=uniroot(MFn, interval = c(0.001, 2), tol = 1e-6)
-  BMSYFn(result$root,B0,r)
+  BMSYFn(result$root,Virgin,r)
   
   result$root}
 

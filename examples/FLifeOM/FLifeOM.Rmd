@@ -1,0 +1,527 @@
+---
+title: "FLife"
+subtitle: "Operating Model Conditioning"
+author: "L Kell"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+   pdf_document:
+     keep_tex: true
+mathjax: TRUE
+fig_width: 6 
+fig_height: 4 
+tags: FLR FLCore introduction
+license: Creative Commons Attribution-ShareAlike 4.0 International Public License
+editor_options: 
+  markdown: 
+    wrap: 72
+bibliography:  refs.bib
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "../outputs/html") })
+---
+
+```{r, knitr, eval=TRUE, echo=FALSE, warning=FALSE, cache=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(knitr)
+opts_chunk$set(cache     =TRUE, 
+               comment   =NA, 
+               warning   =FALSE, 
+               message   =FALSE, 
+               error     =FALSE, 
+               echo      =FALSE, 
+               eval      =TRUE,
+               cache     =TRUE,
+               cache.path= "cache/FLifeOM/",
+               fig.path  ="../tex/figs/FLifeOM/",
+               fig.width =8,
+               fig.height=4,
+               dev       ="png")
+iFig=0
+iTab=0
+```
+
+```{r, libs}
+library(ggplot2); theme_set(theme_bw())
+
+library(FLCore)
+library(FLBRP)
+library(ggplotFL)
+
+library(FLasher)
+
+library(FLife)
+library(mydas)
+library(FLCandy)
+
+library(plyr)
+```
+
+When conducting Management Strategy Evaluation the Operating Model (OM)
+describes the resource dynamics for use in simulation to provide a basis
+for the comparison of alternative assessment methods and management
+strategies. The Operating Model also includes the Observation Error
+Model (OEM), which generates simulated fishery data.
+
+# Operating Model Conditioning
+
+Conditioning is the process of developing an simulation or Operating
+Model using the available data and knowledge. Operating Models should
+represent plausible alternative hypotheses, and reflect the concerns of
+stakeholders, since involving stakeholders is crucial to ensure that the
+Management Strategy Evaluation process contributes to managing fisheries
+in a way that respects both ecological and social aspects of
+sustainability [@miller2019improving, @dankel2012advice,
+@goethel2019recent]
+
+A definition of a plausible scenario is one that fits prior knowledge,
+with many sources of corroboration, without the complexity of
+explanation, and with minimal conjecture [@connell2006model].
+Plausibility may be determined formally, e.g. based on a statistical
+approach to determine whether a system equivalent to the model generated
+the data [@kell2021validation] or on expert judgement [e.g.,
+@leach2014identification].
+
+Stock assessments are commonly used to condition OMs, however there is
+not always sufficient information to evaluate data quality and estimate
+model parameters [@board1998improving]. A reason for this is because
+observations are seldom complete and variables of interest are latent.
+Therefore, there is often insufficient information to estimate key
+parameters [@lee2012steepness,@lee2011m], and alternative choices may
+provide equally good fits [@barlow_bartholomew1972]. For example, in an
+age-based assessment, the production function and hence reference points
+are largely determined by fixed parameters
+e.g. natural mortality, and growth and fecundity-at-age, and steepness @mangel2013perspective.
+
+The main sources of uncertainty in stock assessment are i) parameters
+for which there is little information in the data and so are fixed (e.g.
+natural mortality), ii) model structure, and iii) future process
+variability, e.g. recruitment, [@PuntBM2016]. Therefore to ensure
+robustness often requires conducting sensitivity tests or building
+ensembles based on alternative assessment scenarios, for example using
+hypotheses based on life history theory [@hamel2023natural]. Life
+history theory has also been used tpo generate OMs for data limited
+stocks see @fischer2020linking, @walker2023defining.
+
+If alternative models explain the data equally well, it does not
+necessarily follow that a model provides a true account of how the data
+arose [@hodges1992you] Therefore to evaluate robustness, management
+strategies must be tested under a range of hypothetical but plausible
+scenarios. For example, does a harvest strategy only achieve management
+objectives if natural mortality and the form of the stock recruitment
+relationship are assumed to be known.
+
+In stock assessment sensitivity and uncertainty analyses are often used
+to understand the impacts of decisions in the face of uncertainty. In
+sensitivity analysis, a limited set of scenarios, which include the most
+important uncertainties, are considered, while in uncertainty analysis,
+the objective is to quantify the probability of specific output values.
+In both cases, procedures adopted for the selection, rejection and
+weighting of scenarios will affect the robustness of advice. Therefore,
+a cherry-picking approach for choosing model configurations based on the
+implications for management advice should be avoided. For this reason
+how the choice of OMs is important as this will determine the
+performance of a management strategy.
+
+Therefore when conditioning OMs a reference set and robustness sets are
+normaly agreed in advance, before running the simulation trials.
+
+### Reference Set
+
+When conditioning Operating Models, it is common practice to condition a
+reference set, i.e. a limited set of scenarios, which include the most
+important uncertainties in the model structure, parameters, and data.
+These comprise alternative scenarios which have both high
+plausibility,reflect the concerns of stakeholders, and are likely to
+major impacts on the performance of Management Strategies.
+
+Instead of conditioning a number of OMs for the reference set, an
+alternative is to implement a single scenario but with priors that
+reflect uncertainty in parameters. Only one OMs is implemented because
+multiple simulation runs are not comparable with the estimation of
+posterior distributions in a Bayesian analysis [@chen2003assessing,
+@berger1994overview]. A potential problem with such an approach is lack
+of considering variations in process and measurement errors among
+simulation runs.
+
+### Robustness Set
+
+A robustness set examines performance beyond the range of the Reference
+Set. These are typically considered to be less likely than the reference
+set Operating Models, and often focus on particularly challenging
+circumstances with potentially negative consequences to be avoided. A
+benefit of the reference set is that the value-of-information can be
+evaluated, i.e. is there a benefit in reducing uncertainty by conducting
+scientific study or collecting improved data.
+
+### Redundancy
+
+*MSE is a form of classification problem, used to identify the best
+performing management strategy based on a set of performance metrics or
+statistics [@fischer2021using]. When there are multiple OMs and metrics
+these may overlap, resulting in imbalances, which may mean result in
+inefficiency or bias. @maillo2020redundancy have provided a package of
+metrics for big data classification problems. In particular,
+Neighborhood Density and Decision Tree Progression, which study density
+and accuracy progression. In addition, they have proposed a number of
+basic metrics that can quickly characterise datasets.*
+
+## Methods
+
+Operating Models are generally developed using a stock assessment
+paradigm. However, there are many processes for which there is little
+information for in stock assessment datasets, e.g. natural mortality,
+the steepness of the stock-recruitment relationship, the form of
+population regulation and density dependence. Therefore, life history
+relationships were used to create Operating Models based on life-history
+relationships. This allows operating models to be conditioned on
+ecological processes, of particular value in data-poor situations where
+knowledge and data are limited, but also in data-rich situations as
+simulation testing an assessment procedure using a model conditioned on
+the same assumptions is not necessarily a true test of robustness.
+
+To create an Operating Model, the FLR [@kell2007flr] packages mydas and
+FLife were used. First an equilibrium per-recruit model was
+parameterised for growth, maturity and natural mortality-at-age. The
+per-recruit model then was combined with a stock recruit relationship
+[@beverton1993dynamics].
+
+A reference set was conditioned using a multivate distribution for x,y,
+... to model uncertainty about parameters. While a reference set was
+conditioined to represent uncetainty about the form of processes. Virgin
+biomass was set at a constant value across all stocks and scenarios, so
+that results are comparable, i.e presented in terms of exploitation
+level and relative stock size and catch.
+
+Life history parameters for growth, natural mortality and maturity were
+used to develop an age-based Operating Model by parameterising
+functional forms for weight ($W$), proportion mature ($Q$), natural
+mortality ($M$) and fishing mortality ($F$) at age. These were then used
+to calculate spawner ($S/R$) and yield-per-recruit ($Y/R$), which when
+combined with a stock-recruitment relationship
+[@sissenwine1987alternative] can be used to calculate the equilibrium
+stock size as a function of fishing mortality ($F$). The equilibrium
+relationships can then be turned into a dynamic model and projected
+forward.
+
+An equilibrium per-recruit model was parameterised for growth, maturity
+and natural mortality-at-age. The per-recruit model was combined with a
+stock-recruit relationship [@beverton1993dynamics]. An age-structured
+simulation model was conditioned using life history theory to provide a
+theoretical basis for developing hypotheses about population dynamics.
+The parameters were: growth model parameters [$k$, $L_{\infty}$, $t_0$,
+@vonbert1957quantitative]; $a$ and $b$ of the length-weight
+relationship; and the length at which 50% were mature ($L_{50}$).
+Natural mortality-at-age was modelled as a function of length
+[@gislason2008does] and spawning stock biomass (SSB) was used as a proxy
+for stock reproductive potential [SRP, @trippel_estimation_1999]. It was
+assumed that fecundity is proportional to the weight-at-age of the
+sexually mature portion of the population irrespective of the
+demographic composition of adults [@murawski_impacts_2001] and that
+processes such as sexual maturity are simple functions of age and
+independent of sex [@matsuda_inconsistency_1996].
+
+A variety of functional forms can be assumed for growth, natural
+mortality, maturity, the selection pattern of the fisheries and the
+stock-recruitment relationship. Processes such as growth and
+maturity-at-age are generally observable, and data can be collected to
+identify the correct functional form and to estimate parameters. The
+functional form and parameters for processes such as natural mortality
+and the stock-recruitment relationship are typically poorly known
+[@michielsens2004bayesian]. Therefore, assumptions have to be made and
+to evaluate the sensitivity of any analysis to those assumptions a
+variety of scenarios need to be considered.
+
+<!-- Life history parameters were extracted from FishBase (www.fishbase.org), -->
+
+<!-- and Figure \ref{fig:lh} summarises $L_{\infty}$, $k$, $L_{50}$ and $b$; -->
+
+<!-- with species ordered by $k$. There are only a few observations for -->
+
+<!-- pollack and brill, which implies high uncertainty, since data in -->
+
+<!-- FishBase are often based on small sample sizes, have limited coverage, -->
+
+<!-- and life history parameters (e.g. maturity and growth) generally come -->
+
+<!-- from different studies. There are clear relationships, both between and -->
+
+<!-- within species, as $L_{\infty}$ is inversely correlated with $k$, and -->
+
+<!-- $L_{50}$ is correlated with $L_{\infty}$. Brill has a value of $k$ -->
+
+<!-- similar to sprat but its value of $L_{\infty}$ is closer to that of -->
+
+<!-- turbot, while sprat has a large variation in the relationship between -->
+
+<!-- length and weight (i.e. $b$ in the length-weight relationship $W=aL^b$). -->
+
+Historical exploitation was simulated where
+
+<!-- stocks were initially -->
+
+<!-- lightly exploited before fishing mortality ($F$) gradually increased -->
+
+<!-- until the stock became over-fished, after which a recovery plan was -->
+
+<!-- implemented to bring fishing down to 70% of $F_{MSY}$ (Figure -->
+
+<!-- \ref{fig:om}). This exploitation history provides contrasting periods of -->
+
+<!-- under-, over- and maximally sustainable exploitation.  -->
+
+### Scenarios
+
+Even for data-rich stock assessments there is often large uncertainty
+about the dynamics i.e. model uncertainty, [@punt2008refocusing], for
+example estimates of stock status are highly sensitive to assumptions
+about natural mortality-at-age [@jiao2012modelling], vulnerability of
+age classes to the fisheries [@brooks2009analytical], and the
+relationship between stock and recruitment [@cury2014resolving].
+Therefore, a reference case was defined and a robustness set developed
+representing the main sources of uncertainty (Table \ref{tab:om});
+<!-- namely the -->
+<!-- steepness of the stock recruitment relationship, recruitment -->
+<!-- variability, natural mortality, selection pattern, and sample size -->
+<!-- [@ono2015importance,@boorman1997recognising]. -->
+
+Selectivity depends on the vulnerability of individuals to fishing, and
+is typically either asymptotic or dome-shaped. The former indicates an
+initial increase with age or size followed by a levelling off, while in
+the later case selectivity-at-age declines. Selectivity will differ
+between fisheries depending on gear characteristics, when and where the
+fishery operates and the biology of the species. For example, estimates
+for species captured with gill nets or hooks will be biased if the model
+incorrectly assumes logistic selectivity because the missing large fish
+will be assumed to have been caught, whereas they could just be missed
+by the gear. Fisheries selectivity was therefore modelled as a double
+normal, as this allowed both asymptotic and dome shaped selectivity to
+be simulated. Logistic selectivity in the base case was based on the
+maturity ogive, so that $MSY$ reference points are comparable across
+case studies. The consequences of shifting the selection patterns is
+well known, since if you fish below or above $L_{opt}$ (the length at
+which a cohort attains its maximum biomass) you reduce $_{MSY}$, while
+if you take fish before $L_{50}$ $F_{MSY}$ is reduced and $B_{MSY}$ is
+increased as older fish need to be conserved. Therefore, scenarios were
+not case-specific
+
+### Life history processes
+
+#### Individual Growth
+
+Growth in length in this example was assumed to follow the Von
+Bertalanffy growth equation @vonbert1957quantitative
+
+```{=tex}
+\begin{equation} L = L_\infty(1 - exp(-k(t-t_0)) \end{equation}
+```
+where $k$ is the rate at which the rate of growth in length declines as
+length approaches the asymptotic length $L_\infty$ and $t_{0}$ is the
+hypothetical time at which an individual is of zero length.
+
+Length is converted to mass using the length-weight relationship
+
+```{=tex}
+\begin{equation} W = aL_t^b \end{equation}
+```
+\noindent where $a$ is the condition factor and $b$ is the allometric
+growth coefficient.
+
+#### Maturity-at-age
+
+Proportion mature-at-age is modelled by the logistic equation with 3
+parameters: age at 50% ($a_{50}$), 95% ($a_{95}$) mature, and maturity
+as age approaches infinity.
+
+```{=tex}
+\begin{equation}
+f(x) = \left\{ \begin{array}{ll}
+            0                                 &\mbox{ if $(a_{50}-x)/a_{95} >  5$} \\
+            a_{\infty}                        &\mbox{ if $(a_{50}-x)/a_{95} < -5$} \\
+            \frac{m_{\infty}}{1.0+19.0^{(a_{50}-x)/_{95})}} &\mbox{ otherwise}
+        \end{array}
+       \right.
+\end{equation}
+```
+#### Natural Mortality
+
+The natural mortality of exploited fish populations is often assumed to
+be a species-specific constant independent of body size. This assumption
+has important implications for size-based fish population models and for
+predicting the outcome of size-dependent fisheries management measures
+such as mesh-size regulations [@gislason2008does]. Direct estimates of
+the instantaneous natural mortality made in controlled studies, however,
+are shown to vary by age [@lorenzen2002density]. Although $M$ can
+sometimes be estimated within an assessment model, for example where
+data from tagging provide information independent of fishing mortality
+rates. However, in most cases, $M$ is derived from life-history
+relationships, e.g. based on size
+[@jensen1985comparison,@griffiths2007natural]. The large and
+ever-increasing literature on this subject is a reflection of
+uncertainty. @gislason2008does in an empirical study showed that $M$ is
+significantly related to body length, asymptotic length and k.
+Temperature is non-significant when $k$ is included, since $k$ itself is
+correlated with temperature, i.e.
+
+```{=tex}
+\begin{equation}
+            M =  0.55L^{1.61}L_\infty^{1.44}k
+\end{equation}
+```
+#### Selection Pattern
+
+In this study, the vulnerability of individuals to fishing was modelled
+by the selection pattern. Typically, selectivity is either asymptotic or
+dome-shaped. The former indicates an initial increase with age or size
+followed by a levelling off, while in the latter case selectivity-at-age
+declines. Selectivity will differ between fisheries depending on gear
+characteristics, when and where the fishery operates and the biology of
+the species. Fisheries selectivity was therefore modelled as a double
+normal, as this allowed both asymptotic and dome-shaped selectivity to
+be simulated. The double normal has three parameters that describe the
+age at maximum selection ($a_1$), the rate at which the left-hand limb
+increases ($sl$) and the right-hand limb decreases ($sr$) which allows
+flat topped or domed shaped selection patterns to be chosen, i.e.
+
+```{=tex}
+\begin{equation}
+f(x) = \left\{ \begin{array}{ll}
+            2^-(\frac{a-a_1}{s_l})^2 , & if a < a_1        \\
+            2^-(\frac{a-a_1}{s_r})^2 , & if a \geq a_1      \\
+            \end{array}
+       \right.
+\end{equation}
+```
+#### Spawning Stock Biomass
+
+Spawning stock biomass ($S$), is the sum of the products of the numbers
+of females, $N$, proportion mature-at-age, $Q$ and their mean
+fecundity-at-age, $G$, which is taken to be proportional to their
+weight-at-age i.e.
+
+```{=tex}
+\begin{equation} S = \sum\limits_{i=0}^{p} {N_iQ_iG_i} \end{equation}
+```
+In this study, fecundity-at-age is assumed proportional to biomass and
+the sex ratio to be 1:1.
+
+#### Stock Recruitment Relationship
+
+A Beverton and Holt stock-recruitment relationship @beverton1993dynamics
+was assumed. This relationship is derived from a simple
+density-dependent mortality model where the more survivors there are the
+higher the mortality. It is assumed that the number of recruits ($R$)
+increases towards an asymptotic level ($R_{max}$) as $S$ increases, i.e.
+
+```{=tex}
+\begin{equation} R=Sa/(b+S) \end{equation}
+```
+The relationship was reformulated in terms of steepness ($h$), virgin
+biomass ($v$) and $S/R_{F=0}$. Where steepness is the proportion of the
+expected recruitment produced at 20% of virgin biomass relative to
+virgin recruitment $(R_0)$. However, there is often insufficient
+information to allow its estimation from stock assessment
+[@pepin2015reconsidering] and so scenarios were considered for different
+value of steepness, i.e. resilience to overfishing. Virgin biomass was
+set at 1000 Mt to allow comparisons to be made across scenarios.
+
+```{=tex}
+\begin{equation}
+R=\frac{0.8R_0h}{0.2S/R_{F=0}R_0(1-h)+(h-0.2)S}
+\end{equation}
+```
+### Equilibrium Analysis
+
+@sissenwine1987alternative, estimated surplus production using an
+age-based analysis using an equilibrium analysis by combining a
+stock-recruitment relationship, a spawning-stock-biomass-per-recruit
+analysis, and a yield-per-recruit analysis. For any specified rate of
+fishing mortality, an associated value of spawning stock biomass ($S$)
+per recruit ($R$) is $S/R$ is defined, based on the assumed processes
+for growth, natural mortality and selection pattern-at-age detailed in
+the previous sections.
+
+```{=tex}
+\begin{equation}
+S/R=\sum\limits_{i=0}^{p-1} {e^{\sum\limits_{j=0}^{i-1} {-F_j-M_j}}} W_i Q_i + e^{\sum\limits_{i=0}^{p-1} {-F_i-M_i}} \frac{W_p Q_p}{1-e^{-F_p-M_p}}\\
+\end{equation}
+```
+When the value of $S/R$ obtained is inverted and superimposed on the
+stock-recruitment function as a slope ($R/S$), the intersection of this
+slope with the stock-recruitment function defines an equilibrium level
+of recruitment. When this value of recruitment is multiplied by the
+yield per recruit calculated for the same fishing mortality rate, the
+equilibrium yield associated with the fishing mortality rate emerges
+[@gabriel1999review].
+
+```{=tex}
+\begin{equation}
+Y/R=\sum\limits_{a=r}^{n-1} {e^{\sum\limits_{i=r}^{a-1} {-F_i-M_i}}} W_a\frac{F_a}{F_a+M_a}\left(1-e^{-F_i-M_i} \right) + e^{\sum\limits_{i=r}^{n-1} {-F_n-M_n}} W_n\frac{F_n}{F_n+M_n}\\
+\end{equation}
+```
+The second term is the plus-group, i.e. the summation of all ages from
+the last age to infinity.
+
+### Projection
+
+The stock-recruitment relationship and the vectors of weight, natural
+mortality, maturity and selectivity-at-age allow a forward projection
+model to be created, which forms the basis of the Operating Model.
+
+```{=tex}
+\begin{equation}
+N_{t,a} =
+\left\{
+\begin{array}{ll}
+\vspace{0.2cm}
+R_t, & \rm{if} \ a=0,\\
+\vspace{0.2cm}
+N_{t-1,a-1} e^{-Z_{t-1,a-1}}, & \rm{if} \ 1 \leq a \leq A-1,\\
+N_{t-1,A-1} e^{-Z_{t-1,A-1}}+N_{t-1,A} e^{-Z_{t-1,A}}, & \rm{if} \ a=A,
+\end{array}
+\right.
+\end{equation}
+```
+Where $N_{t,a}$ is the number of fish of age $a$ at the beginning of
+year $t$, $R_t$ is the total number of recruits born in year $t$. Here,
+$A$ is the so-called plus group age, which is an aggregated age greater
+than or equal to the actual age $A$.
+
+### Seasonal Operating Model
+
+A seasonal Operating Model was developed to explore the impact of
+shorter lags between survey, advice and exploitation. This allowed
+alternative management options such as in-season rules to be considered.
+
+### Stock Components or Mixed Stocks
+
+## Software Versions
+
+-   `r version$version.string`
+
+-   FLCore: `r packageVersion('FLCore')`
+
+-   FLPKG: `r # packageVersion('FLPKG')`
+
+-   FLBRP: `r packageVersion('FLBRP')`
+
+-   FLasher: `r packageVersion('FLasher')`
+
+-   ggplotFL: `r packageVersion('ggplotFL')`
+
+-   FLife: `r packageVersion('FLife')`
+
+-   mydas: `r packageVersion('mydas')`
+
+-   FLCandy: `r packageVersion('FLCandy')`
+
+-   **Compiled**: `r date()`
+
+-   **Git Hash**:
+    `r system("git log --pretty=format:'%h' -n 1", intern=TRUE)`
+
+## Author information
+
+**Laurence KELL**.
+[laurie\@seaplusplus.co.uk](mailto:laurie@seaplusplus.co.uk){.email}
+
+# References

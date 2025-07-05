@@ -1,0 +1,16 @@
+citHeader("To cite FLCandy in publications use:")
+
+citEntry(entry = "Manual",
+         title = "FLCandy: Candidate methods for FLR",
+         author = personList(
+           person("Laurence", "Kell", 
+                  email = "laurie@kell.es",
+                  role = c("aut", "cre"))
+         ),
+         year = 2024,
+         note = "R package version 1.6.1",
+         url = "https://github.com/flr/FLCandy",
+         textVersion = paste("Laurence Kell (2024). FLCandy: Candidate methods for FLR.",
+                           "R package version 1.6.1.",
+                           "https://github.com/flr/FLCandy")
+) 
