@@ -1,0 +1,108 @@
+---
+title: "Introduction to FLCandy"
+author: "Laurence Kell"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to FLCandy}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+FLCandy is an R package containing experimental methods and prototypes for the FLR (Fisheries Library for R) framework. This package provides implementations of various fisheries assessment and management tools that are under development or being evaluated for inclusion in the main FLR packages.
+
+## Installation
+
+```{r eval=FALSE}
+# Install from GitHub
+if (!require(devtools)) install.packages("devtools")
+devtools::install_github("flr/FLCandy")
+```
+
+## Key Features
+
+### Biological Reference Points
+
+FLCandy provides several methods for calculating biological reference points:
+
+```{r}
+library(FLCandy)
+library(FLCore)
+
+# Load example data
+data(ple4)
+data(ple4brp)
+
+# Calculate production type parameters
+pt_params <- pt(ple4brp)
+print(pt_params)
+```
+
+### Biological Indicators
+
+Calculate a suite of biological indicators for stock assessment:
+
+```{r}
+# Calculate indicators
+indicators <- ind(ple4, ple4brp)
+head(indicators)
+```
+
+### Harvest Control Rules
+
+Apply ICES-style harvest control rules:
+
+```{r eval=FALSE}
+# Apply harvest control rule
+tac <- hcrICES(ple4, ple4brp, 
+               start = 2010, 
+               end = 2020)
+```
+
+## Utility Functions
+
+FLCandy includes utility functions for parameter transformations:
+
+```{r}
+# Convert steepness to logit scale for optimization
+h_values <- c(0.3, 0.5, 0.8)
+logit_h <- to_logits(h_values)
+print(logit_h)
+
+# Convert back to original scale
+original_h <- from_logits(logit_h)
+print(original_h)
+```
+
+## Spatial Analysis
+
+The package includes functions for spatial analysis of fisheries data:
+
+```{r eval=FALSE}
+# Spatial functions are available for geographic analysis
+# See ?spatial_funs for more details
+```
+
+## Contributing
+
+FLCandy contains experimental methods. If you find bugs or have suggestions for improvements, please:
+
+1. Check existing issues on GitHub
+2. Create a new issue with a reproducible example
+3. Consider contributing code improvements
+
+## References
+
+For more information about the FLR framework, see:
+
+- FLR website: https://www.flr-project.org/
+- FLR documentation: https://flr-project.org/doc/ 
