@@ -60,6 +60,7 @@ Collate:
   FLBRP-properties.R
   FLBRP-rebuild.R
   FLBRP-seasonal.R
+  FLBRP-surplusProduction.R
   FLBRP-tseries.R
   FLCompBind.R
   FLParPoint.R
@@ -74,7 +75,6 @@ Collate:
   ggplotFL-plotLengths.R
   globalMSY.R
   haupt2.R
-  hcrFig.R
   hcrICESV2.R
   icesdata-utils.R
   icesRefpts.R
@@ -114,6 +114,7 @@ Collate:
   ss-diags.R
   ss-MVLN.R
   ss-smry.R
+  ss-hessian.R
   stdz.R
   themes.R
   trnd.R
