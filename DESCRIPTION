@@ -47,6 +47,7 @@ Collate:
   brp2lh.R
   crosstest.R
   deSeason.R
+  ebiomass.R
   effortBellWatson.R
   eqsim1.R
   eqsim2.R
