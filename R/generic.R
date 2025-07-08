@@ -311,22 +311,6 @@ setGeneric("haupt", function(object, pars, lc, lmax, ...) {
 #' @export
 
 
-#' benchmark
-#'
-#' @description
-#' A generic function to extract benchmark reference points from FLStock objects
-#'
-#' @param object An FLStock or FLStocks object
-#' @param ... Additional arguments (not currently used)
-#'
-#' @return An FLPar object containing benchmark reference points (Fmsy, Flim, Fpa, Blim, Bpa, Btrigger)
-#'
-#' @export
-setGeneric("benchmark", function(object, ...) {
-  standardGeneric("benchmark")
-})
-
-
 #' Extract FishLife Parameters
 #'
 #' @description

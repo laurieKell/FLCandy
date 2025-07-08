@@ -87,6 +87,27 @@ setMethod("benchmark", signature(object="FLStocks"), function(object) {
   ldply(llply(object, function(x) t(benchmark(x))),rbind.fill)
 })
 
+#' @rdname benchmark
+#' @export
+setMethod("benchmark", signature(object="FLBRP"), function(object) {
+  # For FLBRP objects, extract reference points from refpts slot
+  refs <- FLCore::refpts(object)
+  
+  # Create FLPar with benchmark reference points
+  benchmark_pars <- FLPar(
+    fmsy = refs["msy", "harvest"],
+    flim = refs["lim", "harvest"],
+    fpa = refs["pa", "harvest"],
+    blim = refs["lim", "ssb"],
+    bpa = refs["pa", "ssb"],
+    btrigger = refs["trigger", "ssb"]
+  )
+  
+  # Remove any NA values
+  benchmark_pars <- benchmark_pars[!is.na(benchmark_pars)]
+  
+  return(benchmark_pars)
+})
 
 #' Internal Function for FishLife Parameter Extraction
 #'

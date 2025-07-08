@@ -16,9 +16,9 @@
 #' @param spr0 unfished spawning biomass per recruit from FLCore::spr0(FLStock) or FLCore:::spr0Yr
 #' @param s.est option to estimate steepness
 #' @param s.logitsd prior sd for logit(s), default is 1.3 (flat) if s.est = TRUE 
+#' @param inflect Inflection point for the segreg model. If NA (default), it is estimated; if numeric, it is fixed at the provided value.
 #' @param inits option to specify initial values of log(r0), log(SigR) and logit(s)
 #' @param lower option to specify lower bounds of log(r0), log(SigR) and logit(s) 
-#' @param upper option to specify upper bounds of log(r0), log(SigR) and logit(s)
 #' @param upper option to specify upper bounds of log(r0), log(SigR) and logit(s)
 #' @param SDreport option to converge hessian and get vcov
 #'
@@ -36,9 +36,19 @@
 ftmb<-function(object, 
                spr0=spr0, 
                s=0.7, s.est=TRUE, s.logitsd=1.3,
-               inits=function(object=object,s=s)   c(median(  c(log(rec(object)))),           log(0.40),  to_logits(s)),
-               lower=function(object=object,s=-20) c(quantile(c(log(rec(object))),probs=0.1), log(0.05),           -20),
-               upper=function(object=object,s= 20) c(quantile(c(log(rec(object))),probs=0.9), log(1.50),            20),
+               inflect=NA,
+               inits=function(object=object,s=s,inflect=inflect) {
+                 inflect_init <- ifelse(is.na(inflect), 0, log(inflect))
+                 c(median(c(log(rec(object)))), log(0.40), to_logits(s), inflect_init)
+               },
+               lower=function(object=object,s=-20,inflect=inflect) {
+                 inflect_lower <- ifelse(is.na(inflect), -20, log(inflect))
+                 c(quantile(c(log(rec(object))),probs=0.1), log(0.05), -20, inflect_lower)
+               },
+               upper=function(object=object,s= 20,inflect=inflect) {
+                 inflect_upper <- ifelse(is.na(inflect), 20, log(inflect))
+                 c(quantile(c(log(rec(object))),probs=0.9), log(1.50), 20, inflect_upper)
+               },
                SDreport=TRUE) {
   
   if(is.null(s)& s.est) s=0.6 # central value
@@ -57,9 +67,9 @@ ftmb<-function(object,
     spr0.=rep(spr0,length(rec))
   
   # SET init and bounds
-  inits.=inits(object,s)
-  lower.=lower(object)
-  upper.=upper(object)
+  inits.=inits(object,s,inflect)
+  lower.=lower(object,inflect=inflect)
+  upper.=upper(object,inflect=inflect)
   
   # SET TMB input
   inp=list(
@@ -68,7 +78,7 @@ ftmb<-function(object,
                 # model
                 Rmodel = which(model==c("bevholtSV","rickerSV","segreg"))-1),
                 # inits
-                Params = list(log_r0=inits.[1], log_sigR=inits.[2],logit_s=inits.[3]),
+                Params = list(log_r0=inits.[1], log_sigR=inits.[2],logit_s=inits.[3], log_inflect=inits.[4]),
                 # bounds
                 lower=lower., upper=upper.,
                 #
@@ -78,6 +88,8 @@ ftmb<-function(object,
   Map=list()
   # Turn off steepness estimation
   if(!s.est) Map[["logit_s"]] = factor( NA ) 
+  # Turn off inflection estimation if inflect is not NA
+  if(!is.na(inflect)) Map[["log_inflect"]] = factor( NA )
   
   # CREATE TMB object
   Obj=TMB::MakeADFun(data=inp$Data, parameters=inp$Params, map=Map, DLL="FLCandy", silent=TRUE)
@@ -107,22 +119,37 @@ ftmb<-function(object,
   params(object)=rbind(params(object),FLPar(spr0=spr0.))
   params(object)=rbind(params(object),FLPar(v=params(object)["R0"]*params(object)["spr0"]))[c("s","v","spr0")]
   
-  par=as(as.data.frame(aaply(params(object)[c("s","v","spr0")],2,
-                             function(x) ab(FLPar(x),gsub("SV","",model)))),"FLPar")[c("a","b")]
-  params(object)=par
+  # For segreg model, use the inflection point directly as parameter b
+  if(model=="segreg") {
+    # Get the inflection point from the TMB fit or use the fixed value
+    if(is.na(inflect)) {
+      # Inflection point was estimated
+      inflect_val = exp(Report$log_inflect)
+    } else {
+      # Inflection point was fixed
+      inflect_val = inflect
+    }
+    # For segreg: a = r0/b (the slope), b = inflection point
+    # The formula is: rec = a * min(ssb, b)
+    a_val = Report$r0 / inflect_val
+    params(object)=FLPar(a=a_val, b=inflect_val)
+  } else {
+    # For other models, use the standard ab() conversion
+    par=as(as.data.frame(aaply(params(object)[c("s","v","spr0")],2,
+                               function(x) ab(FLPar(x),gsub("SV","",model)))),"FLPar")[c("a","b")]
+    params(object)=par
+  }
   
-  df<-function(s.est) {
+  df<-function(s.est, inflect) {
     # Base number of parameters
     num_params <- 2  # log_r0 and log_sigR are always estimated
-    
     # Add logit_s if it is being estimated
-    if (s.est) 
-      num_params <- num_params + 1
-    
+    if (s.est) num_params <- num_params + 1
+    # Add log_inflect if it is being estimated
+    if (is.na(inflect)) num_params <- num_params + 1
     return(num_params)}
   
-    
   logLik(object)=-Opt$objective
-  logLik(object)["df"]=df(s.est)
+  logLik(object)["df"]=df(s.est, inflect)
   
   return(object)}

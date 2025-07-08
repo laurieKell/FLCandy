@@ -25,6 +25,7 @@ Type objective_function<Type>::operator() () {
   PARAMETER(log_r0);
   PARAMETER(log_sigR);
   PARAMETER(logit_s);
+  PARAMETER(log_inflect);
   // Derived quantities
   Type r0 = exp(log_r0);
   Type sigR = exp(log_sigR);
@@ -55,7 +56,7 @@ Type objective_function<Type>::operator() () {
    if(Rmodel==2){ // segreg() aka Hockey Stick
      for( int t=0; t< nyears; t++){
        v(t)=r0*spr0(t);
-       log_rec_hat(t) = log(r0)+log(2.5*s/v(t)*(ssb(t)+0.2*v(t)/s-pow(pow(ssb(t)-0.2*v(t)/s,2.0),0.5)));//-pow(sigR,2)/2.0;
+       log_rec_hat(t) = log(r0)+log(2.5*s/v(t)*(ssb(t)+exp(log_inflect)-pow(pow(ssb(t)-exp(log_inflect),2.0),0.5)));//-pow(sigR,2)/2.0;
      }}
 
 
@@ -106,6 +107,7 @@ Type objective_function<Type>::operator() () {
    REPORT( sigR );
    REPORT( r0 );
    REPORT( v );
+   REPORT( log_inflect );
 //   REPORT( a );
 //   REPORT( b );
    REPORT( s );
