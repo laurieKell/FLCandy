@@ -253,7 +253,7 @@ setGeneric('hcrICES', function(object,eql,...) standardGeneric('hcrICES'))
 #' }
 #'
 #' @export
-setGeneric("stdz", function(object, na.rm=TRUE) standardGeneric("stdz"))
+setGeneric("stdz", function(object, na.rm=TRUE, ...) standardGeneric("stdz"))
 
 #' Calculate Exploitable Biomass
 #'
@@ -415,32 +415,6 @@ setGeneric("benchmark", function(object, ...) {
 })
 
 
-#' Standardize Values
-#'
-#' @description
-#' Standardizes values by subtracting the mean and dividing by the standard deviation.
-#'
-#' @param x A numeric vector, matrix, array or FLQuant
-#' @param na.rm Logical indicating whether to remove NA values when computing statistics
-#'
-#' @return An object of the same class as the input with standardized values
-#'
-#' @details
-#' Standardization follows the formula: (x - mean(x))/sd(x)
-#'
-#' @examples
-#' \dontrun{
-#' # For numeric vector
-#' x <- 1:10
-#' stdz(object)
-#'
-#' # For FLQuant
-#' data(ple4)
-#' standardized_catch <- stdz(catch(ple4))
-#' }
-#'
-#' @export
-setGeneric("stdz", function(object, na.rm=TRUE) standardGeneric("stdz"))
 
 setGeneric("invALK", function(object, model=vonbert, age, 
                               cv=0.1, lmax=1.2, bin=1, max=ceiling(object["linf"]*lmax), reflen=NULL) 
