@@ -654,16 +654,6 @@ setGeneric("rebuild", function(object, targetF=NULL, targetSSB=NULL,
   standardGeneric("rebuild")
 })
 
-#' Calculate rebuilding time
-#'
-#' @param object An object containing rebuilding trajectories
-#' @param nx Number of interpolation points
-#' @return A data frame with columns year and initial
-#' @export
-setGeneric("rebuildTime", function(object, nx=101) {
-  standardGeneric("rebuildTime")
-})
-
 setGeneric("leslie", function(object, ...) standardGeneric("leslie"))
 setGeneric('plotLengths', function(x, ...) standardGeneric('plotLengths')) 
 setGeneric("curveSS", function(object,...) standardGeneric("curveSS"))

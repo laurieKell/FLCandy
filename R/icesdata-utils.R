@@ -18,37 +18,6 @@ setMethod("ebiomass", signature(object="FLBRP"),
             apply(eb.wt %*% stock.n(object), 2:6, sum)
           })
 
-#' @rdname stdz
-#' @export
-setMethod("stdz", signature(object="numeric"),
-          function(object, na.rm=TRUE) {
-            object=object-mean(  object, na.rm=na.rm)
-            object/sqrt(var(object, na.rm=na.rm))
-          })
-
-#' @rdname stdz
-#' @export
-setMethod("stdz", signature(object="matrix"),
-          function(object, na.rm=TRUE) {
-            object=object-mean(object, na.rm=na.rm)
-            object/sqrt(var(object, na.rm=na.rm))
-          })
-
-#' @rdname stdz
-#' @export
-setMethod("stdz", signature(object="array"),
-          function(object, na.rm=TRUE) {
-            object=object-mean(object, na.rm=na.rm)
-            object/sqrt(var(object, na.rm=na.rm))
-          })
-
-#' @rdname stdz
-#' @export
-setMethod("stdz", signature(object="FLQuant"),
-          function(object, na.rm=TRUE) {
-            object=object-mean(object, na.rm=na.rm)
-            object/sqrt(var(object, na.rm=na.rm))
-          })
 
 #' Internal Function for Benchmark Extraction
 #'

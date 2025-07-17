@@ -17,6 +17,7 @@ Type objective_function<Type>::operator() () {
   DATA_VECTOR( rec );
   DATA_VECTOR( ssb );
   DATA_VECTOR( prior_s ); // Prior vector for s, [logit(mean), stdev in logit, useflag]
+  DATA_VECTOR(prior_r0); // Optional prior for log_r0: [mean, sd]
   DATA_VECTOR( spr0 );
   DATA_INTEGER(nyears);
   DATA_INTEGER(Rmodel); // Recruitment model
@@ -81,7 +82,11 @@ Type objective_function<Type>::operator() () {
  
    //prior s
    ans -= dnorm(logit_s, prior_s(0), prior_s(1), 1); // Prior for logn
-  
+
+  // prior for log_r0 if provided
+  if(prior_r0.size() == 2) {
+    ans -= dnorm(log_r0, prior_r0(0), prior_r0(1), true);
+  }
 //   
 //   if(Rmodel==0){
 //   a = Type(4)*v*s/(spr0*(Type(5)*s-Type(1)));
