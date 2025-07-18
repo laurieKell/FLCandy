@@ -106,10 +106,8 @@ ftmb<-function(object,
                 lower=lower., upper=upper.,
                 #
                 ReportSD = SDreport)
-  # Add r0 prior if provided
-  if(!is.null(prior_r0_vec)) {
-    inp$Data$prior_r0 <- prior_r0_vec
-  }
+  # Always add prior_r0 (empty if not used)
+  inp$Data$prior_r0 <- if(!is.null(prior_r0_vec)) prior_r0_vec else numeric(0)
   
   # Compile TMB inputs 
   Map=list()
@@ -271,10 +269,8 @@ ftmb2 <- function(object,
                 lower=lower., upper=upper.,
                 #
                 ReportSD = SDreport)
-  # Add r0 prior if provided
-  if(!is.null(prior_r0_vec)) {
-    inp$Data$prior_r0 <- prior_r0_vec
-  }
+  # Always add prior_r0 (empty if not used)
+  inp$Data$prior_r0 <- if(!is.null(prior_r0_vec)) prior_r0_vec else numeric(0)
   
   # Compile TMB inputs 
   Map=list()

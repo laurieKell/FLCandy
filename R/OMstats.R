@@ -89,6 +89,26 @@ eqlFn<-function(object,model="bevholtSV"){
   
   return(rtn)}
 
+eql2<-function(object, model="bevholtSV", prior_s=NULL, cv_s=NULL, prior_r0=NULL, cv_r0=NULL) {
+  spr0=FLCandy:::spr0Yr(object)
+  sr  =as.FLSR(object,model=model)
+  sr  =ftmb2(sr, s.est=TRUE,
+             s=0.7, # or pass a value or argument
+             s.logitsd=0.4, # or pass a value or argument
+             spr0=spr0,
+             prior_s=prior_s, cv_s=cv_s, prior_r0=prior_r0, cv_r0=cv_r0)
+
+  rtn=brp(FLBRP(object,nyears=dim(object)[2],
+                sr=list(model =do.call(gsub("SV","", model),list())$model,
+                        params=FLPar(apply(params(sr),1,median)))))
+
+  attributes(rtn)[["logLik"]]       =logLik(sr)
+  attributes(rtn)[["rec.residuals"]]=residuals(sr)
+  attributes(rtn)[["eb.obs"]]       =ebiomass(object)
+
+  return(rtn)
+}
+
 
 if(FALSE){
   
