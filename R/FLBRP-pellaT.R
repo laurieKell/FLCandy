@@ -55,10 +55,10 @@ setMethod("pellatParams", signature(object="FLPar"),
             
     # Get dimensions
     dims=dim(object)[2]
-            
+         
     # Initialize output FLPar
-    res=FLPar(array(NA, dim     =c(3,dims),
-                        dimnames=list(params=c("r","k","p"),
+    res=FLPar(array(NA, dim     =c(4,dims),
+                        dimnames=list(params=c("r","p","k","virgin"),
                                              iter=seq(dims))))
             
     # Loop over iterations
@@ -73,28 +73,46 @@ setMethod("pellatParams", signature(object="FLPar"),
         r=fmsy*(m-1)/(1-1/m)
               
         # Store results
-        res["r",i]=r
-        res["k",i]=c(object["k",i])
-        res["p",i]=m-1}
+        res["p",i]     =m-1
+        res["r",i]     =r
+        res["k",i]     =c(object["k",i])
+        res["virgin",i]=c(object["k",i])
+    }
             
     return(res)})
 
 #' @rdname pellatParams
-setMethod("pellatParams", signature(object="FLBRP"),
-    function(object) {
-      rfpts=refpts(object)
+setMethod("pellatParams", signature(object="FLBRP",biomass="character"),
+    function(object,biomass) {
+      
+      if (biomass=="eb"){
+       rfpts=refptsEB(object)
             
        params=FLPar(
-              fmsy=rfpts["msy","harvest"],
-              bmsy=rfpts["msy","ssb"],
-              k   =rfpts["virgin","ssb"],
-              iter=dim(rfpts)[3])
-            
-        pellatParams(params)})
+              fmsy  =rfpts["msy","harvest"],
+              bmsy  =rfpts["msy",   biomass],
+              k     =rfpts["virgin",biomass],
+              virgin=rfpts["virgin",biomass],
+              iter=dim(rfpts)[3])}
+      else{
+        rfpts=refpts(object)
+        
+        params=FLPar(
+          fmsy  =rfpts["msy",   "harvest"],
+          bmsy  =rfpts["msy",   "ssb"],
+          k     =rfpts["virgin","ssb"],
+          virgin=rfpts["virgin","ssb"],
+          iter=dim(rfpts)[3])}
+      
+   pellatParams(params,biomass=biomass)})
+
+setMethod("pellatParams", signature(object="FLBRP",biomass="missing"),
+          function(object) {
+            pellatParams(object,"ssb")})
 
 #' @rdname pellatParams
 setMethod("pellatParams", signature(object="numeric"),
-    function(object) {
+    function(object,biomass="ssb") {
       if(!all(c("fmsy","bmsy","virgin") %in% names(object)))
         stop("fmsy, bmsy and virgin not found")
             
@@ -106,15 +124,16 @@ setMethod("pellatParams", signature(object="numeric"),
           return(pellatParams(params))})
 
 setMethod("pellatParams", signature(object="FLBRP",biomass="function"),
-  function(object,biomass=ssb) {
+  function(object,biomass) {
       
     ctc=catch(  object)
     eb =biomass(object)
       
-    pars=FLPar(msy =max(ctc),                     
-               bmsy=eb[ctc==max(ctc)],
-               fmsy=max(ctc)/eb[ctc==max(ctc)],
-               k   =max(eb,na.rm=TRUE))
+    pars=FLPar(msy   =max(ctc),                     
+               bmsy  =eb[ctc==max(ctc)],
+               fmsy  =max(ctc)/eb[ctc==max(ctc)],
+               k     =max(eb,na.rm=TRUE),
+               virgin=max(eb,na.rm=TRUE))
       
     return(pellatParams(pars))})
 
@@ -131,6 +150,7 @@ setMethod("pellatParams", signature(object="missing", biomass="missing"),
             # Create numeric vector with named elements
             refs=FLPar(fmsy  = fmsy,
                        bmsy  = bmsy,
+                       k     = k,
                        virgin= k)
             
             # Call the numeric method

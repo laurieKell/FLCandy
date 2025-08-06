@@ -82,7 +82,7 @@ Type objective_function<Type>::operator() () {
  
    //prior s
    ans -= dnorm(logit_s, prior_s(0), prior_s(1), 1); // Prior for logn
-
+  
   // prior for log_r0 if provided
   if(prior_r0.size() == 2) {
     ans -= dnorm(log_r0, prior_r0(0), prior_r0(1), true);

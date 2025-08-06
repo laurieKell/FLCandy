@@ -47,7 +47,7 @@ taxa<-function(Taxa,
   Pred=NULL
   for (rowI in 1:nrow(params)) {
     for (uniqueI in 1:length(unique(Taxa))) {
-      Pred[[uniqueI]] <- suppressWarnings(
+      Pred[[uniqueI]] <- suppressMessages(
         traits(
           Taxon  = Taxa[uniqueI],
           params = params[rowI, ],
@@ -63,15 +63,15 @@ priors<-function(Genus  =NULL,
   match=NULL
   
   if (!is.null(Species)&!is.null(Genus))
-    match=tryCatch(suppressWarnings(Search_species(Genus=Genus,Species=Species)),
+    match=tryCatch(suppressMessages(Search_species(Genus=Genus,Species=Species)),
       error = function(e) return(NULL))
   
   if ((is.null(match))|(is.null(Species)&!is.null(Genus)))
-    match=tryCatch(suppressWarnings(Search_species(Genus=Genus)),
-      error = function(e)  return(NULL))
-
+    match=tryCatch(suppressMessages(Search_species(Genus=Genus)),
+                   error = function(e)  return(NULL))
+  
   if ((is.null(match))|(is.null(Species)&is.null(Genus)&!is.null(Family)))
-    match=tryCatch(suppressWarnings(Search_species(Family=Family)),
+    match=tryCatch(suppressMessages(Search_species(Family=Family)),
       error = function(e) return(NULL))
   
   if(is.null(match)) return(NULL)

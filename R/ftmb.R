@@ -200,8 +200,9 @@ ftmb<-function(object,
 #'
 #' @examples
 #' # See ftmb for usage
-ftmb2 <- function(object, 
+ftmb2<-function(object, 
                spr0=spr0, 
+               model=SRModelName(FLCore:::model(object)),
                s=0.7, s.est=TRUE, s.logitsd=1.3,
                inflect=NA,
                inits=function(object=object,s=s,inflect=inflect) {
@@ -216,14 +217,13 @@ ftmb2 <- function(object,
                  inflect_upper <- ifelse(is.na(inflect), 20, log(inflect))
                  c(quantile(c(log(rec(object))),probs=0.9), log(1.50), 20, inflect_upper)
                },
-               SDreport=TRUE,
+               short   =TRUE,
+               SDreport=short,
                prior_s=NULL, cv_s=NULL, prior_r0=NULL, cv_r0=NULL) {
   
   if(is.null(s)& s.est) s=0.6 # central value
   #if(is.null(s)&!s.est){s=0.8}
   
-  # IDENTIFY model
-  model=SRModelName(model(object))
   
   # GET rec, ssb
   rec=c(rec(object))
@@ -328,6 +328,8 @@ ftmb2 <- function(object,
     params(object)=par
   }
   
+  if (short) return(params(object))
+    
   df<-function(s.est, inflect) {
     # Base number of parameters
     num_params <- 2  # log_r0 and log_sigR are always estimated
@@ -341,3 +343,82 @@ ftmb2 <- function(object,
   logLik(object)["df"]=df(s.est, inflect)
   
   return(object)}
+
+#' Fits Stock Recruitment Relationships (SRR) in TBM with iteration support
+#'
+#' @param object Input FLSR object.
+#' @param spr0 unfished spawning biomass per recruit
+#' @param ... Additional arguments passed to ftmb2
+#' @param n_params Number of parameters to extract (default=2 for a,b)
+#' @param param_names Names for the parameters (default=c("a","b"))
+#'
+#' @return An FLPar object with dimensions [params, year, iter] if data has iterations,
+#'         otherwise returns the same as ftmb2
+#'
+#' @examples
+#' # Single fit (no iterations)
+#' sr <- ftmb3(flsr_object, spr0=0.7)
+#' 
+#' # Bootstrap fit with iterations
+#' sr <- ftmb3(flsr_object_with_iters, spr0=0.7)
+ftmb3 <- function(object, spr0=spr0, ..., n_params=2, param_names=c("a","b")) {
+  
+  # Check if data has iterations
+  rec_dims <- dim(rec(object))
+  has_iters <- length(rec_dims) > 2 && rec_dims[6] > 1
+  
+  # If no iterations, use regular ftmb2
+  if(!has_iters) {
+    return(ftmb2(object, spr0=spr0, ...))
+  }
+  
+  # Get dimensions
+  n_iters <- rec_dims[6]
+  n_years <- rec_dims[2]
+  
+  # Fit model to each iteration
+  results <- lapply(1:n_iters, function(i) {
+    # Progress counter
+    cat("\rFitting iteration", i, "of", n_iters)
+    
+    # Create subset for this iteration
+    object_iter <- object
+    rec(object_iter) <- rec(object)[,,,,,i]
+    ssb(object_iter) <- ssb(object)[,,,,,i]
+    
+    # Handle spr0 for this iteration
+    spr0_iter <- if("FLQuant" %in% is(spr0)) spr0[,,,,,i] else spr0
+    
+    # Fit model and extract parameters
+    tryCatch({
+      result <- ftmb2(object_iter, spr0=spr0_iter, short=TRUE, SDreport=FALSE, ...)
+      # Extract first n_params values
+      c(result)[1:n_params]
+    }, error = function(e) {
+      cat("\nError in iteration", i, ":", e$message, "\n")
+      NULL
+    })
+  })
+  
+  cat("\n")  # Newline after progress
+  
+  # Check if any fits succeeded
+  successful_fits <- !sapply(results, is.null)
+  if(!any(successful_fits)) {
+    stop("No successful fits across iterations")
+  }
+  
+  # Create parameter array
+  param_array <- array(NA, dim=c(n_params, n_years, n_iters),
+                      dimnames=list(params=param_names, 
+                                   year=as.character(1:n_years), 
+                                   iter=1:n_iters))
+  
+  # Fill array with results
+  for(i in which(successful_fits)) {
+    param_values <- results[[i]]
+    param_array[,,i] <- param_values  # Replicate across years
+  }
+  
+  return(FLPar(param_array))
+}
