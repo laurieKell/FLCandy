@@ -201,7 +201,6 @@ ftmb<-function(object,
 #' @examples
 #' # See ftmb for usage
 #'
-#' @rdname ftmb
 #' @export
 ftmb2<-function(object, 
                spr0=spr0, 
