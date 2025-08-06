@@ -2,27 +2,18 @@
 % Please edit documentation in R/FLBRP-pellaT.R
 \name{pellatParams}
 \alias{pellatParams}
-\alias{pellatParams,FLBRP,ANY-method}
+\alias{pellatParams,FLBRP,character-method}
 \alias{pellatParams,numeric,ANY-method}
 \alias{pellatParams,missing,missing-method}
 \title{Calculate Pella-Thompson Production Model Parameters}
 \usage{
 pellatParams(object, biomass, ...)
 
-\S4method{pellatParams}{FLBRP,ANY}(object)
+\S4method{pellatParams}{FLBRP,character}(object, biomass)
 
-\S4method{pellatParams}{numeric,ANY}(object)
+\S4method{pellatParams}{numeric,ANY}(object, biomass = "ssb")
 
-\S4method{pellatParams}{missing,missing}(
-  object,
-  biomass,
-  fmsy,
-  bmsy,
-  k = NULL,
-  b0 = NULL,
-  virgin = NULL,
-  ...
-)
+\S4method{pellatParams}{missing,missing}(object, biomass, fmsy, bmsy, k = NULL, virgin = NULL, ...)
 }
 \arguments{
 \item{object}{Input object of class 'FLPar', 'FLBRP', or 'numeric'}
@@ -40,7 +31,7 @@ An FLPar object containing:
 }
 \description{
 Methods to calculate parameters (r, K, p) for the Pella-Thompson production model
-from reference points (FMSY, BMSY, B0). Multiple methods are provided for different
+from reference points (FMSY, BMSY, Virgin). Multiple methods are provided for different
 input object classes.
 }
 \details{
@@ -48,12 +39,12 @@ The methods estimate Pella-Thompson model parameters using different input types
 \itemize{
 \item FLPar: Requires fmsy, bmsy, and k parameters
 \item FLBRP: Extracts reference points from FLBRP object
-\item numeric: Requires named vector with fmsy, bmsy, and b0
+\item numeric: Requires named vector with fmsy, bmsy, and virgin
 }
 }
 \examples{
 # Using numeric vector
-refs <- c(fmsy=0.2, bmsy=1000, b0=2000)
+refs <- c(fmsy=0.2, bmsy=1000, virgin=2000)
 pellatParams(refs)
 
 }

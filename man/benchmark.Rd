@@ -4,39 +4,25 @@
 \alias{benchmark}
 \alias{benchmark,FLStock-method}
 \alias{benchmark,FLStocks-method}
-\title{Calculate something using the haupt method for FLQuant and FLPar objects.}
+\alias{benchmark,FLBRP-method}
+\title{benchmark}
 \usage{
-benchmark(object, ...)
-
 benchmark(object, ...)
 
 \S4method{benchmark}{FLStock}(object)
 
 \S4method{benchmark}{FLStocks}(object)
+
+\S4method{benchmark}{FLBRP}(object)
 }
 \arguments{
 \item{object}{An FLStock or FLStocks object}
 
 \item{...}{Additional arguments (not currently used)}
-
-\item{pars}{A parameter object (class FLPar) containing necessary parameters.}
-
-\item{lc}{A threshold value for lc.}
-
-\item{lmax}{A threshold value for lmax.}
 }
 \value{
-The result of the calculation.
-
-An FLPar object containing benchmark reference points (Fmsy, Flim, Fpa, Blim, Bpa, Btrigger)
-
 An FLPar object containing benchmark reference points (Fmsy, Flim, Fpa, Blim, Bpa, Btrigger)
 }
 \description{
 A generic function to extract benchmark reference points from FLStock objects
-
-A generic function to extract benchmark reference points from FLStock objects
-}
-\details{
-This method calculates something using the \code{haupt} function when the input object is of class FLQuant and the parameter object is of class FLPar.
 }

@@ -2,16 +2,22 @@
 % Please edit documentation in R/utils.R
 \name{from_logits}
 \alias{from_logits}
-\title{from_logits()}
+\title{Convert Logit-Transformed Steepness to Original Scale}
 \usage{
 from_logits(logit_h)
 }
 \arguments{
-\item{logit_s}{logit(steepness)}
+\item{logit_h}{Numeric vector of logit-transformed steepness values}
 }
 \value{
-steepness h
+Numeric vector of steepness values on original scale (0.2 to 1.0)
 }
 \description{
-convert steepness from logit
+Converts steepness parameter from logit-transformed scale back to the original
+scale used in fisheries models.
+}
+\examples{
+# Convert logit steepness to original scale
+from_logits(c(0, 1, 2))
+
 }

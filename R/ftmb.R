@@ -364,6 +364,7 @@ ftmb2<-function(object,
 #' 
 #' # Bootstrap fit with iterations
 #' sr <- ftmb3(flsr_object_with_iters, spr0=0.7)
+#' @export
 ftmb3 <- function(object, spr0=spr0, ..., n_params=2, param_names=c("a","b")) {
   
   # Check if data has iterations

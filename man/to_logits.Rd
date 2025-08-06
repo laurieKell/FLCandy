@@ -2,16 +2,22 @@
 % Please edit documentation in R/utils.R
 \name{to_logits}
 \alias{to_logits}
-\title{to_logits()}
+\title{Convert Steepness to Logit Scale}
 \usage{
 to_logits(h)
 }
 \arguments{
-\item{s}{steepness s}
+\item{h}{Numeric vector of steepness values (0.2 to 1.0)}
 }
 \value{
-logit transformed steepness h
+Numeric vector of logit-transformed steepness values
 }
 \description{
-convert steepness to logit
+Converts steepness parameter to logit-transformed scale for numerical
+stability in optimization routines.
+}
+\examples{
+# Convert steepness to logit scale
+to_logits(c(0.3, 0.5, 0.8))
+
 }

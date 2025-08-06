@@ -2,6 +2,7 @@
 % Please edit documentation in R/ftmb.R
 \name{ftmb}
 \alias{ftmb}
+\alias{ftmb2}
 \title{Fits Stock Recruitment Relationships (SRR) in TBM}
 \usage{
 ftmb(
@@ -10,13 +11,64 @@ ftmb(
   s = 0.7,
   s.est = TRUE,
   s.logitsd = 1.3,
-  inits = function(object = object, s = s) c(median(c(log(rec(object)))), log(0.4),
-    to_logits(s)),
-  lower = function(object = object, s = -20) c(quantile(c(log(rec(object))), probs =
-    0.1), log(0.05), -20),
-  upper = function(object = object, s = 20) c(quantile(c(log(rec(object))), probs = 0.9),
-    log(1.5), 20),
-  SDreport = TRUE
+  inflect = NA,
+  inits = function(object = object, s = s, inflect = inflect) {
+     inflect_init <-
+    ifelse(is.na(inflect), 0, log(inflect))
+     c(median(c(log(rec(object)))), log(0.4),
+    to_logits(s), inflect_init)
+ },
+  lower = function(object = object, s = -20, inflect = inflect) {
+     inflect_lower <-
+    ifelse(is.na(inflect), -20, log(inflect))
+     c(quantile(c(log(rec(object))), probs
+    = 0.1), log(0.05), -20, inflect_lower)
+ },
+  upper = function(object = object, s = 20, inflect = inflect) {
+     inflect_upper <-
+    ifelse(is.na(inflect), 20, log(inflect))
+     c(quantile(c(log(rec(object))), probs =
+    0.9), log(1.5), 20, inflect_upper)
+ },
+  SDreport = TRUE,
+  prior_s = NULL,
+  cv_s = NULL,
+  prior_r0 = NULL,
+  cv_r0 = NULL
+)
+
+ftmb2(
+  object,
+  spr0 = spr0,
+  model = SRModelName(FLCore:::model(object)),
+  s = 0.7,
+  s.est = TRUE,
+  s.logitsd = 1.3,
+  inflect = NA,
+  inits = function(object = object, s = s, inflect = inflect) {
+     inflect_init <-
+    ifelse(is.na(inflect), 0, log(inflect))
+     c(median(c(log(rec(object)))), log(0.4),
+    to_logits(s), inflect_init)
+ },
+  lower = function(object = object, s = -20, inflect = inflect) {
+     inflect_lower <-
+    ifelse(is.na(inflect), -20, log(inflect))
+     c(quantile(c(log(rec(object))), probs
+    = 0.1), log(0.05), -20, inflect_lower)
+ },
+  upper = function(object = object, s = 20, inflect = inflect) {
+     inflect_upper <-
+    ifelse(is.na(inflect), 20, log(inflect))
+     c(quantile(c(log(rec(object))), probs =
+    0.9), log(1.5), 20, inflect_upper)
+ },
+  short = TRUE,
+  SDreport = short,
+  prior_s = NULL,
+  cv_s = NULL,
+  prior_r0 = NULL,
+  cv_r0 = NULL
 )
 }
 \arguments{
@@ -30,6 +82,8 @@ ftmb(
 
 \item{s.logitsd}{prior sd for logit(s), default is 1.3 (flat) if s.est = TRUE}
 
+\item{inflect}{Inflection point for the segreg model. If NA (default), it is estimated; if numeric, it is fixed at the provided value.}
+
 \item{inits}{option to specify initial values of log(r0), log(SigR) and logit(s)}
 
 \item{lower}{option to specify lower bounds of log(r0), log(SigR) and logit(s)}
@@ -37,6 +91,14 @@ ftmb(
 \item{upper}{option to specify upper bounds of log(r0), log(SigR) and logit(s)}
 
 \item{SDreport}{option to converge hessian and get vcov}
+
+\item{prior_s}{Optional prior mean for steepness (s)}
+
+\item{cv_s}{Optional coefficient of variation for steepness prior}
+
+\item{prior_r0}{Optional prior mean for r0}
+
+\item{cv_r0}{Optional coefficient of variation for r0 prior}
 }
 \value{
 A list containing elements 'FLSR', of class \emph{FLSR}
@@ -48,7 +110,15 @@ spr0=spr0Yr(neamac)
 object=as.FLSR(neamac,model="bevholtSV")
 sr=ftmb(object,s.est=T,s=0.7,s.logitsd=0.3,spr0)
 }
+
+A list containing elements 'FLSR', of class \emph{FLSR}
 }
 \description{
 Fits Stock Recruitment Relationships (SRR) in TBM
+
+Fits Stock Recruitment Relationships (SRR) in TBM (with flexible priors for s and r0)
+}
+\examples{
+# See ftmb for usage
+
 }

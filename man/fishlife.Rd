@@ -4,7 +4,7 @@
 \alias{fishlife}
 \alias{fishlife,FLStock-method}
 \alias{fishlife,FLStocks-method}
-\title{Extract FishLife Parameters}
+\title{Calculate something using the haupt method for FLQuant and FLPar objects.}
 \usage{
 fishlife(object, ...)
 
@@ -18,8 +18,16 @@ fishlife(object, ...)
 \item{object}{An FLStock or FLStocks object}
 
 \item{...}{Additional arguments (not currently used)}
+
+\item{pars}{A parameter object (class FLPar) containing necessary parameters.}
+
+\item{lc}{A threshold value for lc.}
+
+\item{lmax}{A threshold value for lmax.}
 }
 \value{
+The result of the calculation.
+
 An FLPar object containing FishLife parameters
 
 An FLPar object containing FishLife parameters
@@ -28,4 +36,7 @@ An FLPar object containing FishLife parameters
 A generic function to extract FishLife parameters from FLStock objects
 
 A generic function to extract FishLife parameters from FLStock objects
+}
+\details{
+This method calculates something using the \code{haupt} function when the input object is of class FLQuant and the parameter object is of class FLPar.
 }
