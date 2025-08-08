@@ -330,8 +330,6 @@ ftmb2<-function(object,
     params(object)=par
   }
   
-  if (short) return(params(object))
-    
   df<-function(s.est, inflect) {
     # Base number of parameters
     num_params <- 2  # log_r0 and log_sigR are always estimated
@@ -343,6 +341,13 @@ ftmb2<-function(object,
   
   logLik(object)=-Opt$objective
   logLik(object)["df"]=df(s.est, inflect)
+  
+  if (short) {
+    # Return the full object with fitted values and residuals
+    # but add a flag to indicate it's a short result
+    attr(object, "short_result") <- TRUE
+    return(object)
+  }
   
   return(object)}
 
