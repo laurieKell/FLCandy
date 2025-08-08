@@ -49,6 +49,7 @@ Collate:
   deSeason.R
   ebiomass.R
   effortBellWatson.R
+  eql.R
   eqsim1.R
   eqsim2.R
   fishlife.R

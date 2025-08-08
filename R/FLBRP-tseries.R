@@ -24,6 +24,8 @@ setMethod("tseries", signature(object="FLBRP"), function(object){
   nms=dimnames(refpts(object))
   nms$refpt=paste("ssb",dimnames(ssb.obs(object))$year,sep="")
   
+  vrgn=refpts(object)["virgin","ssb"]
+  
   discards.obs(object)[is.na(discards.obs(object))]=0
   
   landings.sel(object)=landings.sel(object)+discards.sel(object)
@@ -51,11 +53,20 @@ setMethod("tseries", signature(object="FLBRP"), function(object){
   rtn=rtn[ord]
   rtn[["peSSB"]]    =rtn$spSSB-rtn$yield
   rtn[["peBiomass"]]=rtn$spB  -rtn$yield
-
-  if(FALSE){
-  rtn[["ssb"  ]][rtn[["ssb"  ]]<0]=NA
-  rtn[["eb"   ]][rtn[["eb"   ]]<0]=NA
-  rtn[["yield"]][rtn[["yield"]]<0]=NA}
+  
+  chk=ssb.obs(object)
+  chk=chk%=%vrgn
+  chk=chk<=ssb.obs(object)
+  
+  rtn[["ssb"]]=ssb.obs(object)
+  
+  if(any(chk)){
+      
+    
+    for (i in names(rtn))
+       rtn[[i]][chk]=NA
+    
+    }
   
   rtn})
 
