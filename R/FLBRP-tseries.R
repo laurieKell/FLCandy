@@ -42,6 +42,8 @@ setMethod("tseries", signature(object="FLBRP"), function(object){
   rtn=alply(rtn,2,FLQuant,dimnames=dimnames(ssb.obs(object)))
   names(rtn)=as.character(unlist(attributes(rtn)$split_labels))
   
+  rtn$eb =ebiomass.obs(object)
+  
   rtn$spSSB=ssb.obs(object)[,-1]-ssb.obs(object)[,-dim(ssb.obs(object))[2]]+catch.obs(object)[,-dim(ssb.obs(object))[2]]
   rtn$spEB =ebiomass.obs(object)[,-1]-ebiomass.obs(object)[,-dim(ebiomass.obs(object))[2]]+catch.obs(object)[,-dim(ebiomass.obs(object))[2]]
   
