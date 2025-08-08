@@ -21,6 +21,8 @@
 #' }
 
 setMethod("tseries", signature(object="FLBRP"), function(object){
+  ebiomass.obs<-function(x) attributes(x)$eb.obs
+
   nms=dimnames(refpts(object))
   nms$refpt=paste("ssb",dimnames(ssb.obs(object))$year,sep="")
   
@@ -34,25 +36,24 @@ setMethod("tseries", signature(object="FLBRP"), function(object){
   rfs=FLPar(array(NA,laply(nms,length),dimnames=nms))
   rfs[,"ssb",]=ssb.obs(object)
   refpts(object)=rfs
-  rtn=computeRefpts(object)
+  rtn=refptsEB(object)
   fbar(object)=FLQuant(c(rtn[,"harvest"]))
   
   rtn=alply(rtn,2,FLQuant,dimnames=dimnames(ssb.obs(object)))
   names(rtn)=as.character(unlist(attributes(rtn)$split_labels))
   
-  rtn$spSSB    =ssb.obs(object)[,-1]-ssb.obs(object)[,-dim(ssb.obs(object))[2]]+catch.obs(object)[,-dim(ssb.obs(object))[2]]
-  rtn$spBiomass=biomass.obs(object)[,-1]-biomass.obs(object)[,-dim(biomass.obs(object))[2]]+catch.obs(object)[,-dim(biomass.obs(object))[2]]
-
-  eb=ebiomass(object)
-  dimnames(eb)=dimnames(rtn$ssb)
-  rtn$eb=eb
+  rtn$spSSB=ssb.obs(object)[,-1]-ssb.obs(object)[,-dim(ssb.obs(object))[2]]+catch.obs(object)[,-dim(ssb.obs(object))[2]]
+  rtn$spEB =ebiomass.obs(object)[,-1]-ebiomass.obs(object)[,-dim(ebiomass.obs(object))[2]]+catch.obs(object)[,-dim(ebiomass.obs(object))[2]]
+  
   rtn=mcf(as(rtn,"FLQuants"))
   
-  ord=c("harvest","yield","rec","ssb","biomass","eb","revenue","cost","profit","spSSB","spBiomass")
+  ord=c("harvest","yield","rec","ssb","eb","revenue","cost","profit","spSSB","spEB")
   
   rtn=rtn[ord]
-  rtn[["peSSB"]]    =rtn$spSSB-rtn$yield
-  rtn[["peBiomass"]]=rtn$spB  -rtn$yield
+  rtn[["peSSB"]]=rtn$spSSB-rtn$yield
+  rtn[["peSSB"]]=rtn[["peSSB"]]%/%rtn[["ssb"]]
+  rtn[["peEB"]] =rtn$spEB -rtn$yield
+  rtn[["peEB"]]=rtn[["peEB"]]%/%rtn[["eb"]]
   
   chk=ssb.obs(object)
   chk=chk%=%vrgn
@@ -61,12 +62,8 @@ setMethod("tseries", signature(object="FLBRP"), function(object){
   rtn[["ssb"]]=ssb.obs(object)
   
   if(any(chk)){
-      
-    
     for (i in names(rtn))
-       rtn[[i]][chk]=NA
-    
-    }
+      rtn[[i]][chk]=NA}
   
   rtn})
 
