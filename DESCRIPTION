@@ -106,6 +106,7 @@ Collate:
   pellaTrefpts.R
   recoveryMetrics.R
   relMSY.R
+  refptsEB.R
   rlmvn.R
   saveTmp.R
   seasonalise.R
