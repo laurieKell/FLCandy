@@ -202,7 +202,7 @@ ftmb<-function(object,
 #' # See ftmb for usage
 #'
 #' @export
-ftmb2<-function(object, 
+ftmb2<-function(object,         
                spr0=spr0, 
                model=SRModelName(FLCore:::model(object)),
                s=0.7, s.est=TRUE, s.logitsd=1.3,
