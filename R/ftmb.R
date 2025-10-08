@@ -421,12 +421,10 @@ ftmb3 <- function(object, spr0=spr0, ..., n_params=2, param_names=c("a","b")) {
                       dimnames=list(params=param_names, 
                                    year=as.character(1:n_years), 
                                    iter=1:n_iters))
-  
   # Fill array with results
   for(i in which(successful_fits)) {
-    param_values <- results[[i]]
+    param_values <- params(results[[i]][[1]])[,1]
     param_array[,,i] <- param_values  # Replicate across years
   }
   
-  return(FLPar(param_array))
-}
+  return(FLPar(param_array))}
