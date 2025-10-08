@@ -32,7 +32,7 @@ setGeneric("refsEB", function(x) standardGeneric("refsEB"))
 #' @rdname refsEB
 #' @export
 setMethod("refsEB", signature(x="FLBRP"), function(x) {
-  rfs=FLCandy:::refptsEB(x)[c("msy", "crash", "virgin"), c("harvest", "yield", "eb")]
+  rfs=refptsEB(x)[c("msy", "crash", "virgin"), c("harvest", "yield", "eb")]
   
   rtn=rbind(msy   = rfs[1, "yield"],
             bmsy  = rfs[1, "eb"],
