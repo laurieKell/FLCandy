@@ -108,6 +108,11 @@ setMethod("fishlife", signature(object="FLStocks"), function(object) {
   ldply(llply(icesdata, function(x) t(fishlife(x))),rbind.fill)
 })
 
+#' @rdname fishlife
+#' @export
+setMethod("fishlife", signature(object="list"), function(object) {
+  ldply(llply(icesdata, function(x) t(fishlife(x))),rbind.fill)
+})
 
 #' Internal Function for EqSim Reference Point Extraction
 #'

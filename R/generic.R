@@ -384,21 +384,6 @@ setGeneric("FLifePar", function(object, ...) {
 })
 
 
-#' Extract FishLife Parameters
-#'
-#' @description
-#' A generic function to extract FishLife parameters from FLStock objects
-#'
-#' @param object An FLStock or FLStocks object
-#' @param ... Additional arguments (not currently used)
-#'
-#' @return An FLPar object containing FishLife parameters
-#'
-#' @export
-setGeneric("fishlife", function(object, ...) {
-  standardGeneric("fishlife")
-})
-
 #' benchmark
 #'
 #' @description
