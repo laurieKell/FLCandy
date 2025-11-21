@@ -1,7 +1,7 @@
 Package: FLCandy
 Type: Package
 Title: Candidate Methods for FLR
-Version: 1.7.0
+Version: 1.7.1
 Authors@R: 
     person("Laurence", "Kell", 
            email = "laurie@kell.es",
