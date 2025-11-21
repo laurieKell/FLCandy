@@ -1,0 +1,270 @@
+---
+title: "Stock Analysis Functions in FLCandy"
+author: "FLCandy Package"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+    code_folding: show
+vignette: >
+  %\VignetteIndexEntry{Stock Analysis Functions in FLCandy}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6
+)
+```
+
+# Introduction
+
+The `FLCandy` package provides a comprehensive set of functions for analyzing individual stock trends and states using S4 methods. These functions can work with various input types including `FLStock` objects, `FLQuant` objects, and data frames.
+
+## Key Features
+
+- **S4 Method Dispatch**: Functions automatically adapt to different input types
+- **Multiple Analysis Methods**: Linear regression and Mann-Kendall trend tests
+- **Year-by-Year Classification**: Sliding window approach for temporal analysis
+- **Flexible Input**: Support for different data structures
+- **Comprehensive Output**: Detailed trend information, p-values, and classifications
+
+## Functions Overview
+
+1. **`stockTrend`**: Analyze trends in SSB and F for a single stock
+2. **`stockState`**: Classify stock state (Increasing, Decreasing, Stable) for a single stock
+3. **`stockStateFactor`**: Create ordered factors for statistical analysis
+
+# Loading Required Packages
+
+```{r load-packages}
+library(FLCandy)
+library(FLCore)
+library(ggplot2)
+
+# Load example data
+data(ple4)
+```
+
+# Single Stock Analysis
+
+## Using FLStock Objects
+
+The most straightforward way to analyze a stock is using an `FLStock` object:
+
+```{r flstock-analysis}
+# Basic trend analysis
+trend_result <- stockTrend(ple4)
+print(trend_result$trend)
+print(trend_result$classification)
+
+# Get stock state
+state <- stockState(ple4)
+print(state)
+
+# Create factor for statistical analysis
+state_factor <- stockStateFactor(ple4)
+print(state_factor)
+```
+
+## Using FLQuant Objects
+
+You can also analyze stocks using separate `FLQuant` objects for SSB and F:
+
+```{r flquant-analysis}
+# Extract SSB and F from FLStock
+ssb_data <- ssb(ple4)
+f_data <- fbar(ple4)
+
+# Analyze using FLQuant objects
+trend_result <- stockTrend(ssb = ssb_data, f = f_data)
+print(trend_result$trend)
+
+state <- stockState(ssb = ssb_data, f = f_data)
+print(state)
+```
+
+## Using Data Frames
+
+The functions also work with data frames containing the required columns:
+
+```{r dataframe-analysis}
+# Create data frame from FLStock
+df_data <- data.frame(
+  year = as.numeric(dimnames(ssb(ple4))$year),
+  ssb = c(ssb(ple4)),
+  f = c(fbar(ple4))
+)
+
+# Analyze using data frame
+trend_result <- stockTrend(df_data)
+print(trend_result$trend)
+
+state <- stockState(df_data)
+print(state)
+```
+
+# Year-by-Year Analysis
+
+The functions support year-by-year classification using a sliding window approach:
+
+```{r yearly-analysis}
+# Year-by-year trend analysis
+yearly_trend <- stockTrend(ple4, byYear = TRUE)
+print(head(yearly_trend$yearlyStates))
+
+# Year-by-year state classification
+yearly_state <- stockState(ple4, byYear = TRUE)
+print(head(yearly_state))
+```
+
+## Visualizing Year-by-Year Results
+
+```{r yearly-plot, fig.width=10, fig.height=6}
+# Plot yearly states over time
+yearly_data <- stockState(ple4, byYear = TRUE)
+yearly_df <- yearly_data[, c("year", "state")]
+
+ggplot(yearly_df, aes(x = year, fill = state)) +
+  geom_bar() +
+  scale_fill_manual(values = c("Decreasing" = "red", "Stable" = "orange", "Increasing" = "green")) +
+  labs(title = "Stock State Over Time", x = "Year", y = "Count", fill = "State") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+# Advanced Analysis Options
+
+## Different Analysis Methods
+
+```{r methods}
+# Linear regression (default)
+linear_result <- stockTrend(ple4, method = "linear")
+print(linear_result$trend)
+
+# Mann-Kendall test
+mk_result <- stockTrend(ple4, method = "mann_kendall")
+print(mk_result$trend)
+```
+
+## Custom Parameters
+
+```{r parameters}
+# Custom significance threshold
+strict_result <- stockTrend(ple4, pThreshold = 0.01)
+print(strict_result$trend)
+
+# Custom window size for year-by-year analysis
+custom_yearly <- stockTrend(ple4, byYear = TRUE, windowSize = 10)
+print(head(custom_yearly$yearlyStates))
+
+# Focus on recent years
+recent_result <- stockTrend(ple4, recentYears = 20)
+print(recent_result$trend)
+```
+
+## Detailed Results
+
+```{r detailed-results}
+# Get detailed results instead of simplified output
+detailed <- stockState(ple4, simplify = FALSE)
+print(names(detailed))
+print(detailed$ssbTrend)
+print(detailed$fTrend)
+```
+
+# Method Dispatch Examples
+
+## Automatic Method Selection
+
+The S4 methods automatically dispatch based on the input type:
+
+```{r method-dispatch}
+# FLStock method
+result1 <- stockTrend(ple4)
+print(class(result1))
+
+# FLQuant method
+result2 <- stockTrend(ssb = ssb(ple4), f = fbar(ple4))
+print(class(result2))
+
+# Data frame method
+df <- data.frame(year = 1:10, ssb = rnorm(10), f = rnorm(10))
+result3 <- stockTrend(df)
+print(class(result3))
+```
+
+# Error Handling
+
+The functions provide informative error messages for unsupported input combinations:
+
+```{r error-handling, error=TRUE}
+# This will generate an error - FLQuant needs both ssb and f
+tryCatch({
+  stockTrend(ssb = ssb(ple4))
+}, error = function(e) {
+  cat("Error:", e$message, "\n")
+})
+
+# This will generate an error - data frame needs required columns
+tryCatch({
+  stockTrend(data.frame(year = 1:10, wrong_column = rnorm(10)))
+}, error = function(e) {
+  cat("Error:", e$message, "\n")
+})
+```
+
+# Performance Considerations
+
+## Large Datasets
+
+For large datasets, consider using the `recentYears` parameter to focus on recent data:
+
+```{r performance}
+# Analyze only recent 20 years for better performance
+recent_trend <- stockTrend(ple4, recentYears = 20)
+print(recent_trend$trend)
+```
+
+## Understanding the Output
+
+The functions return detailed information about stock trends:
+
+```{r output-explanation}
+# Get comprehensive trend analysis
+result <- stockTrend(ple4)
+
+# Overall trend classification
+cat("Overall trend:", result$trend, "\n")
+
+# SSB trend details
+cat("SSB trend direction:", result$ssbTrend$direction, "\n")
+cat("SSB p-value:", result$ssbTrend$p_value, "\n")
+cat("SSB significant:", result$ssbTrend$significant, "\n")
+
+# F trend details
+cat("F trend direction:", result$fTrend$direction, "\n")
+cat("F p-value:", result$fTrend$p_value, "\n")
+cat("F significant:", result$fTrend$significant, "\n")
+
+# Classification explanation
+cat("Classification:", result$classification, "\n")
+```
+
+# Summary
+
+The stock analysis functions in `FLCandy` provide a comprehensive and flexible toolkit for analyzing individual stock trends and states. Key features include:
+
+- **S4 Method Dispatch**: Automatic adaptation to different input types (FLStock, FLQuant, data.frame)
+- **Multiple Analysis Methods**: Linear regression and Mann-Kendall tests
+- **Temporal Analysis**: Year-by-year classification with sliding windows
+- **Flexible Input**: Support for different data structures
+- **Statistical Integration**: Factor creation for statistical analysis
+- **Comprehensive Output**: Detailed trend information with p-values and classifications
+
+These functions make it easy to analyze stock trends and states for individual stocks across different data formats, providing both simple classifications and detailed statistical information for further analysis. 

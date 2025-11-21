@@ -1,0 +1,471 @@
+---
+title: "Process Error Analysis in ICES Stock Assessments"
+author: "Laurie Kell & Massimiliano Cardinale"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+    code_folding: show
+vignette: >
+  %\VignetteIndexEntry{Process Error Analysis in ICES Stock Assessments}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+I think we need to distinguish between bias and variance, if we plot PE v SSB/ABI and find a trend then we are just showing that the production function is biased. i.e. at low or high SSB then the production function doesn't fit. What Henning was looking at was variance 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse=TRUE,
+  comment="#>",
+  fig.width=10,
+  fig.height =12,
+  warning=FALSE,
+  message=FALSE,
+  cache     =TRUE, 
+  cache.path="cache/paper/",
+  fig.path  ="figs/",
+  echo      =FALSE
+)
+
+iFig=0
+myDir="C:/active/tmp"
+```
+
+## Introduction
+
+Analysis of process error:
+
+- Fit Beverton-Holt stock-recruitment relationship
+- Calculate biological reference points and ABI
+- Process Error analysis
+- Granger causality testing 
+- Permutation entropy analysis for time series complexity
+
+This analysis provides insights into:
+
+1. **Process Error Patterns**: The relationship between ABI at different reference points reveals the magnitude and structure of process error in stock assessments.
+
+2. **Causal Relationships**: Granger causality tests help identify whether fishing pressure (catch) influences biomass dynamics or vice versa.
+
+3. **Time Series Complexity**: Permutation entropy measures the predictability and complexity of catch and SSB time series, which can inform management strategies.
+
+4. **Stock-Specific Variability**: The analysis reveals considerable variation in recruitment variability and biological parameters across stocks.
+
+## Libraries
+
+```{r libs}
+# Install required packages from GitHub
+# library(remotes)
+# remotes::install_github("laurieKell/FLCandy", force=TRUE)
+# remotes::install_github("laurieKell/FLRebuild", force=TRUE)
+#install.packages("C:/active/flr/FLCandy",repos=NULL,type="source")
+  
+# Load necessary libraries
+library(FLCore)
+library(FLBRP)
+library(FLCandy)
+library(FLRebuild)
+library(ggplotFL)
+
+library(ggplot2)
+library(GGally)
+
+library(statcomp)
+library(plyr)
+
+library(lmtest)
+library(tseries)
+
+library(doParallel)
+library(foreach)
+```
+
+## Data Loading
+
+```{r load-data}
+load("C:/active/flrpapers/brebuild/data/icesdata.RData")
+ids=names(icesdata)
+```
+
+## Beverton-Holt stock-recruitment relationships
+
+```{r, priors}
+sgs=FLBRPs(llply(icesdata,eql,model="segreg")) 
+
+R0 =ldply(sgs, function(x) data.frame(r0=c(params(x)["a"]*params(x)["b"])))
+fl=fishlife(icesdata)
+```
+
+```{r bh1}
+ncores=detectCores() - 4
+cl    =makeCluster(ncores)
+registerDoParallel(cl)
+
+
+bh1=foreach(id=ids,.packages=c("FLCore","FLBRP","FLCandy")) %dopar% {
+  landings.n( icesdata[[id]])=catch.n( icesdata[[id]])
+  landings.wt(icesdata[[id]])=catch.wt(icesdata[[id]])
+  
+  discards.n( icesdata[[id]])[]=0
+  discards.wt(icesdata[[id]])[]=0
+  
+  catch(icesdata[[id]])=computeCatch(icesdata[[id]],slot="all")
+  
+  eql(icesdata[[id]],model="bevholtSV")}
+bh1=FLBRPs(bh1)
+names(bh1)=ids 
+
+stopCluster(cl)
+```
+
+```{r bh2}
+ncores=detectCores() - 4
+cl    =makeCluster(ncores)
+registerDoParallel(cl)
+
+bh2=foreach(id=ids,.packages=c("FLCore","FLBRP","FLCandy")) %dopar% {
+  eql(icesdata[[id]],model="bevholtSV",prior_s=fl[fl$.id==id,"s"],cv_s=0.1)}
+names(bh2)=ids
+stopCluster(cl)
+```
+
+```{r bh3}
+ncores=detectCores() - 4
+cl    =makeCluster(ncores)
+registerDoParallel(cl)
+
+bh3=foreach(id=ids,.packages=c("FLCore","FLBRP","FLCandy")) %dopar% {
+  eql(icesdata[[id]],model="bevholtSV",prior_r0=R0[R0$.id==id,"r0"],cv_r0=0.1)}
+names(bh3)=ids
+stopCluster(cl)
+```
+
+
+
+## Time Series 
+
+Time series and biological indices including ABI.
+
+```{r time-series}
+source("C:/active/flr/FLRebuild/R/abi.R")
+
+ts=mdply(names(icesdata), function(id) {
+  cbind(.id=id,
+    merge(
+      merge(merge(
+        model.frame(FLQuants(ABImsy   =abi(icesdata[[id]], bh1[[id]], ref="msy")), drop=TRUE),
+        model.frame(FLQuants(ABIvirgin=abi(icesdata[[id]], bh1[[id]], ref="virgin")), drop=TRUE)),
+        model.frame(FLQuants(recDevs=residuals(bh1[[id]]@sr)), drop=TRUE), all.x=TRUE),
+        model.frame(tseries(bh1[[id]]), drop=TRUE)))})[,-c(1, 12:14, 19)]
+ts=subset(ts,!is.na(yield))
+ts=ddply(ts,.(.id), transform, pe.=(yield+c(NA,diff(ssb)))/ssb)
+ts=transform(ts, peSSB=ifelse(is.na(peSSB),pe.,peSSB))
+
+tmp=table(subset(ts,is.na(peSSB))$.id)
+tmp[tmp>1]
+```
+
+## Stock-Specific quantities
+
+Stock specific are summarised for properties related to productivity, $L_{50}/L_{\infty}$, $F_{MSY}$ and $SPR_{30%}$, and recruitment variability
+
+```{r, refs}
+rfs=ldply(bh1,function(x) refs(x)[drop=TRUE])
+```
+
+```{r stock-variables, fig.width=8,fig.height=8}
+vars=ldply(icesdata, function(x)
+  data.frame("l50Linf"=attributes(x)$fishlife["lm"] / attributes(x)$fishlife["linf"]))
+
+vars=merge(vars, ldply(bh1, function(x)
+  data.frame("fmsy"  =refpts(x)["msy",   "harvest", drop=TRUE],
+             "spr.30"=refpts(x)["spr.30","harvest", drop=TRUE])))
+vars=merge(vars, 
+           ddply(ts, .(.id), with, data.frame(sigmaR=var(recDevs, na.rm=TRUE)^0.5)))
+
+ggpairs(vars[,-1])
+```
+
+```{r, vary}
+vary=ldply(icesdata, function(x) data.frame(
+  m.age  =!all(m(x)[1,]==apply(m(x),2,mean)),
+  m.yr   =!all(apply(       m(x),2,mean)==mean(m(       x)[,1])),
+  mass.yr=!all(apply(stock.wt(x),2,mean)==mean(stock.wt(x)[,1])),
+  mat.yr =!all(apply(     mat(x),2,mean)==mean(mat(     x)[,1]))))
+vary=transform(vary,m.by.age  =ifelse(m.age,"M varys by Age",     "M constant by Age"),
+               m.by.yr   =ifelse(m.yr, "M varys by Year",    "M constant by Year"),
+               mat.by.yr =ifelse(mat.yr, "Mat varys by Year",  "Mat constant by Year"),
+               mass.by.yr=ifelse(mass.yr, "Mass varys by Year", "Mass constant by Year"))
+```
+
+## Catch and SSB Time Series
+
+```{r catch-ssb-plot, fig.height=10, fig.width=8}
+rng<-function(x) (x-min(x,na.rm=TRUE))/(max(x-min(x,na.rm=TRUE)))
+
+ggplot(ddply(ts, .(.id), transform, yield=rng(yield), 
+                                     ssb  =rng(ssb)))+
+  geom_line(aes(year, yield, color="Catch"))+
+  geom_line(aes(year, ssb,   color="SSB"))+
+  facet_wrap(~.id, scales="free_y", ncol=6)+
+  labs(title="Catch and SSB Time Series by Stock", 
+       x="Year", 
+       y="Biomass/Catch",
+       color="Variable")+
+  theme_minimal(base_size=10)+
+  theme(
+    legend.position="bottom",
+    legend.title=element_blank(),
+    #strip.text=element_blank(),
+    axis.text=element_blank(),
+    axis.ticks=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.grid.major=element_line(color="grey90"),
+    plot.title=element_text(face="bold", size=12),
+    plot.subtitle=element_text(size=10, color="grey30"),
+    panel.spacing=unit(0, "lines"))
+ggsave(file.path(myDir,"fig1.jpeg"), width=240, height=240, units="mm", dpi="print") 
+```
+
+**Figure `r iFig=iFig+1; iFig`** 
+
+## Process Error Analysis
+
+
+```{r, echo=FALSE, fig.height=12, fig.width=10}
+df=transform(merge(ts,rfs),ssbBmsy=ssb/bmsy)
+df=ddply(df,.(.id), transform, pe=stdz(peSSB))
+
+ggplot(df)+ 
+  geom_point( aes(ssbBmsy,pe),size=0.5)+
+  geom_smooth(aes(ssbBmsy,pe),method="lm",se=FALSE)+
+  #scale_x_continuous(limits=c(0,2))+
+  facet_wrap(~.id,scale="free",ncol=8)+  
+  labs(title="Cat 1: SSB Process Error v SSB/BMSY",   
+       x    =expression(SSB/B[MSY]),
+       y    ="Standardised Process Error")+
+  # Enhanced theme
+  theme_minimal(base_size=10)+
+  theme(
+    legend.position="bottom",
+    legend.title=element_blank(),
+    #strip.text=element_blank(),
+    axis.text=element_blank(),
+    axis.ticks=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.grid.major=element_line(color="grey90"),
+    plot.title=element_text(face="bold",size=12),
+    plot.subtitle=element_text(size=10, color="grey30"),
+    panel.spacing=unit(0, "lines"))
+ggsave(file.path(myDir,"fig2.jpeg"), width=240, height=240, units="mm", dpi="print")  
+```
+
+**Figure `r iFig=iFig+1; iFig`** 
+
+```{r, echo=FALSE, fig.height=12, fig.width=10}
+ggplot(df)+  
+  geom_point( aes(ABImsy,pe),size=0.5)+
+  geom_smooth(aes(ABImsy,pe),method="lm",se=FALSE)+
+  #scale_x_continuous(limits=c(0,2))+
+  facet_wrap(~.id,scale="free",ncol=8)+  
+  labs(title="Cat 1: SSB Process Error v ABI MSY",   
+       x    =expression(ABI[MSY]),
+       y    ="Standardised Process Error")+
+  # Enhanced theme
+  theme_minimal(base_size=10)+
+  theme(
+    legend.position="bottom",
+    legend.title=element_blank(),
+    #strip.text=element_blank(),
+    axis.text=element_blank(),
+    axis.ticks=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.grid.major=element_line(color="grey90"),
+    plot.title=element_text(face="bold",size=12),
+    plot.subtitle=element_text(size=10, color="grey30"),
+    panel.spacing=unit(0, "lines"))
+ggsave(file.path(myDir,"fig3.jpeg"), width=240, height=240, units="mm", dpi="print") 
+```
+
+**Figure `r iFig=iFig+1; iFig`** 
+
+```{r process-error}
+ggplot(ts)+ 
+  geom_line( aes(year,peSSB))+
+  geom_hline(aes(yintercept=0),col="grey66")+
+  geom_text(aes(x=1950, y=2, label=.id), 
+            hjust=0, vjust=1, size=3, color="black")+
+  facet_wrap(~.id,scale="free_y",ncol=6)+  
+  labs(title="Cat 1: Process Error v SSB",   
+       x    ="Year",
+       y    ="")+
+  # Enhanced theme
+  theme_minimal(base_size=10)+
+  theme(
+    legend.position="bottom",
+    legend.title=element_blank(),
+    strip.text=element_blank(),
+    axis.text=element_blank(),
+    axis.ticks=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.grid.major=element_line(color="grey90"),
+    plot.title=element_text(face="bold",size=12),
+    plot.subtitle=element_text(size=10, color="grey30"),
+    panel.spacing=unit(0, "lines"))
+ggsave(file.path(myDir,"fig4.jpeg"), width=170, height=240, units="mm", dpi="print") 
+```
+
+**Figure `r iFig=iFig+1; iFig`** 
+
+```{r}
+ggplot(ddply(ts,.(.id), transform, ABImsy=stdz(ABImsy),ABIvirgin=stdz(ABIvirgin)))+
+  geom_point( aes(ABImsy,ABIvirgin),size=0.5)+
+  geom_smooth(aes(ABImsy,ABIvirgin),method="lm",se=FALSE)+
+  facet_wrap(~.id,scale="free_y",ncol=8)+  
+  labs(title="Cat 1: ABI Virgin v MSY",   
+       x    ="ABI",
+       y    ="Process Error")+
+  # Enhanced theme
+  theme_minimal(base_size=10)+
+  theme(
+    legend.position="bottom",
+    legend.title=element_blank(),
+    #strip.text=element_blank(),
+    axis.text=element_blank(),
+    axis.ticks=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.grid.major=element_line(color="grey90"),
+    plot.title=element_text(face="bold",size=12),
+    plot.subtitle=element_text(size=10, color="grey30"),
+    panel.spacing=unit(0, "lines"))
+ggsave(file.path(myDir,"fig5.jpeg"), width=240, height=240, units="mm", dpi="print") 
+```
+
+**Figure `r iFig=iFig+1; iFig`** 
+
+```{r}
+ggplot(ddply(ts,.(.id), transform, abi=stdz(ABImsy)))+
+  geom_point( aes(abi,peSSB/ssb),size=0.5)+
+  geom_smooth(aes(abi,peSSB/ssb),method="lm",se=FALSE)+
+  facet_wrap(~.id,scale="free_y",ncol=8)+  
+  labs(title="Cat 1: ABI MSY v SSB Process Error",   
+       x    ="ABI MSY",
+       y    ="Process Error")+
+  # Enhanced theme
+  theme_minimal(base_size=10)+
+  theme(
+    legend.position="bottom",
+    legend.title=element_blank(),
+    #strip.text=element_blank(),
+    axis.text=element_blank(),
+    axis.ticks=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.grid.major=element_line(color="grey90"),
+    plot.title=element_text(face="bold",size=12),
+    plot.subtitle=element_text(size=10, color="grey30"),
+    panel.spacing=unit(0, "lines"))
+ggsave(file.path(myDir,"fig6.jpeg"), width=240, height=240, units="mm", dpi="print") 
+```
+
+**Figure `r iFig=iFig+1; iFig`** 
+
+```{r}
+ggplot(ddply(ts,.(.id), transform, abi=stdz(ABIvirgin)))+
+  geom_point( aes(abi,peSSB/ssb),size=0.5)+
+  geom_smooth(aes(abi,peSSB/ssb),method="lm",se=FALSE)+
+  facet_wrap(~.id,scale="free_y",ncol=8)+  
+  labs(title="Cat 1: ABI Virgin v SSB Process Error",   
+       x    ="ABI",
+       y    ="Process Error")+
+  # Enhanced theme
+  theme_minimal(base_size=10)+
+  theme(
+    legend.position="bottom",
+    legend.title=element_blank(),
+    #strip.text=element_blank(),
+    axis.text=element_blank(),
+    axis.ticks=element_blank(),
+    panel.grid.minor=element_blank(),
+    panel.grid.major=element_line(color="grey90"),
+    plot.title=element_text(face="bold",size=12),
+    plot.subtitle=element_text(size=10, color="grey30"),
+    panel.spacing=unit(0, "lines"))
+ggsave(file.path(myDir,"fig7.jpeg"), width=240, height=240, units="mm", dpi="print") 
+```
+
+**Figure `r iFig=iFig+1; iFig`** 
+
+## Granger Causality Analysis
+
+Test for causal relationships between catch and SSB using Granger causality tests.
+
+```{r causality}
+# Check stationarity using Augmented Dickey-Fuller test
+stationarityTests=dlply(na.omit(ts), .(.id), function(x) {
+  list(catchAdf=adf.test(x$yield),
+       ssbAdf  =adf.test(x$ssb))})
+
+grangerResults=ddply(na.omit(ts), .(.id), function(x) {
+  gcCatch2ssb=tryIt(grangertest(ssb ~ yield, data=x, order=1))
+  gcSsb2catch=tryIt(grangertest(yield ~ ssb, data=x, order=1))
+  
+  if (is.null(gcCatch2ssb)|is.null(gcSsb2catch)) 
+    return(NULL)
+  
+  data.frame(
+    catch2ssbPvalue=gcCatch2ssb$`Pr(>F)`[2],
+    ssb2catchPvalue=gcSsb2catch$`Pr(>F)`[2],
+    catch2ssbSig=gcCatch2ssb$`Pr(>F)`[2] < 0.05,
+    ssb2catchSig=gcSsb2catch$`Pr(>F)`[2] < 0.05)
+})
+```
+
+## Permutation Entropy Analysis
+
+Calculate permutation entropy to measure the complexity and predictability of time series.
+
+```{r permutation-entropy, eval=FALSE}
+entropy=ddply(na.omit(ts), .(.id), function(x) {
+  data.frame(
+    ssbEntropy  =tryIt(permutation_entropy(ordinal_pattern_distribution(x$ssb,   ndemb=5))),
+    catchEntropy=tryIt(permutation_entropy(ordinal_pattern_distribution(x$yield, ndemb=5))))})
+
+ggplot(entropy)+
+  geom_point(aes(ssbEntropy, catchEntropy))+
+  geom_abline(slope=1, intercept=0, linetype="dashed")+
+  labs(title="Permutation Entropy: SSB vs Catch",
+       x="SSB Permutation Entropy",
+       y="Catch Permutation Entropy")+
+  theme_minimal()
+```
+
+## Results Summary
+
+```{r results-summary, eval=FALSE}
+# Summary statistics
+cat("Number of stocks analysed:", length(ids), "\n")
+cat("Time series length range:", range(ts$year), "\n")
+cat("Mean recruitment variability (sigmaR):", mean(vars$sigmaR, na.rm=TRUE), "\n")
+
+# Granger causality summary
+cat("Stocks with significant catch -> SSB causality:", 
+    sum(granger_results$catch2ssbSig), "out of", nrow(granger_results), "\n")
+cat("Stocks with significant SSB -> catch causality:", 
+    sum(granger_results$ssb2catchSig), "out of", nrow(granger_results), "\n")
+```
+
+## References
+
+- Beverton, R.J.H. and Holt, S.J. (1957) On the dynamics of exploited fish populations. *Fishery Investigations Series II*, 19, 1-533.
+
+- Granger, C.W.J. (1969) Investigating causal relations by econometric models and cross-spectral methods. *Econometrica*, 37, 424-438.
+
+- Bandt, C. and Pompe, B. (2002) Permutation entropy: a natural complexity measure for time series. *Physical Review Letters*, 88, 174102.
+
+## Session Information
+
+```{r session-info}
+sessionInfo()
+``` 
