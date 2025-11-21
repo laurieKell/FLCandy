@@ -133,4 +133,5 @@ Collate:
   xoy.R
   pellatCondR.R
   t0Pauly.R
+  refs.R
 LazyLoad: true
