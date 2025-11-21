@@ -131,4 +131,6 @@ Collate:
   violin.R
   windowRange.R
   xoy.R
+  pellatCondR.R
+  t0Pauly.R
 LazyLoad: true
