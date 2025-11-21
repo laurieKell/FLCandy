@@ -36,7 +36,7 @@
 #'   geom_line(aes(year,data,col=refpt))+facet_grid(quant~.,scale="free")
 #' }
 
-nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel"),abi=FALSE){
+nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel")){
   
   eq=FLBRP(object)
   
@@ -72,25 +72,39 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
   
   model(eq) =model(sr)
   params(eq)=params(sr)
- 
+  
+  refpts(eq)=computeRefpts(eq)
   refpts(eq)=rbind(refpts(eq),refpts(eq)[1,])
   dimnames(refpts(eq))$refpt[dim(refpts(eq))[1]]="current"
   refpts(eq)["current"]=NA
   refpts(eq)["current","ssb"]=c(iter(ssb.obs(eq),1))
-  
-  if(abi)
-    return(FLQuant(c(abiMsy(eq)),dimnames=dimnames(fbar(object))))
     
-  rtn=rbind(computeRefpts(eq),
+  rtn=rbind(refpts(eq),
             properties(eq))
   
   rtn=rtn[!duplicated(dimnames(rtn)[[1]])]
   rtn=rtn[,apply(rtn,2,function(x) all(is.na(x)))==0]
   
   names(dimnames(rtn))=names(refpts(eq))
+  
+  ebio=computeRefpts(eq)[,"harvest",drop=T]
+  ebio=FLPar(c(ebio),dimnames=dimnames(rtn[,1]))
+  dimnames(ebio)[[2]]="eb"
 
-  transform(as.data.frame(rtn),year=as.numeric(dimnames(object)$year[iter]))[,-3]
-  }
+  abi=FLQuant(c(abiMsy(eq)),dimnames=dimnames(fbar(object)))
+  abi=FLPar(c(abi),         dimnames=dimnames(rtn[,1]))
+  dimnames(abi)[[2]]="abi"
+  
+  spr0=refpts(eq)["virgin","ssb"]%/%refpts(eq)["virgin","rec"]
+  dimnames(spr0)[[2]]="spr0"
+  
+  rtn =rbind(transform(as.data.frame( rtn),year=as.numeric(dimnames(object)$year[iter]))[,-3],
+             transform(as.data.frame(spr0),year=as.numeric(dimnames(object)$year[iter]))[,-3],
+             transform(as.data.frame(ebio),year=as.numeric(dimnames(object)$year[iter]))[,-3],
+             transform(as.data.frame( abi),year=as.numeric(dimnames(object)$year[iter]))[,-3])
+
+  rtn=rtn[do.call("order",rtn[,c(1,2,4)]),]
+  rtn}
 
 processErrorFn<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel"),log=FALSE){
   
