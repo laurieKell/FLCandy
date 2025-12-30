@@ -36,7 +36,8 @@
 #'   geom_line(aes(year,data,col=refpt))+facet_grid(quant~.,scale="free")
 #' }
 
-nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel")){
+nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","catch.sel"),
+                          matSel=FALSE){
   
   eq=FLBRP(object)
   
@@ -65,6 +66,10 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
     sel[is.na(sel)]=0
     sel[!is.finite(sel)]=0
     discards.sel(eq)=year2iter(sel)}
+  
+  if (matSel){
+    landings.sel(eq)=mat(eq)
+    discards.sel(eq)[]=0}
   
   nms=dimnames(refpts(eq))
   nms[[1]]=c(nms[[1]],"spr.100")
