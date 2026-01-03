@@ -89,7 +89,7 @@ flb=as(fls,"FLBiol")
 # FLCore leslie
 #setMethod("leslie", signature(object="FLBiol"),
 #          function(object, plusgroup = FALSE, ...) {
-Lbiol=FLCore:::leslie(flb)
+Lbiol=FLCore::leslie(flb)
 is(Lbiol)
 
 r(m(fls),mat(fls))
@@ -97,14 +97,14 @@ r(m(fls),mat(fls))
 # FLife leslie
 #setMethod("leslie", signature(object="FLBRP"),
 #          function(object,fbar=FLQuant(0),numbers=TRUE,...){
-Lbrp=FLife:::leslie(brp,fbar=FLQuant(c(refpts(brp)["crash","harvest"])))
+Lbrp=FLife::leslie(brp,fbar=FLQuant(c(refpts(brp)["crash","harvest"])))
 is(Lbrp)
 
 exp(lambda(Lbrp[drop=T]))
 
 
 # SPMPriors leslie_r()
-#SPMPriors:::leslie_r <- function(Loo=80,K=0.2,t0=-0.5,aW=0.01,bW=3.04,mat=c(35,0),dmat=NULL,minage=0,maxage=12,M=0.25,h=0.7){
+#SPMPriors::leslie_r <- function(Loo=80,K=0.2,t0=-0.5,aW=0.01,bW=3.04,mat=c(35,0),dmat=NULL,minage=0,maxage=12,M=0.25,h=0.7){
 leslie_r(Loo=c(par["linf"]),K=c(par["k"]),t0=c(par["t0"]),aW=c(par["a"]),bW=c(par["b"]),mat=c(par["l50"],0),dmat=NULL,minage=0,maxage=12,M=0.25,h=c(par["s"]))
 
 ## leslie should give same r for numbers and mass
@@ -121,7 +121,7 @@ FLSRTMB::productivity(fls)
             
              
 # FishLife LeslieM
-FishLife:::get_r(vec=NULL,
+FishLife::get_r(vec=NULL,
       Linf =c(par["linf"]),
       K    =c(par["k"]),
       t0   =c(par["t0"]),

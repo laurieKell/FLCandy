@@ -22,7 +22,7 @@ ggplot(dat$rfs)+
   coord_cartesian(ylim=c(0,max(dat$trgl$y)),expand=FALSE)
 
 pfs=setNames(mlply(with(scen,file.path("P:/rfmo/ices/wkbseabass/ss3/north",s,M)), 
-                   function(x) FLCandy:::tryIt(curveSS(SS_output(x)))), seq(32))
+                   function(x) FLCandy::tryIt(curveSS(SS_output(x)))), seq(32))
 pfs=Map(function(x) cbind(x, scen[x$Scenario,]), unnest(pfs))
 
 ggplot(pfs$rfs)+

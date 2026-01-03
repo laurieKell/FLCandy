@@ -90,7 +90,7 @@ model(eqa)=model(eq4)
 pe.om=procerr(window(oma,start=1960),eqa,vb)
 plot(pe.om)+facet_grid(season~.)
 
-pe.om=FLBRP:::procerr(window(oma,start=1960),eqa,vb)
+pe.om=FLBRP::procerr(window(oma,start=1960),eqa,vb)
 plot(pe.om)+facet_grid(season~.)
 
 prc.om=procerr(window(oma,start=1960),eqa,vb)

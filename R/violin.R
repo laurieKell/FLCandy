@@ -10,15 +10,15 @@ GeomSplitViolin <- ggproto("GeomSplitViolin", GeomViolin,
                              if (length(draw_quantiles) > 0 & !scales::zero_range(range(data$y))) {
                                stopifnot(all(draw_quantiles >= 0), all(draw_quantiles <=
                                                                          1))
-                               quantiles <- ggplot2:::create_quantile_segment_frame(data, draw_quantiles)
+                               quantiles <- ggplot2::create_quantile_segment_frame(data, draw_quantiles)
                                aesthetics <- data[rep(1, nrow(quantiles)), setdiff(names(data), c("x", "y")), drop = FALSE]
                                aesthetics$alpha <- rep(1, nrow(quantiles))
                                both <- cbind(quantiles, aesthetics)
                                quantile_grob <- GeomPath$draw_panel(both, ...)
-                               ggplot2:::ggname("geom_split_violin", grid::grobTree(GeomPolygon$draw_panel(newdata, ...), quantile_grob))
+                               ggplot2::ggname("geom_split_violin", grid::grobTree(GeomPolygon$draw_panel(newdata, ...), quantile_grob))
                              }
                              else {
-                               ggplot2:::ggname("geom_split_violin", GeomPolygon$draw_panel(newdata, ...))
+                               ggplot2::ggname("geom_split_violin", GeomPolygon$draw_panel(newdata, ...))
                              }
                            })
 

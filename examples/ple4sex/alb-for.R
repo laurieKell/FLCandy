@@ -14,7 +14,7 @@ for (y in seq(2020,2040-0,1)) {
   yalb<-fwd(yalb, sr=srr,
                   control=fwdControl(year=y+(0:0), value=0.15, quant="fbar",
                                      minAge=1, maxAge=12))}
-plot(FLStocks(fwd=alb[,ac(2010:2039)], fwd.byyear=yalb[,ac(2010:2039)], update=FLCandy:::update(yalb[,ac(2020:2039)])))
+plot(FLStocks(fwd=alb[,ac(2010:2039)], fwd.byyear=yalb[,ac(2010:2039)], update=FLCandy::update(yalb[,ac(2020:2039)])))
 
 (stock.n(yalb[,ac(2030:2039)])*exp(-m(yalb)[,ac(2030:2039)]-harvest(yalb)[,ac(2030:2039)]))[-15]/stock.n(yalb[-1,ac(2030:2039)])
 
@@ -31,7 +31,7 @@ for (y in seq(2020,2040-0,1)) {
   print(y)
   yalb<-fwd(yalb, sr=srr,
             control=fwdControl(year=y+(0:0), value=10000, quant="catch"))}
-plot(FLStocks(fwd=alb[,ac(2010:2040)], fwd.byyear=yalb[,ac(2010:2040)], update=FLCandy:::update(yalb[,ac(2020:2040)])))
+plot(FLStocks(fwd=alb[,ac(2010:2040)], fwd.byyear=yalb[,ac(2010:2040)], update=FLCandy::update(yalb[,ac(2020:2040)])))
 
 load("/home/laurence-kell/Downloads/alb-byyear.RData")
 yalb=alb

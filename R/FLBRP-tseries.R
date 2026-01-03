@@ -70,7 +70,7 @@ setMethod("tseries", signature(object="FLBRP"), function(object){
   rtn})
 
 setMethod("tseries", signature(object="FLBRPs"), function(object){
-      ldply(object, function(x) model.frame(FLCandy:::tseries(x)))})
+      ldply(object, function(x) model.frame(FLCandy::tseries(x)))})
    
 setGeneric("prodPts", function(object, ...) standardGeneric("prodPts"))
 setMethod( "prodPts", signature(object="FLBRP"),  function(object){ tseries(object)})

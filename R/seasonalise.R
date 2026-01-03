@@ -35,10 +35,10 @@ seasonalise<-function(object, season=1:4){
   sr=as.FLSR(object,model="geomean")
   params(sr)=FLPar(1,dimnames=list(params="a",iter=1))
   
-  recs=FLCore:::expand(rec(object),season=season)
+  recs=FLCore::expand(rec(object),season=season)
   
   ## Add seasons                                         ###
-  object=FLCore:::expand(object,season=season)
+  object=FLCore::expand(object,season=season)
   
   ## Divide up mortality by season                       ###
   m(      object)=wtInterp(m(object))/dim(object)[4]

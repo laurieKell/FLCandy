@@ -224,7 +224,7 @@ setGeneric("ssb2", function(object, ...) standardGeneric("ssb2"))
 #' @export
 #' @examples
 #' data(ple4)
-#' FLCore:::ssb2(ple4)
+#' FLCore::ssb2(ple4)
 #' @examples 
 #' \dontrun{
 #' library(FLCore)
@@ -356,7 +356,7 @@ setMethod("amat", signature(object="FLStock"),
 
 setMethod("wmat", signature(object="FLStock"),
           function(object,value=0.5){
-            res=cbind(model.frame(FLQuants(object, wt=FLCore:::stock.wt,mt=FLCore:::mat)),value=value)
+            res=cbind(model.frame(FLQuants(object, wt=FLCore::stock.wt,mt=FLCore::mat)),value=value)
             
             res=ddply(res, .(year,unit,season,area,iter), with, 
                       data.frame(data=approx(mt,wt,xout=value[1],ties=min)$y))
@@ -446,7 +446,7 @@ setMethod("amat", signature(object="FLBRP"),
             amat(mat(object),value,what)})
 setMethod("wmat", signature(object="FLBRP"),
           function(object,value=0.5){
-            res=cbind(model.frame(FLQuants(object, wt=FLCore:::stock.wt,mt=FLCore:::mat)),value=value)
+            res=cbind(model.frame(FLQuants(object, wt=FLCore::stock.wt,mt=FLCore::mat)),value=value)
             
             res=ddply(res, .(year,unit,season,area,iter), with, 
                       data.frame(data=approx(mt,wt,xout=value[1],ties=min)$y))

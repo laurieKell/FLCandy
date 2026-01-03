@@ -16,7 +16,7 @@ setMethod("abiMsy",
             fbar(object) <- as.FLQuant(computeRefpts(object)[ref, "harvest", drop = TRUE], dimnames = list(iter = seq(dim(object)[6])))
             A <- abiAge(object, ref, p)
             stk.n <- stock.n(object)[-1]
-            flag <- FLQuant(ages(stk.n) >= FLCore:::expand(A, age = dimnames(stk.n)$age))
+            flag <- FLQuant(ages(stk.n) >= FLCore::expand(A, age = dimnames(stk.n)$age))
             apply(stk.n %*% flag, c(2, 6), sum) %/% apply(stk.n, c(2, 6), sum)
           }
 )

@@ -48,7 +48,7 @@ ggplot(dt1)+
   geom_abline(aes(intercept=0,slope=1))
 
 auc=ddply(dt1,.(.id), with, {
-  rtn=try(pROC:::auc(label,indicator))
+  rtn=try(pROC::auc(label,indicator))
   
   if ("try-error"%in%is(rtn)) return(NULL)
   
@@ -78,12 +78,12 @@ dt=subset(lg1,lag==2&.id==unique(lg1$.id)[2])
 ggplot(dt)+
   geom_line(aes(TPR,FPR,col=ac(lag)))+
   geom_abline(aes(slope=1,intercept=0))
-1-with(subset(dt,lag==1),FLCore:::auc(TPR,FPR))
-with(subset(dt,lag==1),pROC:::auc(state>1,indicator))
+1-with(subset(dt,lag==1),FLCore::auc(TPR,FPR))
+with(subset(dt,lag==1),pROC::auc(state>1,indicator))
 
 auc=ddply(lg1, .(.id,lag), with, {
-  rtn=try(pROC:::auc(label,indicator))
-  rtn=try(FLCore:::auc(TPR,FPR))
+  rtn=try(pROC::auc(label,indicator))
+  rtn=try(FLCore::auc(TPR,FPR))
   
   if ("try-error"%in%is(rtn)) return(NULL)
   
@@ -117,7 +117,7 @@ ggplot(dt3)+
   geom_line(aes(FPR,TPR,col=as.character(lag)))+
   geom_abline(aes(intercept=0,slope=1))
 
-ddply(dt3,.(lag), with, data.frame("AUC"=pROC:::auc(label,indicator)))
+ddply(dt3,.(lag), with, data.frame("AUC"=pROC::auc(label,indicator)))
 
 
 

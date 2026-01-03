@@ -26,7 +26,7 @@ seasonFLStocks<-function(object,season){
 seasonFLStock<-function(object,season){
   
   stk =seasonalise(object,season=seq(season))
-  stk =FLCore:::expand(stk,unit=seq(season))
+  stk =FLCore::expand(stk,unit=seq(season))
   
   for (i in seq(season))      
     mat(stks[[i]])[,,-1,-i]=NA

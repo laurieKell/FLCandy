@@ -210,7 +210,7 @@ lines(data~year,as.data.frame(catch(stk)),lwd=2,lty=2)
 kbs = rbind(fI$kbtrj,fIZ$kbtrj,fCZ$kbtrj)
 
 # DATA-Rich - Year 120
-kobe:::kobePhaseMar2(subset(kbs,kbs$year==120,c(stock,harvest,run)),
+kobe::kobePhaseMar2(subset(kbs,kbs$year==120,c(stock,harvest,run)),
                ylim=2.5,xlim=2.5,
                xlab=expression(B/B[MSY]),
                ylab=expression(F/F[MSY]),
@@ -218,7 +218,7 @@ kobe:::kobePhaseMar2(subset(kbs,kbs$year==120,c(stock,harvest,run)),
 
 kbs1 = rbind(fI1$kbtrj,fIZ1$kbtrj,fCZ1$kbtrj)
 
-kobe:::kobePhaseMar2(subset(kbs1,kbs1$year==115,c(stock,harvest,run)),
+kobe::kobePhaseMar2(subset(kbs1,kbs1$year==115,c(stock,harvest,run)),
                      ylim=2.5,xlim=4,
                      xlab=expression(B/B[MSY]),
                      ylab=expression(F/F[MSY]),

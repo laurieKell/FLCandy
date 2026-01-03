@@ -96,7 +96,7 @@ nonStationarity<-function(object,sr,slots=c("m","mat","stock.wt","catch.wt","cat
   ebio=FLPar(c(ebio),dimnames=dimnames(rtn[,1]))
   dimnames(ebio)[[2]]="eb"
 
-  abi=FLQuant(c(FLCandy:::abiMsy(eq)),dimnames=dimnames(fbar(object)))
+  abi=FLQuant(c(FLCandy::abiMsy(eq)),dimnames=dimnames(fbar(object)))
   abi=FLPar(c(abi),         dimnames=dimnames(rtn[,1]))
   dimnames(abi)[[2]]="abi"
   

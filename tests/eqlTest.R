@@ -17,4 +17,4 @@ library(FLCandy)
 
 data(ple4)
 
-FLCandy:::eql(ple4,model="bevholtSV",prior_s=0.7,cv_s=0.1)
+FLCandy::eql(ple4,model="bevholtSV",prior_s=0.7,cv_s=0.1)

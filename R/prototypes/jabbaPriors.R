@@ -64,5 +64,5 @@ plot(FLQuants(dlply(fIZ[[23]],.(qname), with, as.FLQuant(data.frame(year=year,da
 FLI=jabba2biodyn(fI)
 FLZ=jabba2biodyn(fIZ)
 
-plot(mpb:::biodyns(list("I"=FLI,"Z"=FLZ)))
+plot(mpb::biodyns(list("I"=FLI,"Z"=FLZ)))
 

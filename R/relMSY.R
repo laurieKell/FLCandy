@@ -17,7 +17,7 @@ varyMSY<-function(object,sr,nyear=2){
 relMSY<-function(object,sr,nyear=2,eq=NULL){
   
   rtn=mdply(dimnames(object)$year[-1], function(year){
-    stk        =FLCore:::window(object,end=an(year))
+    stk        =FLCore::window(object,end=an(year))
     res        =FLBRP(stk,nyear=nyear,model=model(sr),params=params(sr))
     refpts(res)=computeRefpts(res)
     

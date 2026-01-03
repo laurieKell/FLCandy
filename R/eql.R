@@ -44,16 +44,16 @@ setMethod("eql", signature(object="FLStock"),
               rtn}
       
             sr  =as.FLSR(object,model=model)
-            spr0=mean(FLCandy:::spr0Yr(object)[,dim(object)[2]-(1:nyears)+1])
+            spr0=mean(FLCandy::spr0Yr(object)[,dim(object)[2]-(1:nyears)+1])
             
             if (model!="segreg"){
-              sr  =FLCandy:::ftmb2(sr,s.est =T,
+              sr  =FLCandy::ftmb2(sr,s.est =T,
                                    s        =0.7, #fishlife(object)["s"],
                                    s.logitsd=0.4, #fishlife(object)["sd.logit.s"],
                                    spr0     =spr0,
                                    prior_s=prior_s,cv_s=cv_s,prior_r0=prior_r0,cv_r0=cv_r0)
             }else{
-              sr  =FLCandy:::ftmb2(sr,s.est =T,
+              sr  =FLCandy::ftmb2(sr,s.est =T,
                            inflect  =ifelse("benchmark"%in%names(attributes(object)),
                                             benchmark(object)["blim",drop=TRUE],NA),
                            spr0=spr0)}
@@ -77,10 +77,10 @@ setMethod("eql", signature(object="FLStock"),
             attributes(rtn)[["sr"]]     =sr_obj
             attributes(rtn)[["logLik"]] =logLik(sr_obj)
             attributes(rtn)[["prod"]]   =spFn(rtn)
-            attributes(rtn)[["tseries"]]=FLCandy:::tseries(object)
+            attributes(rtn)[["tseries"]]=FLCandy::tseries(object)
             attributes(rtn)[["eb.obs"]] =ebiomass(object)
-            attributes(rtn)[["priors"]] =FLCandy:::tryIt(FLCandy:::calcPriors(rtn))
-            attributes(rtn)[["prior2"]] =FLCandy:::tryIt(FLCandy:::getPriors(rtn))
+            attributes(rtn)[["priors"]] =FLCandy::tryIt(FLCandy::calcPriors(rtn))
+            attributes(rtn)[["prior2"]] =FLCandy::tryIt(FLCandy::getPriors(rtn))
             
             if ("benchmark"%in%names(attributes(object)))
               attributes(rtn)[["benchmark"]]=benchmark(object)
@@ -91,6 +91,6 @@ setMethod("eql", signature(object="FLStock"),
 #' @param object FLStock object
 #' @return Numeric value
 spr0Yr <- function(object) {
-  FLCandy:::spr0Yr(object)
+  FLCandy::spr0Yr(object)
   }
 

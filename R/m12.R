@@ -27,7 +27,7 @@ setMethod("forage", "FLComp", function(object, ...) {
 
   zFn<-function(object) m(object)%+%harvest(object)
   
-  return(FLCore:::apply((stock.wt(object)%*%stock.n(object)%*%(m2(object))%/%(zFn(object))%*%(1-exp(-zFn(object))))[-1],c(2,6),sum))})
+  return(FLCore::apply((stock.wt(object)%*%stock.n(object)%*%(m2(object))%/%(zFn(object))%*%(1-exp(-zFn(object))))[-1],c(2,6),sum))})
 
 setMethod("predNeed", "FLBRP", function(object, ...) {
   

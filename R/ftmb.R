@@ -13,7 +13,7 @@
 #'
 #' @param object Input FLSR object.
 #' @param s steepness parameter of SRR (fixed or prior mean)    
-#' @param spr0 unfished spawning biomass per recruit from FLCore::spr0(FLStock) or FLCore:::spr0Yr
+#' @param spr0 unfished spawning biomass per recruit from FLCore::spr0(FLStock) or FLCore::spr0Yr
 #' @param s.est option to estimate steepness
 #' @param s.logitsd prior sd for logit(s), default is 1.3 (flat) if s.est = TRUE 
 #' @param inflect Inflection point for the segreg model. If NA (default), it is estimated; if numeric, it is fixed at the provided value.
@@ -183,7 +183,7 @@ ftmb<-function(object,
 #'
 #' @param object Input FLSR object.
 #' @param s steepness parameter of SRR (fixed or prior mean)
-#' @param spr0 unfished spawning biomass per recruit from FLCore::spr0(FLStock) or FLCore:::spr0Yr
+#' @param spr0 unfished spawning biomass per recruit from FLCore::spr0(FLStock) or FLCore::spr0Yr
 #' @param s.est option to estimate steepness
 #' @param s.logitsd prior sd for logit(s), default is 1.3 (flat) if s.est = TRUE
 #' @param inflect Inflection point for the segreg model. If NA (default), it is estimated; if numeric, it is fixed at the provided value.
@@ -204,7 +204,7 @@ ftmb<-function(object,
 #' @export
 ftmb2<-function(object,         
                spr0=spr0, 
-               model=SRModelName(FLCore:::model(object)),
+               model=SRModelName(FLCore::model(object)),
                s=0.7, s.est=TRUE, s.logitsd=1.3,
                inflect=NA,
                inits=function(object=object,s=s,inflect=inflect) {

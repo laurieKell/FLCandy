@@ -33,7 +33,7 @@
 #' load("lfd.1.RData")
 #' load("design.RData")
 #' par=lhs[["Pollachius pollachius"]]
-#' par=rbind(FLPar("lc"=FLife:::vonB(par["sel1"],par)),par)
+#' par=rbind(FLPar("lc"=FLife::vonB(par["sel1"],par)),par)
 #' z=bhz(lfd,par)
 #' plot(z)
 #' }

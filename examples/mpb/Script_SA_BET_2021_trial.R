@@ -110,7 +110,7 @@ bd=biodyn("pellat", params=FLPar(r=0.3,k=5.5e5,b0=1,p=0.001),
 # Create the list of objects that inlcudes the Base CAse (with both indices) 
 # and Sensitivity with only the late index.
 
-bds2=mpb:::biodyns(list("BC: JointLL (early and late)"=bd,
+bds2=mpb::biodyns(list("BC: JointLL (early and late)"=bd,
                         "Sens 1: Joint LL (late only)"=bd))
 
 params(bds2[[1]])=FLPar(r=0.23, k=1200000, b0=.95, p=0.001)
@@ -126,7 +126,7 @@ bds2[[2]]=fit(bds2[[2]],cpue[2])
 
 plot(bds2)+theme(legend.position="bottom")
 
-bds2=mpb:::biodyns(list("BC: JointLL (early and late)"=bd,
+bds2=mpb::biodyns(list("BC: JointLL (early and late)"=bd,
                         "Sens 1: Joint LL (late only)"=bd))
 
 params(bds2[[1]])=FLPar(r=0.15, k=1200000, b0=.95, p=0.001)
@@ -153,7 +153,7 @@ bd=biodyn("pellat", params=FLPar(r=0.3,k=5.5e5,b0=1,p=0.001),
 
 bd=biodyn("pellat", params=FLPar(r=0.125,k=1.2e6,b0=0.95,p=0.001),catch=catch)
 
-bds2=mpb:::biodyns(list("BC: JointLL (early and late)"=bd,
+bds2=mpb::biodyns(list("BC: JointLL (early and late)"=bd,
                         "Sens 1: Joint LL (late only)"=bd))
 
 params(bds2[[1]])=FLPar(r=0.15, k=1.2e6, b0=.95, p=0.001)

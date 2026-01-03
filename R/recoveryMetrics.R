@@ -1,6 +1,6 @@
 risk<-function(object,ref){
   res=object%/%ref
-  mean(apply(res,c(1,3:6),base:::min)<1)}
+  mean(apply(res,c(1,3:6),base::min)<1)}
 
 recoverySpeed<-function(object,ref){
    yr  =object
@@ -14,7 +14,7 @@ recoverySpeed<-function(object,ref){
    as.FLQuant(dat[!duplicated(dat$iter),])}
 
 responsiveness<-function(object){
-   min =object%/%apply(object,c(1,3:6),base:::min)
+   min =object%/%apply(object,c(1,3:6),base::min)
    yr  =object
    yr[]=rep(as.numeric(dimnames(object)$year),each=dim(object)[1])
 
@@ -22,4 +22,4 @@ responsiveness<-function(object){
 
 amplitude<-function(object,ref){
   res=object%/%ref
-  apply(window(res,start=2021),c(1,3:6),base:::min)}
+  apply(window(res,start=2021),c(1,3:6),base::min)}

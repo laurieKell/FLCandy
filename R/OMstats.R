@@ -17,14 +17,14 @@ aopt <- function(object) {
 
 
 ## Process Error #############################################
-sp<-function(stk,eq,stock=FLCore:::ssb){
+sp<-function(stk,eq,stock=FLCore::ssb){
   
   fbar(eq)=FLQuant(seq(0,1,length.out=201))*computeRefpts(eq)["crash","harvest"]
   dat=with(model.frame(FLQuants(eq,"stock"=function(x) stock(x),"catch"=function(x) catch(x)),drop=T), 
            approx(stock,catch,xout=c(ssb(stk))),dimnames=dimnames(stock(stk)))
   FLQuant(dat$y,dimnames=dimnames(stock(stk)))}
 
-pe<-function(stk,eq,stock=FLCore:::ssb){
+pe<-function(stk,eq,stock=FLCore::ssb){
     (stock(stk)%-%
      window(stock(stk)[,-1],end=dims(stk)$maxyear+1)-
      catch(stk)%+%sp(stk,eq,stock))%/%stock(stk)}
@@ -66,7 +66,7 @@ getPriors<-function(x){
 
 eqlFn<-function(object,model="bevholtSV"){
   
-  spr0=FLCandy:::spr0Yr(object)
+  spr0=FLCandy::spr0Yr(object)
   sr  =as.FLSR(object,model=model)
   sr  =ftmb(sr,s.est    =T,
             s        =0.7, #fishlife(object)["s"],
@@ -90,7 +90,7 @@ eqlFn<-function(object,model="bevholtSV"){
   return(rtn)}
 
 eql2<-function(object, model="bevholtSV", prior_s=NULL, cv_s=NULL, prior_r0=NULL, cv_r0=NULL) {
-  spr0=FLCandy:::spr0Yr(object)
+  spr0=FLCandy::spr0Yr(object)
   sr  =as.FLSR(object,model=model)
   sr  =ftmb2(sr, s.est=TRUE,
              s=0.7, # or pass a value or argument
@@ -128,7 +128,7 @@ data(ple4brp)
 
 permutation_entropy(ordinal_pattern_distribution(x=ssb(ple4), ndemb=5))
 permutation_entropy(ordinal_pattern_distribution(x=stock(ple4), ndemb=5))
-permutation_entropy(ordinal_pattern_distribution(x=FLCore:::vb(ple4), ndemb=5))
+permutation_entropy(ordinal_pattern_distribution(x=FLCore::vb(ple4), ndemb=5))
 permutation_entropy(ordinal_pattern_distribution(x=rec(ple4), ndemb=5))
 
 permutation_entropy(ordinal_pattern_distribution(x=seq(0,10,0.1), ndemb=5))
@@ -148,7 +148,7 @@ plot(pe(ple4,ple4brp,ssb))
 ### Production function ########################################################
 eq=lhEql(lhPar(FLPar(linf=100)))
 
-plot(mpb:::prdFn("pellat",FLPar(r=0.3,k=100000,p=0.3),FLQuant(seq(0,100000,length.out=100))))
+plot(mpb::prdFn("pellat",FLPar(r=0.3,k=100000,p=0.3),FLQuant(seq(0,100000,length.out=100))))
 
 #### Pella=T priors ############################################################
 
@@ -219,7 +219,7 @@ fn<-function(x=c(r=0.5),k,p,eq){
   yield=catch(eq)
   eB   =ebiomass(eq)
   
-  hat=mpb:::prdFn("pellat",FLPar(r=x[1],k=x[2],p=c(p)),eB)
+  hat=mpb::prdFn("pellat",FLPar(r=x[1],k=x[2],p=c(p)),eB)
   
   sum((hat-yield)^2,na.rm=T)}
 
@@ -240,7 +240,7 @@ pPar=p(shape)
 ## Fit I fit all ###############################################################
 fn<-function(x,stock,yield){
   
-  hat=mpb:::prdFn("pellat",FLPar(r=x[1],k=x[2],p=x[3]),stock)
+  hat=mpb::prdFn("pellat",FLPar(r=x[1],k=x[2],p=x[3]),stock)
   
   sum((hat-yield)^2,na.rm=T)}
 
@@ -249,7 +249,7 @@ par=
 
 fbar(eq)=FLQuant(seq(0,1,length.out=101))*refpts(eq)["crash","harvest"]
 fbar(eq)[,1]=fbar(eq)[,2]*1e-10
-hat=mpb:::prdFn("pellat",par,ssb(eq))
+hat=mpb::prdFn("pellat",par,ssb(eq))
 
 ggplot()+
   geom_line( aes(x,y),data=model.frame(FLQuants(x=ssb(eq),y=hat)))+
@@ -258,7 +258,7 @@ ggplot()+
 ## Fit II fix shape ############################################################
 fn<-function(x,p,stock,yield){
   
-  hat=mpb:::prdFn("pellat",FLPar(r=x[1],k=x[2],p=p),stock)
+  hat=mpb::prdFn("pellat",FLPar(r=x[1],k=x[2],p=p),stock)
   
   sum((hat-yield)^2,na.rm=T)}
 
@@ -267,7 +267,7 @@ par=rbind(FLPar(par),pPar)
 
 fbar(eq)=FLQuant(seq(0,1,length.out=101))*refpts(eq)["crash","harvest"]
 fbar(eq)[,1]=fbar(eq)[,2]*1e-10
-hat=mpb:::prdFn("pellat",par,ssb(eq))
+hat=mpb::prdFn("pellat",par,ssb(eq))
 
 ggplot()+
   geom_line( aes(x,y),data=model.frame(FLQuants(x=ssb(eq),y=hat)))+
@@ -276,7 +276,7 @@ ggplot()+
 ## Fit III fix k ###############################################################
 fn<-function(x,k,stock,yield){
   
-  hat=mpb:::prdFn("pellat",FLPar(r=x[1],p=x[2],k=k),stock)
+  hat=mpb::prdFn("pellat",FLPar(r=x[1],p=x[2],k=k),stock)
   
   sum((hat-yield)^2,na.rm=T)}
 
@@ -285,7 +285,7 @@ par=rbind(FLPar(par),FLPar(k=refpts(eq)["virgin","ssb",drop=T]))
 
 fbar(eq)=FLQuant(seq(0,1,length.out=101))*refpts(eq)["crash","harvest"]
 fbar(eq)[,1]=fbar(eq)[,2]*1e-10
-hat=mpb:::prdFn("pellat",par,ssb(eq))
+hat=mpb::prdFn("pellat",par,ssb(eq))
 
 ggplot()+
   geom_line( aes(x,y),data=model.frame(FLQuants(x=ssb(eq),y=hat)))+
@@ -294,7 +294,7 @@ ggplot()+
 ## Fit IV fir r only ###########################################################
 fn<-function(x,k,p,stock,yield){
   
-  hat=mpb:::prdFn("pellat",FLPar(r=x[1],k=k,p=p),stock)
+  hat=mpb::prdFn("pellat",FLPar(r=x[1],k=k,p=p),stock)
   
   sum((hat-yield)^2,na.rm=T)}
 
@@ -303,7 +303,7 @@ par=FLPar(c("r"=par,"k"=refpts(eq)["virgin","ssb",drop=T],"p"=pPar))
 
 fbar(eq)=FLQuant(seq(0,1,length.out=101))*refpts(eq)["crash","harvest"]
 fbar(eq)[,1]=fbar(eq)[,2]*1e-10
-hat=mpb:::prdFn("pellat",par,ssb(eq))
+hat=mpb::prdFn("pellat",par,ssb(eq))
 
 ggplot()+
   geom_line( aes(x,y),data=model.frame(FLQuants(x=ssb(eq),y=hat)))+
@@ -312,7 +312,7 @@ ggplot()+
 ### E biomass ##################################################################
 fn<-function(x,stock,yield){
   
-  hat=mpb:::prdFn("pellat",FLPar(r=x[1],k=x[2],p=x[3]),stock)
+  hat=mpb::prdFn("pellat",FLPar(r=x[1],k=x[2],p=x[3]),stock)
   
   sum((hat-yield)^2,na.rm=T)}
 
@@ -321,10 +321,9 @@ par=
 
 fbar(eq)=FLQuant(seq(0,1,length.out=101))*refpts(eq)["crash","harvest"]
 fbar(eq)[,1]=fbar(eq)[,2]*1e-10
-hat=mpb:::prdFn("pellat",par,ebiomass(eq))
+hat=mpb::prdFn("pellat",par,ebiomass(eq))
 
 ggplot()+
   geom_line( aes(x,y),data=model.frame(FLQuants(x=ssb(eq),y=hat)))+
   geom_point(aes(x,y),data=model.frame(FLQuants(x=ssb(eq),y=catch(eq))),col="red")
 }
-
