@@ -34,6 +34,7 @@ LinkingTo:
   RcppEigen,
   akima
 Collate:
+  FLCandy-package.R
   stockState.R
   stockTrend.R
   generic.R
