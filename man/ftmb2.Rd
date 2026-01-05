@@ -7,7 +7,7 @@
 ftmb2(
   object,
   spr0 = spr0,
-  model = SRModelName(FLCore:::model(object)),
+  model = SRModelName(FLCore::model(object)),
   s = 0.7,
   s.est = TRUE,
   s.logitsd = 1.3,
@@ -41,7 +41,7 @@ ftmb2(
 \arguments{
 \item{object}{Input FLSR object.}
 
-\item{spr0}{unfished spawning biomass per recruit from FLCore::spr0(FLStock) or FLCore:::spr0Yr}
+\item{spr0}{unfished spawning biomass per recruit from FLCore::spr0(FLStock) or FLCore::spr0Yr}
 
 \item{s}{steepness parameter of SRR (fixed or prior mean)}
 

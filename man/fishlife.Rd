@@ -4,15 +4,16 @@
 \alias{fishlife}
 \alias{fishlife,FLStock-method}
 \alias{fishlife,FLStocks-method}
+\alias{fishlife,list-method}
 \title{Calculate something using the haupt method for FLQuant and FLPar objects.}
 \usage{
-fishlife(object, ...)
-
 fishlife(object, ...)
 
 \S4method{fishlife}{FLStock}(object)
 
 \S4method{fishlife}{FLStocks}(object)
+
+\S4method{fishlife}{list}(object)
 }
 \arguments{
 \item{object}{An FLStock or FLStocks object}
@@ -29,12 +30,8 @@ fishlife(object, ...)
 The result of the calculation.
 
 An FLPar object containing FishLife parameters
-
-An FLPar object containing FishLife parameters
 }
 \description{
-A generic function to extract FishLife parameters from FLStock objects
-
 A generic function to extract FishLife parameters from FLStock objects
 }
 \details{

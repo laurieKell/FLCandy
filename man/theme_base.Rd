@@ -5,7 +5,7 @@
 \alias{theme_base}
 \title{Custom Minimal Theme for ggplot2}
 \format{
-An object of class \code{theme} (inherits from \code{gg}) of length 136.
+An object of class \code{theme} (inherits from \code{ggplot2::theme}, \code{gg}, \code{S7_object}) of length 144.
 }
 \usage{
 theme_base

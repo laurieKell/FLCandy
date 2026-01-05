@@ -1,24 +1,30 @@
 # Plus group infinite series
-#' @title spr0yr
+#' @title Spr0Yr - Spawning Per Recruit by Year
 #' 
-#' @description Calculates the spawner per recruit in each year
+#' @description Calculates the spawner per recruit in each year from an FLStock object.
+#' This function computes the unfished spawning biomass per recruit for each year,
+#' accounting for natural mortality, maturity, and stock weights.
 #'
 #' @param object an \code{FLStock} object 
-#' @param seasons a numeric with seasons
 #' 
-#' @aliases
-#' 
-#' @return \code{FLStock} object
+#' @return \code{FLQuant} object with spawning per recruit values by year
 #'
-#' @seealso \code{\link{expand}}
+#' @details
+#' This function calculates the spawning potential ratio at unfished conditions (SPR0)
+#' for each year in the FLStock object. It accounts for:
+#' - Natural mortality rates
+#' - Maturity schedules
+#' - Stock weights
+#' - Plus group handling if specified
 #'
-#' @export seasonalise
-#' @docType methods
-#' @rdname seasonalise
+#' @seealso \code{\link[FLCore]{spr0}} for the standard FLCore SPR0 calculation
 #'
+#' @export
 #' 
 #' @examples
 #' \dontrun{
+#' data(ple4)
+#' spr0_vals <- spr0Yr(ple4)
 #' }
 
 spr0Yr<-function(object){
