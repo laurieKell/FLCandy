@@ -2,11 +2,11 @@
 % Please edit documentation in R/FLCandy-package.R
 \docType{package}
 \name{FLCandy-package}
-\alias{FLCandy-package}
 \alias{FLCandy}
-\title{FLCandy Package}
+\alias{FLCandy-package}
+\title{FLCandy: Candidate Methods for FLR}
 \description{
-Candidate Methods for FLR - Contains prototypes and experimental methods for the FLR framework
+Contains prototypes and experimental methods for the FLR (Fisheries Library for R) framework. Provides implementations of various fisheries assessment and management tools including biological reference points, harvest control rules, and spatial analysis functions.
 }
 \seealso{
 Useful links:
@@ -20,4 +20,3 @@ Useful links:
 \strong{Maintainer}: Laurence Kell \email{laurie@kell.es}
 
 }
-\keyword{internal}
