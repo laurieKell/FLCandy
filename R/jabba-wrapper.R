@@ -254,27 +254,29 @@ jabbaExtractFn<-function(x) {
   # Return NULL if x is NULL
   if (is.null(x)) return(NULL)
   
+  if ("fit"%in%names(x)) x=x$fit
+  
   # Safely extract posteriors with NULL checking
   posteriors <- tryCatch({
-    if (!is.null(x$fit)) {
-      cbind(x$fit$pars_posterior,
-            x$fit$refpts_posterior,
-            x$fit$kobe)
+    if (!is.null(x)) {
+      cbind(x$pars_posterior,
+            x$refpts_posterior,
+            x$kobe)
     } else NULL
   }, error = function(e) NULL)
   
   # Safely extract trajectory
   trajectory <- tryCatch({
-    if (!is.null(x$fit)) x$fit$kbtrj else NULL
+    if (!is.null(x)) x$kbtrj else NULL
   }, error = function(e) NULL)
   
   names(trajectory)[names(trajectory)=="yr"]
   
   # Safely extract priors
   priors <- tryCatch({
-    if (!is.null(x$fit$settings)) {
-      prior_vals <- c(unlist(x$fit$settings[c("r.pr","K.pr","psi.pr")]),
-                      unlist(x$fit$settings[c("mu.m","m.CV")]))
+    if (!is.null(x$settings)) {
+      prior_vals <- c(unlist(x$settings[c("r.pr","K.pr","psi.pr")]),
+                      unlist(x$settings[c("mu.m","m.CV")]))
       names(prior_vals) <- c("r","r.pr","k","k.pr","psi","psi.pr","m","m.pr")
       prior_vals
     } else NULL
@@ -282,8 +284,7 @@ jabbaExtractFn<-function(x) {
   
   list(posteriors=posteriors,
        trajectory=trajectory,
-       priors=priors)
-}
+       priors=priors)}
 
 jabbaExtractList<-function(jabbaList) {
   library(data.table)
@@ -389,8 +390,12 @@ setMethod("jabbaExtract", signature(object="ANY"),definition=function(object, ..
   if (is.null(object)) return(NULL)
   
   if (is.list(object)) {
+    if ("pars_posterior" %in% names(object)) 
+      return(jabbaExtractFn(object))      
+    if ("pars_posterior" %in% names(object[[1]])) 
+        return(jabbaExtractList(object))  
     if ("input" %in% names(object) && "fit" %in% names(object)) 
-      return(jabbaExtractFn(object))
+        return(jabbaExtractFn(object))
     else if (!is.null(object[[1]]) && all(c("input","fit") %in% names(object[[1]]))) 
       return(jabbaExtractList(object))
     else if (!is.null(object[[1]][[1]]) && all(c("input","fit") %in% names(object[[1]][[1]]))) 

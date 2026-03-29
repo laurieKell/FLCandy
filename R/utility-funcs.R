@@ -35,7 +35,7 @@ setMethod("ind", signature(x="FLStock", y="missing"),
             rtn <- FLQuants(
               SSB   = ssb(x) %/% bmsy,
               F     = fbar(x) %/% fmsy,
-              SPR0  = FLCandy::spr0Yr(x),
+              SPR0  = spr0Yr(x),
               #FRatio = fjuv(x[-1]) %/% fapex(x[-1]),
               SPR   = ssb(x) / rec(x),
               amat  = FLCandy::amat(mat(x), 0.5, what="i"),
@@ -45,9 +45,6 @@ setMethod("ind", signature(x="FLStock", y="missing"),
               POS_  = {stock.n(x) = catch.n(x); m.spwn(x) = 0; pos(x)},
               ASA_  = {stock.n(x) = catch.n(x); m.spwn(x) = 0; asa(x)}
             )
-            
-            # Add ABI if reference points provided
-            if (!missing(y)) rtn[["ABI"]] <- abi(x, y)
             
             model.frame(rtn, drop=TRUE)
           })
@@ -75,7 +72,7 @@ setMethod("ind", signature(x="FLStock", y="FLBRP"),
             )
             
             # Add ABI if reference points provided
-            if (!missing(y)) rtn[["ABI"]] <- abi(x, y)
+            if (!missing(y)) rtn[["ABI"]] <- FLRebuild::abi(x, y)
             
             model.frame(rtn, drop=TRUE)
           })

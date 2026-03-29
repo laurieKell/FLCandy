@@ -5,6 +5,8 @@ require(dplyr)
 require(r4ss)
 
 
+
+
 #' Extracts yield and surplus production from Stock Synthesis output
 #' processes Stock Synthesis output to calculate yield and surplus production.
 #'
@@ -57,6 +59,10 @@ setMethod("curveSS", signature(object="list"), function(object,maxY=1.5){
                       y=c(rfs$msy,      maxY,                  maxY, rfs$msy))
   vBiomass=vBio(object)
   
+  prodFun<-splinefun(x=ts$ssb, y =ts$yield, method = "natural")
+  
+  ts=cbind(ts,pf=prodFun(ts$ssb))
+
   return(list(tseries=merge(ts,vBiomass),curve=eql,refpts=rfs,triangle=triangle,derived=dq))})
 
 
@@ -88,7 +94,12 @@ vBio<-function(rep) {
   bio_M=rep$timeseries$`SmryBio_SX:2_GP:1`
   
   # Calculate vulnerable biomass
-  data.frame(
+  rtn=data.frame(
     year   = rep$timeseries$Yr,
     female = bio_F * sum(sel_F),
-    male  = bio_M * sum(sel_M))}
+    male   =NA)
+  
+  if(!is.null(bio_M)&!is.null(sel_M))
+    rtn$male = bio_M * sum(sel_M)
+
+  return(rtn)}

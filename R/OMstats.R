@@ -66,7 +66,7 @@ getPriors<-function(x){
 
 eqlFn<-function(object,model="bevholtSV"){
   
-  spr0=FLCandy::spr0Yr(object)
+  spr0=spr0Yr(object)
   sr  =as.FLSR(object,model=model)
   sr  =ftmb(sr,s.est    =T,
             s        =0.7, #fishlife(object)["s"],
@@ -90,7 +90,7 @@ eqlFn<-function(object,model="bevholtSV"){
   return(rtn)}
 
 eql2<-function(object, model="bevholtSV", prior_s=NULL, cv_s=NULL, prior_r0=NULL, cv_r0=NULL) {
-  spr0=FLCandy::spr0Yr(object)
+  spr0=spr0Yr(object)
   sr  =as.FLSR(object,model=model)
   sr  =ftmb2(sr, s.est=TRUE,
              s=0.7, # or pass a value or argument
